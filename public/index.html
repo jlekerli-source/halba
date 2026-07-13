@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#efe6d6">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#071014">
+    <title>Halba</title>
+    <link rel="icon" href="/halba-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="commandbar">
+        <div class="brand">
+          <img class="mark" src="/halba-icon.svg" alt="" aria-hidden="true">
+          <div>
+            <h1>Halba</h1>
+            <p>Evidence control plane</p>
+          </div>
+        </div>
+
+        <div id="summary" class="summary" aria-live="polite">
+          <span><small>Projects</small><strong>...</strong></span>
+          <span><small>Evidence</small><strong>...</strong></span>
+          <span><small>Review Flags</small><strong>...</strong></span>
+          <span><small>Stale</small><strong>...</strong></span>
+          <span><small>QA</small><strong>...</strong></span>
+        </div>
+
+        <div id="app-settings" class="command-actions">
+          <label class="searchbox">
+            <span>Search</span>
+            <input id="search" type="search" placeholder="evidence, project, source path">
+          </label>
+          <label class="selectbox">
+            <span>Lane</span>
+            <select id="lane-filter">
+              <option value="all">All lanes</option>
+            </select>
+          </label>
+          <label class="selectbox">
+            <span>Kind</span>
+            <select id="kind-filter">
+              <option value="all">All kinds</option>
+            </select>
+          </label>
+          <button id="export-review" type="button">Export weekly</button>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <nav id="side-menu" class="side-menu" aria-label="Halba menu">
+          <button id="menu-toggle" class="menu-toggle" type="button" aria-expanded="true" aria-label="Collapse menu" title="Collapse menu">
+            <span>☰</span>
+            <strong>Menu</strong>
+          </button>
+          <a class="side-link" href="#infoboard" data-scroll-target="#infoboard" data-menu-section aria-current="page" aria-label="Open board" title="Board"><span>◈</span><strong>Board</strong></a>
+          <button id="projects-toggle" class="side-link" type="button" aria-pressed="true" aria-label="Show or hide projects" title="Projects"><span>▤</span><strong>Projects</strong></button>
+          <a class="side-link" href="#feed" data-scroll-target="#feed" data-menu-section aria-label="Open evidence ledger" title="Evidence"><span>≡</span><strong>Evidence</strong></a>
+          <a class="side-link" href="#review-gate" data-scroll-target="#review-gate" data-menu-section aria-label="Open review gate" title="Review"><span>◇</span><strong>Review</strong></a>
+          <button id="inspector-toggle" class="side-link" type="button" aria-pressed="true" aria-label="Show or hide inspector" title="Inspector"><span>◫</span><strong>Inspector</strong></button>
+          <a class="side-link" href="#review-output" data-scroll-target="#review-output" data-menu-section aria-label="Open weekly export" title="Export"><span>⇩</span><strong>Export</strong></a>
+          <a class="side-link side-settings" href="#app-settings" data-scroll-target="#app-settings" data-menu-section aria-label="Open settings controls" title="Settings"><span>⚙</span><strong>Settings</strong></a>
+        </nav>
+
+        <aside id="project-rail" class="project-rail">
+          <div class="panel-head">
+            <h2>Projects</h2>
+          </div>
+          <div id="project-list" class="project-list">
+            <p class="empty">Loading projects.</p>
+          </div>
+          <div id="source-meta" class="source-meta">
+            <p class="empty">Loading import receipt.</p>
+            <div class="delta-meta delta-loading">
+              <div class="delta-head">
+                <span>Import Delta</span>
+                <strong>loading</strong>
+              </div>
+              <p>Import delta: loading</p>
+              <button class="copy-action delta-copy" type="button" data-copy-delta-detail>Copy details</button>
+            </div>
+            <div class="delta-meta roadmap-meta">
+              <div class="delta-head">
+                <span>Roadmap Target</span>
+                <strong>loading</strong>
+              </div>
+              <p>Loading roadmap target.</p>
+              <button class="copy-action roadmap-copy" type="button" data-copy-roadmap-target>Copy target</button>
+            </div>
+          </div>
+        </aside>
+
+        <section class="main-plane">
+          <section id="infoboard" class="infoboard" aria-live="polite">
+            <div class="board-hero">
+              <span>Proof Pulse</span>
+              <strong>...</strong>
+              <p>Loading proof board.</p>
+            </div>
+          </section>
+
+          <section id="review-gate" class="review-gate" aria-live="polite">
+            <div class="gate-head">
+              <h2>Review Gate</h2>
+              <span class="gate-actions">
+                <strong class="gate-status gate-Review">Loading</strong>
+              </span>
+            </div>
+            <p class="empty">Loading review gate.</p>
+          </section>
+
+          <section class="agent-strip">
+            <div class="strip-head">
+              <h2>Handoff Receipts</h2>
+              <span id="agent-count">Loading receipts</span>
+            </div>
+            <div id="agent-list" class="agent-list">
+              <p class="empty">Loading agent receipts.</p>
+            </div>
+          </section>
+
+          <section class="review-strip">
+            <div class="strip-head">
+              <h2>Review Focus</h2>
+              <span class="strip-actions">
+                <span id="focus-count">Loading focus</span>
+                <button class="copy-action" type="button" data-copy-focus-summary>Copy focus</button>
+                <button class="copy-action" type="button" data-focus-toggle hidden>Show all</button>
+              </span>
+            </div>
+            <div id="focus-list" class="focus-list">
+              <p class="empty">Loading review focus.</p>
+            </div>
+          </section>
+
+          <section class="ledger-panel">
+            <div class="ledger-head">
+              <div>
+                <h2>Evidence Ledger</h2>
+                <p id="ledger-count">Loading rows</p>
+              </div>
+              <span class="ledger-actions">
+                <button class="copy-action" type="button" data-copy-ledger-summary>Copy rows</button>
+                <button id="clear-selection" class="secondary-action" type="button">All projects</button>
+              </span>
+            </div>
+            <div id="feed" class="evidence-ledger">
+              <p class="empty">Loading evidence.</p>
+            </div>
+          </section>
+        </section>
+
+        <aside id="inspector-panel" class="inspector">
+          <section class="inspector-section">
+            <div class="panel-head">
+              <h2>Evidence Detail</h2>
+              <span class="detail-actions">
+                <span id="detail-filter" class="detail-filter" hidden></span>
+                <button class="copy-action" type="button" data-copy-detail-summary>Copy detail</button>
+              </span>
+            </div>
+            <div id="source-detail" class="source-detail">
+              <p class="empty">Loading evidence detail.</p>
+            </div>
+          </section>
+
+          <section class="inspector-section">
+            <div class="panel-head">
+              <h2>Import QA</h2>
+              <span class="qa-actions">
+                <span id="qa-count">Loading QA</span>
+                <button class="copy-action" type="button" data-copy-qa-summary>Copy QA</button>
+              </span>
+            </div>
+            <div id="qa-list" class="qa-list">
+              <p class="empty">Loading import QA.</p>
+            </div>
+          </section>
+
+          <section class="inspector-section export-section">
+            <div class="panel-head">
+              <h2>Weekly Export</h2>
+              <span class="export-actions">
+                <span id="review-scope">Loading scope</span>
+                <button class="copy-action" type="button" data-copy-weekly-export>Copy export</button>
+              </span>
+            </div>
+            <pre id="review-output" tabindex="0">Loading weekly export.</pre>
+          </section>
+        </aside>
+      </section>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

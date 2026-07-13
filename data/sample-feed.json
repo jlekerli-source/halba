@@ -1,0 +1,88 @@
+{
+  "generatedAt": "2026-06-23",
+  "source": "Sample",
+  "projects": [
+    {
+      "id": "sample-research",
+      "name": "Sample Research",
+      "lane": "EXECUTE",
+      "health": "GREEN",
+      "claim": "Validate one source-backed research question.",
+      "lastProofDate": "2026-06-23",
+      "proofWindowDays": 14,
+      "statusFile": "sample/research.md"
+    },
+    {
+      "id": "sample-build",
+      "name": "Sample Build",
+      "lane": "MAINTAIN",
+      "health": "AMBER",
+      "claim": "Keep the demo build reviewable without adding workflow features.",
+      "lastProofDate": "2026-06-22",
+      "proofWindowDays": 7,
+      "statusFile": "sample/build.md"
+    }
+  ],
+  "focus": [
+    {
+      "projectId": "sample-build",
+      "projectName": "Sample Build",
+      "kind": "stop",
+      "text": "Stop adding workflow states until the proof feed is useful.",
+      "path": "sample/build.md#stop"
+    }
+  ],
+  "qa": [
+    {
+      "projectId": "sample-build",
+      "projectName": "Sample Build",
+      "severity": "amber",
+      "kind": "source",
+      "text": "Demo source should be replaced by a real local file in a real importer.",
+      "path": "sample/build.md"
+    }
+  ],
+  "posts": [
+    {
+      "id": "sample-research-status",
+      "projectId": "sample-research",
+      "title": "Sample Research Status",
+      "author": "sample",
+      "createdAt": "2026-06-23T10:00:00.000Z",
+      "body": "Validate one source-backed research question.",
+      "evidence": [
+        {
+          "kind": "status",
+          "label": "Research proof note",
+          "path": "sample/research.md",
+          "status": "GREEN"
+        }
+      ],
+      "replies": [
+        {
+          "id": "sample-research-next",
+          "author": "sample",
+          "createdAt": "2026-06-23T10:05:00.000Z",
+          "body": "Next check: confirm the source path resolves in the importer root."
+        }
+      ]
+    },
+    {
+      "id": "sample-build-status",
+      "projectId": "sample-build",
+      "title": "Sample Build Status",
+      "author": "sample",
+      "createdAt": "2026-06-22T12:00:00.000Z",
+      "body": "Keep the demo build reviewable without adding workflow features.",
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Reviewable demo fixture",
+          "path": "sample/build.md",
+          "status": "VERIFIED"
+        }
+      ],
+      "replies": []
+    }
+  ]
+}

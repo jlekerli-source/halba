@@ -1,0 +1,36 @@
+.DS_Store
+node_modules/
+dist/
+coverage/
+.playwright-cli/
+*.log
+
+# Local credentials
+.env*
+!.env.example
+
+# Private operator data and coordination artifacts
+AGENTS.md
+codex/
+data/seed.json
+data/import-runs.json
+data/agent-updates.json
+output/
+docs/architecture/
+docs/goals/
+docs/superpowers/
+docs/assumptions.md
+docs/external-alpha-checklist.md
+docs/external-decision-point.md
+docs/license-direction.md
+docs/public-artifact-cleanup.md
+docs/roadmap.md
+docs/source-root-boundary.md
+scripts/check-importer.mjs
+scripts/check-agent-updates.mjs
+scripts/check-import-runs.mjs
+scripts/check-import-delta.mjs
+scripts/import-le-brain.mjs
+scripts/import-delta.mjs
+scripts/smoke.mjs
+src/importers/le-brain.js

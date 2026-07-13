@@ -1,0 +1,26 @@
+{
+  "name": "halba",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first evidence control plane for AI-assisted work.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "check": "node scripts/check.mjs && node scripts/check-stale.mjs && node scripts/check-feed-sort.mjs && node scripts/check-review-export.mjs && node scripts/check-source-preview-copy.mjs && node scripts/check-sample-feed.mjs && node scripts/check-view-state.mjs && node scripts/check-public-manifest.mjs && node scripts/audit-public.mjs",
+    "check:data": "node scripts/check.mjs",
+    "check:sort": "node scripts/check-feed-sort.mjs",
+    "check:stale": "node scripts/check-stale.mjs",
+    "check:review": "node scripts/check-review-export.mjs",
+    "check:source-preview": "node scripts/check-source-preview-copy.mjs",
+    "check:agent-updates": "node scripts/check-agent-updates.mjs",
+    "check:sample-feed": "node scripts/check-sample-feed.mjs",
+    "check:public-manifest": "node scripts/check-public-manifest.mjs",
+    "audit:public": "node scripts/audit-public.mjs",
+    "check:view-state": "node scripts/check-view-state.mjs",
+    "package:dry-run": "node scripts/public-package-dry-run.mjs",
+    "smoke": "node scripts/smoke-sample.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

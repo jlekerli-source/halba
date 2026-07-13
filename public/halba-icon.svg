@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Halba</title>
+  <desc id="desc">Halba proof-control icon with an H-shaped evidence graph and verification seal.</desc>
+  <defs>
+    <linearGradient id="bg" x1="16" y1="10" x2="112" y2="118" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0d1d28"/>
+      <stop offset=".5" stop-color="#075e58"/>
+      <stop offset="1" stop-color="#00a98f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(45 0 0 45 96 28)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#81fff0" stop-opacity=".54"/>
+      <stop offset="1" stop-color="#81fff0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="edge" x1="20" y1="14" x2="107" y2="116" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" stop-opacity=".28"/>
+      <stop offset=".56" stop-color="#ffffff" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="34" y1="28" x2="91" y2="96" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#b9fff1"/>
+    </linearGradient>
+    <linearGradient id="seal" x1="82" y1="80" x2="113" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffe8a3"/>
+      <stop offset="1" stop-color="#efa23c"/>
+    </linearGradient>
+    <filter id="tile-shadow" x="-18%" y="-18%" width="136%" height="136%">
+      <feDropShadow dx="0" dy="10" stdDeviation="7" flood-color="#06131a" flood-opacity=".26"/>
+    </filter>
+    <filter id="glyph-shadow" x="-22%" y="-22%" width="144%" height="144%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#041016" flood-opacity=".28"/>
+    </filter>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#bg)" filter="url(#tile-shadow)"/>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#glow)"/>
+  <path d="M22 35c12-12 25-17 42-17 21 0 38 9 49 25v-7c0-12-10-22-22-22H37c-12 0-22 10-22 22v15c2-6 4-11 7-16Z" fill="#ffffff" opacity=".1"/>
+  <rect x="10.5" y="10.5" width="107" height="107" rx="25.5" fill="none" stroke="url(#edge)" stroke-width="3"/>
+  <g fill="none" stroke="#ffffff" stroke-linecap="round" opacity=".12">
+    <path d="M28 97h39"/>
+    <path d="M29 30h70"/>
+    <path d="M28 64h72"/>
+  </g>
+  <g filter="url(#glyph-shadow)">
+    <path d="M38 36v56M86 36v38M38 64h48" fill="none" stroke="#062b2b" stroke-opacity=".18" stroke-width="21" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M38 36v56M86 36v38M38 64h48" fill="none" stroke="url(#mark)" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M47 36h30M47 92h16M47 64h26" fill="none" stroke="#52e5d2" stroke-opacity=".82" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#glyph-shadow)">
+    <circle cx="38" cy="36" r="11" fill="#f7fffc"/>
+    <circle cx="86" cy="36" r="11" fill="#f7fffc"/>
+    <circle cx="38" cy="92" r="11" fill="#f7fffc"/>
+    <circle cx="86" cy="64" r="9.5" fill="#f7fffc"/>
+    <circle cx="38" cy="36" r="4.1" fill="#075e58"/>
+    <circle cx="86" cy="36" r="4.1" fill="#075e58"/>
+    <circle cx="38" cy="92" r="4.1" fill="#075e58"/>
+    <circle cx="86" cy="64" r="3.5" fill="#075e58"/>
+  </g>
+  <g filter="url(#glyph-shadow)">
+    <circle cx="95" cy="95" r="20" fill="#08232b" fill-opacity=".25"/>
+    <circle cx="95" cy="95" r="16.5" fill="url(#seal)"/>
+    <path d="M88.8 94.2 93.2 99l9.4-10.4" fill="none" stroke="#10252b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
