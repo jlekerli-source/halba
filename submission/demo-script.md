@@ -1,6 +1,6 @@
 # 90-second demo script
 
-The rendered submission film is [`../artifacts/demo/halba-demo.mp4`](../artifacts/demo/halba-demo.mp4): 78 seconds, 1280 × 720, 30 fps, H.264 video with AAC narration and burned-in captions. Its reproducible source is in [`video/`](video/). This script remains the live-demo version.
+The rendered submission film is [`../artifacts/demo/halba-demo.mp4`](../artifacts/demo/halba-demo.mp4): 58 seconds, 1280 × 720, 30 fps, H.264 video with aligned AAC narration, an original sound bed, and burned-in captions. Its reproducible source is in [`video/`](video/). This script remains the longer live-demo version.
 
 ## 0:00–0:12 — The expensive question
 

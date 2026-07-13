@@ -2,7 +2,7 @@
 
 - Date: 2026-07-13
 - Browser: Chromium through Playwright CLI
-- Desktop viewport: 1440 × 1000
+- Desktop viewport: 1440 × 960
 - Mobile viewport: 390 × 844
 
 ## Surfaces inspected
@@ -25,6 +25,12 @@ The pre-event dashboard made evidence available but did not stage a judge-readab
 
 The first final-state capture pass revealed black masks in loading, diff, and completed-review screenshots because they were taken during a browser view transition. Those images were rejected. The states were recaptured after animation settlement and visually reinspected. The checked-in screenshots contain no transition masks.
 
+### Round 3 — proof-glyph system and film recut
+
+The final polish pass replaced generic letters, arrows, and punctuation with a consistent stroke-icon family for claims, sources, diffs, receipts, guards, verdicts, and human decisions. Onboarding now introduces a four-step claim → source → guard → human proof trace, which becomes the signature motion system in the film. The mobile trace was changed from a clipped four-column strip to a deliberate 2 × 2 layout.
+
+The earlier 78-second film was rejected as too static. Its replacement is a 58-second, eight-shot composition with a contradiction cold-open, animated proof packet, actual app surface, model-versus-receipt override, exact-source magnification, human-decision payoff, eval frame, and trace outro. Eight frames were extracted from the encoded MP4 and inspected. Narration was generated per scene and aligned to the timeline; an original synthesized bed and transition pulse were mixed to −16.0 LUFS integrated / −1.4 dB true peak.
+
 ## Result
 
 - The onboarding question and primary recorded-demo action are legible in the first viewport.
@@ -34,6 +40,7 @@ The first final-state capture pass revealed black masks in loading, diff, and co
 - The completed state makes zero remaining review gates explicit and preserves access to the rest of the graph.
 - The mobile source view preserves the proof trail and human action targets without horizontal page overflow; long code remains contained in its source panel.
 - The normal onboarding-to-recorded-proof path produced zero console errors or warnings. The optional-live error test produced one expected failed HTTP request and a recoverable product state.
+- Headings use balanced wrapping, body copy uses pretty wrapping, numeric dashboard values use tabular figures, nested surfaces use concentric radii, interactive controls retain at least 40-pixel targets, and reduced-motion users bypass decorative animation.
 
 ## Accepted artifacts
 

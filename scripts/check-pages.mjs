@@ -24,9 +24,9 @@ try {
   assert.equal(Object.keys(packet.sources).length, 6);
   assert.ok(packet.sources["diffs/stale-review-clock.patch"].lines.includes("+  now = new Date()"));
   assert.ok(!JSON.stringify(packet).includes("/Users/"));
-  assert.ok(video.length > 10_000_000, "demo video is unexpectedly small");
+  assert.ok(video.length > 5_000_000, "demo video is unexpectedly small");
   assert.equal(video.subarray(4, 8).toString("ascii"), "ftyp");
-  assert.ok(poster.size > 500_000, "demo poster is unexpectedly small");
+  assert.ok(poster.size > 150_000, "demo poster is unexpectedly small");
 
   console.log("check passed: Pages preserves the six-source proof workflow and demo film");
 } finally {

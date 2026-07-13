@@ -105,17 +105,26 @@ function renderOnboarding() {
     <section class="onboarding">
       <div class="onboarding-copy">
         <p class="eyebrow">Local-first evidence control plane</p>
-        <h1>Can this agent claim<br>pass human review?</h1>
-        <p class="lede">Halba turns a completion report, source files, and run receipts into a traceable proof graph. GPT-5.6 extracts the claim boundary. Deterministic guards decide what the evidence can actually prove.</p>
+        <h1>Agent says “done.”<br><span>Halba asks for proof.</span></h1>
+        <p class="lede">Turn completion reports, diffs, source files, and run receipts into a traceable proof graph. GPT-5.6 finds the claim boundary; deterministic guards decide what the bytes can prove.</p>
+
+        <ol class="proof-trace" aria-label="How Halba evaluates a claim">
+          <li>${icon("claim")}<span><strong>Claim</strong><small>Extract the assertion</small></span></li>
+          <li>${icon("source")}<span><strong>Source</strong><small>Open exact lines</small></span></li>
+          <li>${icon("guard")}<span><strong>Guard</strong><small>Check actual facts</small></span></li>
+          <li>${icon("human")}<span><strong>Human</strong><small>Decide the boundary</small></span></li>
+        </ol>
 
         <div class="onboarding-actions">
           <button class="button button-primary button-large" type="button" data-run-mode="recorded">
-            Review the public run
+            ${icon("play", "button-icon")}<span class="button-copy"><strong>Review the public run</strong>
             <span>Recorded, deterministic demo</span>
+            </span>
           </button>
           <button class="button button-secondary button-large" type="button" data-run-mode="live">
-            Run live GPT-5.6
-            <span>Uses a local API key when configured</span>
+            ${icon("pulse", "button-icon")}<span class="button-copy"><strong>Run live GPT-5.6</strong>
+            <span>Optional in the local runtime</span>
+            </span>
           </button>
         </div>
 
@@ -133,7 +142,7 @@ function renderOnboarding() {
           <strong>${escapeHtml(bundle.id)}</strong>
         </div>
         <div class="packet-title">
-          <span class="packet-glyph" aria-hidden="true">H</span>
+          <span class="packet-glyph" aria-hidden="true">${icon("packet")}</span>
           <div>
             <small>Ready to review</small>
             <h2>${escapeHtml(bundle.title)}</h2>
@@ -143,7 +152,7 @@ function renderOnboarding() {
         <ul class="source-stack">
           ${bundle.sources.map((source, index) => `
             <li style="--source-index:${index}">
-              <span class="source-kind">${escapeHtml(source.kind)}</span>
+              <span class="source-kind">${sourceKindIcon(source.kind)}<em>${escapeHtml(source.kind)}</em></span>
               <strong>${escapeHtml(source.label)}</strong>
               <small>${escapeHtml(source.path)} · ${source.lineCount} lines</small>
             </li>
@@ -163,7 +172,7 @@ function renderLoading() {
   const live = state.activeRunMode === "live";
   return `
     <section class="analysis-state">
-      <div class="analysis-orbit" aria-hidden="true"><span></span><i></i></div>
+      <div class="analysis-orbit" aria-hidden="true"><span></span><i>${icon("guard")}</i></div>
       <p class="eyebrow">${live ? "Live model run" : "Recorded model replay"}</p>
       <h1>${live ? "GPT-5.6 is tracing claims to sources." : "Replaying GPT-5.6 output, then checking every citation."}</h1>
       <p>Deterministic guards remain authoritative for paths, line ranges, freshness, receipts, and explicit contradictions.</p>
@@ -308,7 +317,7 @@ function renderClaimCard(finding, index) {
         ${finding.modelDisagreement ? '<span class="disagreement">Model / guard disagreement</span>' : ""}
         ${decision ? `<span class="decision-pill decision-${escapeHtml(decision.status)}">Human: ${escapeHtml(decision.status)}</span>` : ""}
       </span>
-      <span class="claim-arrow" aria-hidden="true">→</span>
+      <span class="claim-arrow" aria-hidden="true">${icon("arrow")}</span>
     </button>
   `;
 }
@@ -317,7 +326,7 @@ function renderTracePane(finding) {
   if (!finding) {
     return `
       <div class="trace-empty">
-        <span aria-hidden="true">↗</span>
+        <span aria-hidden="true">${icon("trace")}</span>
         <h2>Select a claim</h2>
         <p>Halba will show the exact source, deterministic guard, model boundary, and human decision here.</p>
       </div>
@@ -361,7 +370,7 @@ function renderTracePane(finding) {
       <h3>Deterministic guards</h3>
       ${finding.guardResults.length ? finding.guardResults.map((guard) => `
         <div class="guard-row ${guard.passed ? "guard-pass" : "guard-fail"}">
-          <span>${guard.passed ? "✓" : "!"}</span>
+          <span>${guard.passed ? icon("check") : icon("alert")}</span>
           <p><strong>${escapeHtml(guard.type.replaceAll("_", " "))}</strong>${escapeHtml(guard.explanation)}</p>
         </div>
       `).join("") : '<p class="guard-none">No deterministic guard can settle this subjective claim.</p>'}
@@ -433,7 +442,7 @@ function renderSourcePreview(citation) {
 function renderMissingSource(finding) {
   return `
     <section class="missing-source">
-      <span aria-hidden="true">∅</span>
+      <span aria-hidden="true">${icon("missing")}</span>
       <div>
         <h3>No source supports this claim</h3>
         <p>${escapeHtml(finding.issues[0] || "The evidence packet does not contain a valid citation for this claim.")}</p>
@@ -448,7 +457,7 @@ function renderNoClaims() {
     : "No claims match this view.";
   return `
     <div class="no-claims">
-      <span aria-hidden="true">✓</span>
+      <span aria-hidden="true">${icon("check")}</span>
       <h3>${copy}</h3>
       <p>Choose another filter to inspect the rest of the proof graph.</p>
       <button class="text-action" type="button" data-filter="all">Show all claims</button>
@@ -463,10 +472,52 @@ function filterButton(value, label) {
 function verdictMetric(verdict, count) {
   return `
     <div class="verdict-metric verdict-${verdict}">
-      <span>${verdictLabel(verdict)}</span>
+      <span>${verdictIcon(verdict)}${verdictLabel(verdict)}</span>
       <strong>${count}</strong>
     </div>
   `;
+}
+
+function sourceKindIcon(kind) {
+  const normalized = String(kind || "").toLowerCase();
+  if (normalized.includes("diff") || normalized.includes("patch")) return icon("diff");
+  if (normalized.includes("receipt") || normalized.includes("json")) return icon("receipt");
+  if (normalized.includes("report") || normalized.includes("markdown")) return icon("report");
+  return icon("source");
+}
+
+function verdictIcon(verdict) {
+  return icon({
+    supported: "check",
+    unsupported: "missing",
+    contradictory: "split",
+    stale: "clock",
+    uncertain: "uncertain"
+  }[verdict] || "claim");
+}
+
+function icon(name, className = "glyph") {
+  const paths = {
+    claim: '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="m10.2 10.2 3.6 3.6"/>',
+    source: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5M10 13h5M10 17h5"/>',
+    guard: '<path d="M12 3 5 6v5c0 4.8 2.8 8.1 7 10 4.2-1.9 7-5.2 7-10V6z"/><path d="m9 12 2 2 4-5"/>',
+    human: '<circle cx="12" cy="8" r="3.5"/><path d="M5.5 20c.5-4.2 2.7-6.3 6.5-6.3s6 2.1 6.5 6.3"/>',
+    play: '<path d="m9 7 8 5-8 5Z"/>',
+    pulse: '<path d="M4 12h4l2-6 4 12 2-6h4"/>',
+    packet: '<path d="M5 7.5 12 4l7 3.5v9L12 20l-7-3.5z"/><path d="m5 7.5 7 3.5 7-3.5M12 11v9"/>',
+    arrow: '<path d="M5 12h13M14 7l5 5-5 5"/>',
+    trace: '<circle cx="6" cy="17" r="2"/><circle cx="18" cy="7" r="2"/><path d="M8 16c3-1 4-6 8-8"/>',
+    check: '<path d="m5 12 4 4L19 6"/>',
+    alert: '<path d="M12 4 3.5 20h17zM12 9v5M12 17h.01"/>',
+    missing: '<circle cx="12" cy="12" r="8"/><path d="m7 17 10-10"/>',
+    split: '<path d="M5 6h4c4 0 3 12 7 12h3M16 15l3 3-3 3M5 18h4c2 0 2-3 3-6M16 3l3 3-3 3"/>',
+    clock: '<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>',
+    uncertain: '<path d="M9.5 9a2.8 2.8 0 1 1 4.5 2.2c-1.3.8-2 1.3-2 2.8M12 18h.01"/>',
+    diff: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5M10 12h5M10 16h2M14 16h3"/>',
+    receipt: '<path d="M7 3h10v18l-2-1.5L13 21l-2-1.5L9 21l-2-1.5z"/><path d="M10 8h4M10 12h4"/>',
+    report: '<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>'
+  };
+  return `<svg class="${escapeHtml(className)}" viewBox="0 0 24 24" aria-hidden="true">${paths[name] || paths.claim}</svg>`;
 }
 
 function filteredFindings() {

@@ -11,7 +11,7 @@
 
 ## Product proof
 
-- `artifacts/demo/halba-demo.mp4` — captioned 78-second H.264/AAC product film, inspected from the encoded artifact.
+- `artifacts/demo/halba-demo.mp4` — captioned 58-second H.264/AAC product film, inspected at eight timestamps from the encoded artifact.
 - `artifacts/demo/halba-demo-still.png` — public poster frame.
 - `submission/video/` — isolated, reproducible Remotion source, caption timings, and narration script.
 - `artifacts/screenshots/onboarding-desktop.png` — public bundle onboarding.
@@ -50,7 +50,7 @@ The release gate runs `check`, `smoke`, and `eval` inside the reconstructed tree
 
 The Dockerfile was also built from `dist/halba-public`. The resulting container reached `healthy`, served the UI and six-source bundle, and returned the six-claim recorded proof with four review gates.
 
-The public Pages app was also exercised through replay, the exact stale-clock diff, four local human decisions, the zero-open-review state, and persistence after reload. The hosted MP4 SHA-256 is `e7ddba950409e4beef4b347f2e7458484677562afb690fd0eda50c7130be788c`, matching the accepted render.
+The public Pages app was also exercised through replay, the exact stale-clock diff, four local human decisions, the zero-open-review state, and persistence after reload. The release-candidate MP4 SHA-256 is `1e141f5e492b82735a333aaba56cca4870128cbd45cceb284bd2c8b8cf6186ab`; after deployment, the hosted asset must match this hash before the submission evidence is frozen.
 
 ## Disclosure
 

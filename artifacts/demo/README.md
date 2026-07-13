@@ -1,12 +1,12 @@
 # Demo film evidence
 
-`halba-demo.mp4` is the accepted 78-second Halba Build Week product film. It is rendered from `submission/video/` using the public-safe screenshots in `artifacts/screenshots/`.
+`halba-demo.mp4` is the accepted 58-second Halba Build Week product film. It is rendered from `submission/video/` using the public-safe screenshots in `artifacts/screenshots/`.
 
-- SHA-256: `e7ddba950409e4beef4b347f2e7458484677562afb690fd0eda50c7130be788c`
+- SHA-256: `1e141f5e492b82735a333aaba56cca4870128cbd45cceb284bd2c8b8cf6186ab`
 - Container: MP4
 - Video: H.264, 1280 × 720, 30 fps
 - Audio: AAC, 48 kHz stereo
-- Loudness inspection: −17.17 LUFS integrated, −1.61 dB true peak
-- Runtime: 78.00 seconds
+- Loudness inspection: −16.0 LUFS integrated, −1.4 dB true peak
+- Runtime: 58.10 seconds encoded
 
-`halba-demo-still.png` is the accepted poster. `narration.m4a`, `halba-icon.svg`, and the checked-in Remotion source make the render reproducible. The four `still-*.png` files used during composition review are intentionally not part of the accepted artifact.
+`halba-demo-still.png` is the accepted poster. `narration.m4a`, `sound-bed.wav`, `proof-pulse.wav`, `halba-icon.svg`, and the checked-in Remotion source make the render reproducible. The sound bed and transition pulse were synthesized locally for this film; no third-party music is included.

@@ -1,51 +1,10 @@
 [
-  {
-    "text": "AI agents are getting faster at changing code. But can “done” actually pass human review?",
-    "startMs": 0,
-    "endMs": 7000,
-    "timestampMs": null,
-    "confidence": null
-  },
-  {
-    "text": "Halba turns reports, source files, diffs, and machine receipts into one bounded proof packet.",
-    "startMs": 7000,
-    "endMs": 19000,
-    "timestampMs": null,
-    "confidence": null
-  },
-  {
-    "text": "GPT-5.6 extracts atomic claims and citations. Deterministic guards check the actual bytes.",
-    "startMs": 19000,
-    "endMs": 34000,
-    "timestampMs": null,
-    "confidence": null
-  },
-  {
-    "text": "Open the real patch, exact line range, hash, reasoning boundary, and guard result together.",
-    "startMs": 34000,
-    "endMs": 48000,
-    "timestampMs": null,
-    "confidence": null
-  },
-  {
-    "text": "Unsupported, stale, contradictory, and uncertain claims become focused human review gates.",
-    "startMs": 48000,
-    "endMs": 59000,
-    "timestampMs": null,
-    "confidence": null
-  },
-  {
-    "text": "The public corpus passes nine of nine cases with exact source-grounding precision and recall.",
-    "startMs": 59000,
-    "endMs": 69000,
-    "timestampMs": null,
-    "confidence": null
-  },
-  {
-    "text": "Halba: agent claims in, traceable proof out—and a clear boundary for human judgment.",
-    "startMs": 69000,
-    "endMs": 78000,
-    "timestampMs": null,
-    "confidence": null
-  }
+  {"text":"An agent says the work shipped. But the machine receipt says the proof was recorded. Done is a claim.","startMs":0,"endMs":7000,"timestampMs":null,"confidence":null},
+  {"text":"Halba turns reports, diffs, source files, and run receipts into one bounded evidence packet.","startMs":7000,"endMs":14000,"timestampMs":null,"confidence":null},
+  {"text":"Run the packet through Proof Mode. GPT-5.6 Sol extracts atomic claims and precise citations.","startMs":14000,"endMs":21500,"timestampMs":null,"confidence":null},
+  {"text":"Then deterministic guards check the actual bytes. When model confidence meets a contradictory receipt, the receipt wins.","startMs":21500,"endMs":29500,"timestampMs":null,"confidence":null},
+  {"text":"Open the real patch, exact line range, and hash together. Halba shows what changed, what is verified, and what is stale or unsupported.","startMs":29500,"endMs":39500,"timestampMs":null,"confidence":null},
+  {"text":"Only uncertainty reaches the human gate. Approve, reject, or resolve the reasoning boundary locally.","startMs":39500,"endMs":46500,"timestampMs":null,"confidence":null},
+  {"text":"The public regression corpus passes nine of nine cases, with exact grounding and zero false positives.","startMs":46500,"endMs":53500,"timestampMs":null,"confidence":null},
+  {"text":"Halba. Agent claims in. Traceable proof out.","startMs":53500,"endMs":58000,"timestampMs":null,"confidence":null}
 ]

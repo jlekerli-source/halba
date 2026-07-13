@@ -15,7 +15,7 @@ Evidence:
 - `src/proof/engine.js` — citation validation and deterministic verdict precedence.
 - `scripts/check-openai-adapter.mjs` — request-shape, success, refusal, timeout, and malformed-output coverage.
 - `evals/corpus.json` — nine regression cases across all verdicts and degraded inputs.
-- Film: 00:18–00:49 shows structured inference, deterministic override, and exact evidence.
+- Film: 00:14–00:40 shows the real app, structured inference, deterministic override, and exact evidence.
 
 Honest boundary: the public credential-free demo uses a visibly labeled structured-inference fixture. It proves the shipped inference contract and end-to-end workflow, not a live API request.
 
@@ -33,7 +33,7 @@ Evidence:
 - `artifacts/screenshots/review-resolved-desktop.png` — completed human-review state.
 - `artifacts/screenshots/proof-mobile-source.png` — intentional mobile source view.
 - `submission/visual-qa.md` — two rendered critique rounds and rejected recaptures.
-- Film: 00:00–01:18 presents the complete product story with captions.
+- Film: 00:00–00:58 presents the complete product story with captions and eight distinct visual beats.
 
 ## Potential impact
 

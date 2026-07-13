@@ -24,8 +24,8 @@
   "scripts": {
     "dev": "remotion studio",
     "build": "remotion bundle",
-    "render": "remotion render src/index.ts HalbaBuildWeek ../../artifacts/demo/halba-demo.mp4 --public-dir ../../artifacts --codec h264 --crf 18 --browser-executable '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'",
-    "still": "remotion still src/index.ts HalbaBuildWeek ../../artifacts/demo/halba-demo-still.png --public-dir ../../artifacts --frame 945 --browser-executable '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'",
+    "render": "remotion render src/index.ts HalbaBuildWeek ../../artifacts/demo/halba-demo.mp4 --public-dir ../../artifacts --codec h264 --crf 18 --concurrency=2 --browser-executable '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'",
+    "still": "remotion still src/index.ts HalbaBuildWeek ../../artifacts/demo/halba-demo-still.png --public-dir ../../artifacts --frame 825 --browser-executable '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"
   },

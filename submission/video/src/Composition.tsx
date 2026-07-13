@@ -12,436 +12,276 @@ import {
 import { Captions } from "./Captions";
 
 const colors = {
-  ink: "#121714",
-  paper: "#f7f5ee",
+  ink: "#091815",
+  inkSoft: "#20312c",
+  paper: "#f4f6f1",
   raised: "#fffef9",
-  muted: "#6f756f",
-  teal: "#087e70",
-  red: "#b6382e",
-  amber: "#b66a16",
-  violet: "#6750a4",
+  muted: "#68736d",
+  teal: "#008b79",
+  tealDark: "#05695d",
+  signal: "#65e8ca",
+  red: "#d34a3d",
+  redSoft: "#f6ddd8",
+  amber: "#d98a2b",
+  amberSoft: "#f7e7ca",
+  violet: "#7158bd",
 };
 
 const displayFont = '"Avenir Next Condensed", "Arial Narrow", "Helvetica Neue", sans-serif';
 const bodyFont = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+const monoFont = '"SFMono-Regular", Consolas, monospace';
+const ease = Easing.bezier(0.16, 1, 0.3, 1);
 
-type ProductSceneProps = {
-  duration: number;
-  eyebrow: string;
-  headline: string;
-  supporting: string;
-  screenshot: string;
-  objectPosition?: string;
-  accent?: string;
+const enter = (frame: number, from = 0, duration = 24) =>
+  interpolate(frame, [from, from + duration], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: ease,
+  });
+
+const exit = (frame: number, duration: number, length = 14) =>
+  interpolate(frame, [duration - length, duration], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+type GlyphName = "claim" | "source" | "guard" | "human" | "check" | "split" | "clock" | "receipt" | "diff";
+
+const Glyph: React.FC<{ name: GlyphName; size?: number }> = ({ name, size = 28 }) => {
+  const paths: Record<GlyphName, React.ReactNode> = {
+    claim: <><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="m10.2 10.2 3.6 3.6"/></>,
+    source: <><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5M10 13h5M10 17h5"/></>,
+    guard: <><path d="M12 3 5 6v5c0 4.8 2.8 8.1 7 10 4.2-1.9 7-5.2 7-10V6z"/><path d="m9 12 2 2 4-5"/></>,
+    human: <><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20c.5-4.2 2.7-6.3 6.5-6.3s6 2.1 6.5 6.3"/></>,
+    check: <path d="m5 12 4 4L19 6"/>,
+    split: <><path d="M5 6h4c4 0 3 12 7 12h3M16 15l3 3-3 3M5 18h4c2 0 2-3 3-6M16 3l3 3-3 3"/></>,
+    clock: <><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></>,
+    receipt: <><path d="M7 3h10v18l-2-1.5L13 21l-2-1.5L9 21l-2-1.5z"/><path d="M10 8h4M10 12h4"/></>,
+    diff: <><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5M10 12h5M10 16h2M14 16h3"/></>,
+  };
+  return <svg viewBox="0 0 24 24" style={{ fill: "none", height: size, stroke: "currentColor", strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 1.75, width: size }}>{paths[name]}</svg>;
 };
 
-const GridBackground: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      backgroundColor: colors.paper,
-      backgroundImage:
-        "linear-gradient(rgba(18,23,20,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(18,23,20,.035) 1px, transparent 1px)",
-      backgroundSize: "28px 28px",
-    }}
-  />
-);
+const Background: React.FC<{ dark?: boolean }> = ({ dark = false }) => {
+  const frame = useCurrentFrame();
+  const scan = interpolate(frame, [0, 240], [-180, 1440], { extrapolateRight: "extend" });
+  return <AbsoluteFill style={{
+    backgroundColor: dark ? colors.ink : colors.paper,
+    backgroundImage: dark
+      ? "linear-gradient(rgba(101,232,202,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(101,232,202,.045) 1px, transparent 1px)"
+      : "linear-gradient(rgba(9,24,21,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(9,24,21,.035) 1px, transparent 1px)",
+    backgroundSize: "32px 32px",
+  }}>
+    <div style={{ background: dark ? "linear-gradient(90deg, transparent, rgba(101,232,202,.13), transparent)" : "linear-gradient(90deg, transparent, rgba(0,139,121,.12), transparent)", height: "100%", left: scan, position: "absolute", top: 0, width: 240 }} />
+  </AbsoluteFill>;
+};
 
-const Brand: React.FC<{ inverse?: boolean }> = ({ inverse = false }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-    <Img
-      src={staticFile("demo/halba-icon.svg")}
-      style={{ width: 64, height: 64, borderRadius: 16 }}
-    />
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <strong
-        style={{
-          color: inverse ? colors.paper : colors.ink,
-          fontFamily: displayFont,
-          fontSize: 36,
-          lineHeight: 1,
-        }}
-      >
-        Halba
-      </strong>
-      <span
-        style={{
-          color: inverse ? "rgba(247,245,238,.62)" : colors.muted,
-          fontFamily: bodyFont,
-          fontSize: 15,
-          fontWeight: 800,
-          letterSpacing: 3,
-          textTransform: "uppercase",
-        }}
-      >
-        Proof Mode
-      </span>
+const Brand: React.FC<{ inverse?: boolean; compact?: boolean }> = ({ inverse = false, compact = false }) => (
+  <div style={{ alignItems: "center", display: "flex", gap: compact ? 11 : 15 }}>
+    <Img src={staticFile("demo/halba-icon.svg")} style={{ borderRadius: compact ? 12 : 16, height: compact ? 44 : 60, width: compact ? 44 : 60 }} />
+    <div style={{ display: "grid" }}>
+      <strong style={{ color: inverse ? colors.paper : colors.ink, fontFamily: displayFont, fontSize: compact ? 30 : 38, letterSpacing: -1.3, lineHeight: .9 }}>Halba</strong>
+      <span style={{ color: inverse ? "rgba(244,246,241,.55)" : colors.muted, fontFamily: bodyFont, fontSize: compact ? 11 : 13, fontWeight: 850, letterSpacing: 2.5, marginTop: 6, textTransform: "uppercase" }}>Proof Mode</span>
     </div>
   </div>
 );
 
-const TitleScene: React.FC<{ duration: number }> = ({ duration }) => {
+const SceneLabel: React.FC<{ children: React.ReactNode; dark?: boolean }> = ({ children, dark = false }) => (
+  <span style={{ color: dark ? colors.signal : colors.tealDark, fontFamily: bodyFont, fontSize: 18, fontWeight: 900, letterSpacing: 3.2, textTransform: "uppercase" }}>{children}</span>
+);
+
+const ColdOpen: React.FC<{ duration: number }> = ({ duration }) => {
   const frame = useCurrentFrame();
-  return (
-    <AbsoluteFill style={{ backgroundColor: colors.ink, padding: "70px 86px 108px" }}>
-      <div
-        style={{
-          opacity: interpolate(frame, [0, 22], [0, 1], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          }),
-          translate: `0 ${interpolate(frame, [0, 28], [24, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          })}px`,
-        }}
-      >
-        <Brand inverse />
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flex: 1,
-          flexDirection: "column",
-          justifyContent: "center",
-          maxWidth: 1040,
-          opacity: interpolate(frame, [16, 48, duration - 22, duration], [0, 1, 1, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          }),
-          translate: `0 ${interpolate(frame, [16, 48], [34, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          })}px`,
-        }}
-      >
-        <p
-          style={{
-            color: "#72d1c4",
-            fontFamily: bodyFont,
-            fontSize: 24,
-            fontWeight: 800,
-            letterSpacing: 4,
-            margin: "0 0 26px",
-            textTransform: "uppercase",
-          }}
-        >
-          The expensive question after “done”
-        </p>
-        <h1
-          style={{
-            color: colors.paper,
-            fontFamily: displayFont,
-            fontSize: 112,
-            letterSpacing: -5,
-            lineHeight: 0.92,
-            margin: 0,
-          }}
-        >
-          Can this agent claim
-          <br />
-          pass human review?
+  const stamp = enter(frame, 74, 16);
+  return <AbsoluteFill style={{ color: colors.paper, padding: "54px 72px 98px" }}>
+    <Background dark />
+    <div style={{ opacity: enter(frame, 0, 18), position: "relative" }}><Brand inverse compact /></div>
+    <div style={{ alignItems: "center", display: "grid", flex: 1, gridTemplateColumns: "1.12fr .88fr", gap: 54, opacity: exit(frame, duration), position: "relative" }}>
+      <div>
+        <SceneLabel dark>The expensive word in AI work</SceneLabel>
+        <h1 style={{ fontFamily: displayFont, fontSize: 122, letterSpacing: -5.5, lineHeight: .82, margin: "26px 0 0", opacity: enter(frame, 12, 26), translate: `0 ${interpolate(frame, [12, 38], [30, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: ease })}px` }}>
+          “DONE”
+          <span style={{ color: colors.signal, display: "block" }}>IS A CLAIM.</span>
         </h1>
       </div>
-      <div
-        style={{
-          background: colors.teal,
-          borderRadius: 999,
-          bottom: 54,
-          height: 16,
-          opacity: interpolate(frame, [36, 70], [0, 1], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-          position: "absolute",
-          right: 72,
-          scale: interpolate(frame, [36, 70], [0.2, 1], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          }),
-          width: 220,
-        }}
-      />
-    </AbsoluteFill>
-  );
+      <div style={{ position: "relative" }}>
+        <div style={{ background: colors.raised, borderRadius: 22, boxShadow: "0 30px 80px rgba(0,0,0,.32)", color: colors.ink, opacity: enter(frame, 30, 22), padding: "28px 30px", rotate: "-2deg", translate: `${interpolate(frame, [30, 52], [40, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: ease })}px 0` }}>
+          <span style={{ color: colors.tealDark, fontFamily: bodyFont, fontSize: 14, fontWeight: 900, letterSpacing: 2, textTransform: "uppercase" }}>Agent completion report</span>
+          <p style={{ fontFamily: displayFont, fontSize: 39, fontWeight: 800, letterSpacing: -1.2, lineHeight: 1.05, margin: "20px 0 24px" }}>“The proof analysis was generated by a live GPT-5.6 request.”</p>
+          <code style={{ background: "#e6ebe5", borderRadius: 11, display: "block", fontFamily: monoFont, fontSize: 18, padding: "16px 18px" }}>mode: <b style={{ color: colors.red }}>"recorded"</b></code>
+        </div>
+        <div style={{ background: colors.red, borderRadius: 10, bottom: -32, boxShadow: "0 18px 30px rgba(211,74,61,.3)", color: "white", fontFamily: bodyFont, fontSize: 24, fontWeight: 950, letterSpacing: 3, opacity: stamp, padding: "18px 26px", position: "absolute", right: 18, rotate: `${interpolate(stamp, [0, 1], [8, -4])}deg`, scale: interpolate(stamp, [0, 1], [.7, 1]), textTransform: "uppercase" }}>Contradiction</div>
+      </div>
+    </div>
+  </AbsoluteFill>;
 };
 
-const ProductScene: React.FC<ProductSceneProps> = ({
-  duration,
-  eyebrow,
-  headline,
-  supporting,
-  screenshot,
-  objectPosition = "center",
-  accent = colors.teal,
-}) => {
+const TraceRail: React.FC<{ frame: number; dark?: boolean }> = ({ frame, dark = false }) => {
+  const steps: Array<[GlyphName, string, string]> = [
+    ["claim", "Claim", "Extract"],
+    ["source", "Source", "Locate"],
+    ["guard", "Guard", "Verify"],
+    ["human", "Human", "Decide"],
+  ];
+  const width = interpolate(frame, [18, 94], [0, 100], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: ease });
+  return <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", marginTop: 44, position: "relative" }}>
+    <div style={{ background: dark ? "rgba(101,232,202,.18)" : "rgba(9,24,21,.12)", height: 2, left: "9%", position: "absolute", right: "9%", top: 31 }} />
+    <div style={{ background: `linear-gradient(90deg, ${colors.teal}, ${colors.signal})`, height: 3, left: "9%", position: "absolute", top: 31, width: `${width * .82}%` }} />
+    {steps.map(([name, title, verb], index) => {
+      const progress = enter(frame, 14 + index * 18, 18);
+      return <div key={title} style={{ alignItems: "center", color: dark ? colors.paper : colors.ink, display: "flex", flexDirection: "column", opacity: progress, position: "relative", translate: `0 ${interpolate(progress, [0, 1], [18, 0])}px` }}>
+        <div style={{ alignItems: "center", background: index <= Math.floor((width / 100) * 4) ? colors.teal : dark ? colors.inkSoft : colors.raised, borderRadius: 999, boxShadow: `0 0 0 2px ${dark ? colors.ink : colors.paper}, 0 0 0 3px ${dark ? "rgba(101,232,202,.32)" : "rgba(9,24,21,.14)"}`, color: index <= Math.floor((width / 100) * 4) ? "white" : colors.tealDark, display: "flex", height: 64, justifyContent: "center", width: 64 }}><Glyph name={name} size={30} /></div>
+        <strong style={{ fontFamily: bodyFont, fontSize: 17, marginTop: 17 }}>{title}</strong>
+        <span style={{ color: dark ? "rgba(244,246,241,.52)" : colors.muted, fontFamily: monoFont, fontSize: 13, marginTop: 5 }}>{verb}</span>
+      </div>;
+    })}
+  </div>;
+};
+
+const PacketScene: React.FC<{ duration: number }> = ({ duration }) => {
   const frame = useCurrentFrame();
-  return (
-    <AbsoluteFill style={{ backgroundColor: colors.paper }}>
-      <GridBackground />
-      <div
-        style={{
-          inset: "46px 56px 102px",
-          overflow: "hidden",
-          position: "absolute",
-          borderRadius: 28,
-          backgroundColor: colors.raised,
-          boxShadow: "0 28px 80px rgba(18,23,20,.22), 0 0 0 1px rgba(18,23,20,.12)",
-          opacity: interpolate(frame, [0, 18, duration - 18, duration], [0, 1, 1, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-          scale: interpolate(frame, [0, duration], [0.985, 1.025], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          }),
-        }}
-      >
-        <Img
-          src={staticFile(`screenshots/${screenshot}`)}
-          style={{
-            height: "100%",
-            objectFit: "cover",
-            objectPosition,
-            width: "100%",
-          }}
-        />
-        <AbsoluteFill
-          style={{
-            background: "linear-gradient(90deg, rgba(18,23,20,.93) 0%, rgba(18,23,20,.83) 31%, rgba(18,23,20,.08) 62%, transparent 78%)",
-          }}
-        />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 22,
-            left: 54,
-            maxWidth: 480,
-            position: "absolute",
-            top: 54,
-            opacity: interpolate(frame, [10, 38], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-              easing: Easing.bezier(0.16, 1, 0.3, 1),
-            }),
-            translate: `${interpolate(frame, [10, 38], [-34, 0], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-              easing: Easing.bezier(0.16, 1, 0.3, 1),
-            })}px 0`,
-          }}
-        >
-          <p
-            style={{
-              color: "#76d4c6",
-              fontFamily: bodyFont,
-              fontSize: 22,
-              fontWeight: 850,
-              letterSpacing: 3.4,
-              margin: 0,
-              textTransform: "uppercase",
-            }}
-          >
-            {eyebrow}
-          </p>
-          <h2
-            style={{
-              color: colors.paper,
-              fontFamily: displayFont,
-              fontSize: 66,
-              letterSpacing: -2,
-              lineHeight: 0.96,
-              margin: 0,
-            }}
-          >
-            {headline}
-          </h2>
-          <p
-            style={{
-              color: "rgba(247,245,238,.78)",
-              fontFamily: bodyFont,
-              fontSize: 27,
-              lineHeight: 1.34,
-              margin: 0,
-              maxWidth: 430,
-            }}
-          >
-            {supporting}
-          </p>
-          <span style={{ background: accent, borderRadius: 999, height: 8, marginTop: 4, width: 112 }} />
+  const files: Array<[GlyphName, string, string]> = [
+    ["source", "completion.md", "8 lines"],
+    ["diff", "stale-clock.patch", "29 lines"],
+    ["receipt", "model-run.json", "SHA-256"],
+  ];
+  return <AbsoluteFill style={{ padding: "52px 72px 104px" }}>
+    <Background />
+    <div style={{ display: "flex", justifyContent: "space-between", opacity: exit(frame, duration), position: "relative" }}>
+      <div style={{ maxWidth: 760 }}>
+        <SceneLabel>One bounded packet</SceneLabel>
+        <h2 style={{ color: colors.ink, fontFamily: displayFont, fontSize: 86, letterSpacing: -3.2, lineHeight: .92, margin: "20px 0 0", opacity: enter(frame, 4, 24) }}>Evidence, not<br />another conversation.</h2>
+      </div>
+      <Brand compact />
+    </div>
+    <TraceRail frame={frame} />
+    <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(3, 1fr)", marginTop: 40, opacity: exit(frame, duration), position: "relative" }}>
+      {files.map(([name, file, meta], index) => <div key={file} style={{ alignItems: "center", background: colors.raised, borderRadius: 18, boxShadow: "0 0 0 1px rgba(9,24,21,.08), 0 18px 30px -24px rgba(9,24,21,.45)", display: "flex", gap: 16, opacity: enter(frame, 60 + index * 10, 20), padding: "20px 22px", translate: `0 ${interpolate(enter(frame, 60 + index * 10, 20), [0, 1], [24, 0])}px` }}>
+        <span style={{ alignItems: "center", background: "#d3ebe4", borderRadius: 12, color: colors.tealDark, display: "flex", height: 48, justifyContent: "center", width: 48 }}><Glyph name={name} size={24} /></span>
+        <span style={{ display: "grid" }}><strong style={{ color: colors.ink, fontFamily: bodyFont, fontSize: 17 }}>{file}</strong><small style={{ color: colors.muted, fontFamily: monoFont, fontSize: 13, marginTop: 5 }}>{meta}</small></span>
+      </div>)}
+    </div>
+  </AbsoluteFill>;
+};
+
+const AppScene: React.FC<{ duration: number }> = ({ duration }) => {
+  const frame = useCurrentFrame();
+  return <AbsoluteFill style={{ padding: "42px 52px 100px" }}>
+    <Background />
+    <div style={{ alignItems: "center", display: "flex", gap: 24, justifyContent: "space-between", opacity: exit(frame, duration), position: "relative" }}>
+      <div><SceneLabel>Run the evidence</SceneLabel><h2 style={{ color: colors.ink, fontFamily: displayFont, fontSize: 66, letterSpacing: -2.5, lineHeight: .9, margin: "12px 0 0" }}>The workflow is the demo.</h2></div>
+      <div style={{ background: "#d3ebe4", borderRadius: 999, color: colors.tealDark, fontFamily: monoFont, fontSize: 14, fontWeight: 800, padding: "13px 18px" }}>GPT-5.6 Sol · max reasoning · store off</div>
+    </div>
+    <div style={{ background: colors.raised, borderRadius: 22, boxShadow: "0 28px 80px rgba(9,24,21,.2), 0 0 0 1px rgba(9,24,21,.1)", height: 470, marginTop: 28, opacity: enter(frame, 8, 22) * exit(frame, duration), overflow: "hidden", position: "relative", scale: interpolate(frame, [0, duration], [.99, 1.018], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: ease }) }}>
+      <Img src={staticFile("screenshots/onboarding-desktop.png")} style={{ height: "100%", objectFit: "cover", objectPosition: "center 46%", width: "100%" }} />
+      <div style={{ background: `linear-gradient(90deg, ${colors.teal}, ${colors.signal})`, bottom: 0, height: 5, left: 0, width: `${interpolate(frame, [12, duration - 20], [8, 100], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}%`, position: "absolute" }} />
+    </div>
+  </AbsoluteFill>;
+};
+
+const OverrideScene: React.FC<{ duration: number }> = ({ duration }) => {
+  const frame = useCurrentFrame();
+  const override = enter(frame, 72, 18);
+  return <AbsoluteFill style={{ color: colors.paper, padding: "48px 70px 104px" }}>
+    <Background dark />
+    <div style={{ display: "flex", justifyContent: "space-between", opacity: exit(frame, duration), position: "relative" }}><div><SceneLabel dark>Inference meets authority</SceneLabel><h2 style={{ fontFamily: displayFont, fontSize: 78, letterSpacing: -3, lineHeight: .9, margin: "16px 0 0" }}>GPT proposes.<br /><span style={{ color: colors.signal }}>Halba checks.</span></h2></div><Brand inverse compact /></div>
+    <div style={{ alignItems: "stretch", display: "grid", gap: 22, gridTemplateColumns: "1fr 76px 1fr", marginTop: 40, opacity: exit(frame, duration), position: "relative" }}>
+      <div style={{ background: "rgba(255,255,255,.07)", borderRadius: 22, boxShadow: "0 0 0 1px rgba(255,255,255,.09)", opacity: enter(frame, 18, 22), padding: "26px 28px" }}>
+        <span style={{ alignItems: "center", color: colors.signal, display: "flex", fontFamily: bodyFont, fontSize: 14, fontWeight: 900, gap: 9, letterSpacing: 2, textTransform: "uppercase" }}><Glyph name="claim" size={22} /> Model assessment</span>
+        <p style={{ fontFamily: displayFont, fontSize: 42, letterSpacing: -1.4, lineHeight: 1.02, margin: "23px 0" }}>“Generated by a live GPT-5.6 request.”</p>
+        <div style={{ alignItems: "center", display: "flex", justifyContent: "space-between" }}><span style={{ color: "rgba(244,246,241,.55)", fontFamily: monoFont, fontSize: 14 }}>confidence</span><strong style={{ color: colors.signal, fontFamily: displayFont, fontSize: 44 }}>100%</strong></div>
+      </div>
+      <div style={{ alignItems: "center", display: "flex", justifyContent: "center" }}><div style={{ background: colors.teal, borderRadius: 999, height: 64, scale: enter(frame, 48, 16), width: 8 }} /></div>
+      <div style={{ background: colors.raised, borderRadius: 22, color: colors.ink, opacity: enter(frame, 38, 22), padding: "26px 28px" }}>
+        <span style={{ alignItems: "center", color: colors.tealDark, display: "flex", fontFamily: bodyFont, fontSize: 14, fontWeight: 900, gap: 9, letterSpacing: 2, textTransform: "uppercase" }}><Glyph name="receipt" size={22} /> Machine receipt</span>
+        <code style={{ background: "#e6ebe5", borderRadius: 12, display: "block", fontFamily: monoFont, fontSize: 20, lineHeight: 1.65, marginTop: 23, padding: "20px" }}>{'{'}<br />&nbsp;&nbsp;"model": "gpt-5.6-sol",<br />&nbsp;&nbsp;"mode": <b style={{ color: colors.red }}>"recorded"</b><br />{'}'}</code>
+        <span style={{ color: colors.tealDark, display: "block", fontFamily: monoFont, fontSize: 13, marginTop: 18 }}>exact quote · hash verified</span>
+      </div>
+    </div>
+    <div style={{ alignItems: "center", background: colors.red, borderRadius: 999, color: "white", display: "flex", fontFamily: bodyFont, fontSize: 14, fontWeight: 950, gap: 8, left: 892, letterSpacing: 2, opacity: override, padding: "11px 16px", position: "absolute", scale: interpolate(override, [0, 1], [.7, 1]), textTransform: "uppercase", top: 226 }}><Glyph name="split" size={19} /> Contradiction</div>
+  </AbsoluteFill>;
+};
+
+const SourceScene: React.FC<{ duration: number }> = ({ duration }) => {
+  const frame = useCurrentFrame();
+  const focus = enter(frame, 38, 24);
+  return <AbsoluteFill style={{ padding: "44px 54px 100px" }}>
+    <Background />
+    <div style={{ display: "flex", justifyContent: "space-between", opacity: exit(frame, duration), position: "relative" }}><div><SceneLabel>Open the actual change</SceneLabel><h2 style={{ color: colors.ink, fontFamily: displayFont, fontSize: 68, letterSpacing: -2.6, lineHeight: .9, margin: "12px 0 0" }}>The proof is the source.</h2></div><div style={{ alignItems: "center", color: colors.tealDark, display: "flex", fontFamily: monoFont, fontSize: 14, gap: 8 }}><Glyph name="diff" size={22} />diffs/stale-review-clock.patch · L18–L27</div></div>
+    <div style={{ background: colors.raised, borderRadius: 22, boxShadow: "0 28px 72px rgba(9,24,21,.2)", height: 486, marginTop: 26, opacity: enter(frame, 5, 20) * exit(frame, duration), overflow: "hidden", position: "relative" }}>
+      <Img src={staticFile("screenshots/proof-diff-desktop.png")} style={{ height: "100%", objectFit: "cover", objectPosition: "right top", scale: interpolate(frame, [0, duration], [1.03, 1.1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: ease }), width: "100%" }} />
+      <div style={{ background: "rgba(255,254,249,.97)", borderRadius: 16, boxShadow: "0 18px 50px rgba(9,24,21,.28), 0 0 0 2px rgba(0,139,121,.28)", left: 48, opacity: focus, padding: "20px 22px", position: "absolute", top: 176, translate: `${interpolate(focus, [0, 1], [-24, 0])}px 0`, width: 520 }}>
+        <span style={{ color: colors.tealDark, fontFamily: bodyFont, fontSize: 13, fontWeight: 900, letterSpacing: 2, textTransform: "uppercase" }}>Exact source boundary</span>
+        <code style={{ color: colors.ink, display: "block", fontFamily: monoFont, fontSize: 17, lineHeight: 1.6, marginTop: 12 }}><b style={{ color: colors.teal }}>+ now = new Date()</b><br />+ staleBefore = subtractHours(now, 48)<br />+ compare(receipt.generatedAt, staleBefore)</code>
+        <div style={{ alignItems: "center", color: colors.tealDark, display: "flex", fontFamily: monoFont, fontSize: 12, gap: 8, marginTop: 14 }}><Glyph name="check" size={18} /> exact quote · sha256 verified</div>
+      </div>
+    </div>
+  </AbsoluteFill>;
+};
+
+const HumanScene: React.FC<{ duration: number }> = ({ duration }) => {
+  const frame = useCurrentFrame();
+  const resolve = enter(frame, 58, 18);
+  return <AbsoluteFill style={{ color: colors.paper, padding: "50px 72px 104px" }}>
+    <Background dark />
+    <div style={{ display: "flex", justifyContent: "space-between", opacity: exit(frame, duration), position: "relative" }}><div><SceneLabel dark>Human review stays human</SceneLabel><h2 style={{ fontFamily: displayFont, fontSize: 78, letterSpacing: -3, lineHeight: .9, margin: "16px 0 0" }}>Only the boundary<br />needs your judgment.</h2></div><Brand inverse compact /></div>
+    <div style={{ alignItems: "center", display: "grid", gap: 40, gridTemplateColumns: "1.2fr .8fr", marginTop: 44, opacity: exit(frame, duration), position: "relative" }}>
+      <div style={{ background: colors.raised, borderRadius: 22, color: colors.ink, opacity: enter(frame, 16, 22), padding: "27px 30px" }}>
+        <span style={{ color: colors.violet, fontFamily: bodyFont, fontSize: 14, fontWeight: 900, letterSpacing: 2, textTransform: "uppercase" }}>Uncertain · 45% confidence</span>
+        <p style={{ fontFamily: displayFont, fontSize: 45, letterSpacing: -1.5, lineHeight: 1, margin: "20px 0 26px" }}>“The submission is unquestionably judge-ready.”</p>
+        <div style={{ display: "grid", gap: 9, gridTemplateColumns: "repeat(3, 1fr)" }}>
+          {["Approve", "Reject", "Resolve"].map((label) => <span key={label} style={{ background: label === "Resolve" && resolve > .5 ? colors.violet : "#edf0eb", borderRadius: 10, color: label === "Resolve" && resolve > .5 ? "white" : colors.ink, fontFamily: bodyFont, fontSize: 15, fontWeight: 850, padding: "15px", textAlign: "center" }}>{label}</span>)}
         </div>
       </div>
-    </AbsoluteFill>
-  );
+      <div style={{ alignItems: "center", display: "flex", flexDirection: "column", opacity: resolve, textAlign: "center" }}>
+        <div style={{ alignItems: "center", background: colors.signal, borderRadius: 999, boxShadow: "0 0 0 12px rgba(101,232,202,.12), 0 20px 50px rgba(101,232,202,.18)", color: colors.ink, display: "flex", height: 120, justifyContent: "center", scale: interpolate(resolve, [0, 1], [.65, 1]), width: 120 }}><Glyph name="human" size={52} /></div>
+        <strong style={{ fontFamily: displayFont, fontSize: 42, letterSpacing: -1.2, marginTop: 28 }}>Human: resolved</strong>
+        <span style={{ color: "rgba(244,246,241,.55)", fontFamily: monoFont, fontSize: 14, marginTop: 10 }}>stored only in this browser</span>
+      </div>
+    </div>
+  </AbsoluteFill>;
 };
 
 const EvalScene: React.FC<{ duration: number }> = ({ duration }) => {
   const frame = useCurrentFrame();
-  const metrics = [
-    ["9 / 9", "golden cases"],
-    ["100%", "verdict accuracy"],
-    ["100%", "grounding precision"],
-    ["0%", "false positives"],
-  ];
-  return (
-    <AbsoluteFill style={{ backgroundColor: colors.paper, padding: "58px 74px 112px" }}>
-      <GridBackground />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          position: "relative",
-          opacity: interpolate(frame, [0, 20, duration - 18, duration], [0, 1, 1, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-        }}
-      >
-        <div style={{ maxWidth: 760 }}>
-          <p style={{ color: colors.teal, fontFamily: bodyFont, fontSize: 22, fontWeight: 850, letterSpacing: 3.2, margin: "0 0 18px", textTransform: "uppercase" }}>
-            Repeatable evals
-          </p>
-          <h2 style={{ color: colors.ink, fontFamily: displayFont, fontSize: 82, letterSpacing: -3, lineHeight: 0.95, margin: 0 }}>
-            Proof that can fail
-            <br />
-            before a judge sees it.
-          </h2>
-        </div>
-        <Brand />
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 18, marginTop: 54, position: "relative" }}>
-        {metrics.map(([value, label], index) => (
-          <div
-            key={label}
-            style={{
-              background: index === 0 ? colors.ink : colors.raised,
-              border: `1px solid ${index === 0 ? colors.ink : "rgba(18,23,20,.12)"}`,
-              borderRadius: 24,
-              minHeight: 210,
-              padding: "30px 28px",
-              opacity: interpolate(frame, [24 + index * 8, 52 + index * 8], [0, 1], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-                easing: Easing.bezier(0.16, 1, 0.3, 1),
-              }),
-              translate: `0 ${interpolate(frame, [24 + index * 8, 52 + index * 8], [28, 0], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-                easing: Easing.bezier(0.16, 1, 0.3, 1),
-              })}px`,
-            }}
-          >
-            <strong style={{ color: index === 0 ? "#76d4c6" : colors.teal, display: "block", fontFamily: displayFont, fontSize: 78, lineHeight: 1 }}>
-              {value}
-            </strong>
-            <span style={{ color: index === 0 ? "rgba(247,245,238,.7)" : colors.muted, display: "block", fontFamily: bodyFont, fontSize: 24, fontWeight: 750, lineHeight: 1.2, marginTop: 22 }}>
-              {label}
-            </span>
-          </div>
-        ))}
-      </div>
-      <p style={{ bottom: 136, color: colors.muted, fontFamily: bodyFont, fontSize: 22, margin: 0, position: "absolute" }}>
-        Replay metrics validate the adjudication contract—not unmeasured live-model quality.
-      </p>
-    </AbsoluteFill>
-  );
+  const metrics = [["9 / 9", "golden cases"], ["100%", "verdict accuracy"], ["100%", "grounding precision"], ["0", "false positives"]];
+  return <AbsoluteFill style={{ padding: "54px 70px 104px" }}>
+    <Background />
+    <div style={{ display: "flex", justifyContent: "space-between", opacity: exit(frame, duration), position: "relative" }}><div><SceneLabel>Repeatable evaluation</SceneLabel><h2 style={{ color: colors.ink, fontFamily: displayFont, fontSize: 76, letterSpacing: -3, lineHeight: .9, margin: "15px 0 0" }}>Proof that is allowed to fail.</h2></div><Brand compact /></div>
+    <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(4, 1fr)", marginTop: 56, opacity: exit(frame, duration), position: "relative" }}>
+      {metrics.map(([value, label], index) => { const p = enter(frame, 12 + index * 9, 20); return <div key={label} style={{ background: index === 0 ? colors.ink : colors.raised, borderRadius: 22, boxShadow: "0 0 0 1px rgba(9,24,21,.08)", minHeight: 230, opacity: p, padding: "30px 26px", translate: `0 ${interpolate(p, [0, 1], [30, 0])}px` }}><strong style={{ color: index === 0 ? colors.signal : colors.tealDark, display: "block", fontFamily: displayFont, fontSize: 74, letterSpacing: -3, lineHeight: 1 }}>{value}</strong><span style={{ color: index === 0 ? "rgba(244,246,241,.6)" : colors.muted, display: "block", fontFamily: bodyFont, fontSize: 19, fontWeight: 800, lineHeight: 1.25, marginTop: 24 }}>{label}</span></div>; })}
+    </div>
+    <p style={{ bottom: 114, color: colors.muted, fontFamily: bodyFont, fontSize: 16, margin: 0, position: "absolute" }}>Replay metrics test the shipped adjudication contract. Live-model quality is disclosed separately.</p>
+  </AbsoluteFill>;
 };
 
-const OutroScene: React.FC<{ duration: number }> = ({ duration }) => {
+const Outro: React.FC<{ duration: number }> = ({ duration }) => {
   const frame = useCurrentFrame();
-  return (
-    <AbsoluteFill style={{ alignItems: "center", backgroundColor: colors.ink, justifyContent: "center", padding: "70px 90px 112px" }}>
-      <div
-        style={{
-          alignItems: "center",
-          display: "flex",
-          flexDirection: "column",
-          opacity: interpolate(frame, [0, 24, duration - 16, duration], [0, 1, 1, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-          textAlign: "center",
-        }}
-      >
-        <Brand inverse />
-        <h2 style={{ color: colors.paper, fontFamily: displayFont, fontSize: 92, letterSpacing: -4, lineHeight: 0.94, margin: "48px 0 28px" }}>
-          Agent claims in.
-          <br />
-          Traceable proof out.
-        </h2>
-        <p style={{ color: "rgba(247,245,238,.68)", fontFamily: bodyFont, fontSize: 30, lineHeight: 1.3, margin: 0 }}>
-          jlekerli-source.github.io/halba
-        </p>
-      </div>
-    </AbsoluteFill>
-  );
+  return <AbsoluteFill style={{ alignItems: "center", color: colors.paper, justifyContent: "center", padding: "60px 90px 104px", textAlign: "center" }}>
+    <Background dark />
+    <div style={{ opacity: enter(frame, 0, 20) * exit(frame, duration, 10), position: "relative" }}>
+      <Brand inverse />
+      <TraceRail frame={frame} dark />
+      <h2 style={{ fontFamily: displayFont, fontSize: 86, letterSpacing: -3.8, lineHeight: .9, margin: "38px 0 0" }}>Agent claims in.<br /><span style={{ color: colors.signal }}>Traceable proof out.</span></h2>
+      <p style={{ color: "rgba(244,246,241,.6)", fontFamily: monoFont, fontSize: 20, margin: "28px 0 0" }}>jlekerli-source.github.io/halba</p>
+    </div>
+  </AbsoluteFill>;
 };
 
 export const HalbaBuildWeek: React.FC = () => {
   const { fps } = useVideoConfig();
-  return (
-    <AbsoluteFill>
-      <Sequence durationInFrames={7 * fps}>
-        <TitleScene duration={7 * fps} />
-      </Sequence>
-      <Sequence from={7 * fps} durationInFrames={12 * fps}>
-        <ProductScene
-          duration={12 * fps}
-          eyebrow="One bounded packet"
-          headline="Evidence, not another chat."
-          supporting="Reports, diffs, source files, and machine receipts stay local, hashed, and line-addressable."
-          screenshot="onboarding-desktop.png"
-          objectPosition="center"
-        />
-      </Sequence>
-      <Sequence from={19 * fps} durationInFrames={15 * fps}>
-        <ProductScene
-          duration={15 * fps}
-          eyebrow="Inference meets authority"
-          headline="GPT proposes. Halba checks."
-          supporting="GPT-5.6 extracts claims and citations. Deterministic guards own exact facts and can override model confidence."
-          screenshot="proof-desktop.png"
-          objectPosition="center top"
-          accent={colors.red}
-        />
-      </Sequence>
-      <Sequence from={34 * fps} durationInFrames={14 * fps}>
-        <ProductScene
-          duration={14 * fps}
-          eyebrow="Open the actual change"
-          headline="The proof is the source."
-          supporting="The real Build Week stale-clock patch opens at the exact line range beside its hash, boundary, and guard result."
-          screenshot="proof-diff-desktop.png"
-          objectPosition="right top"
-          accent={colors.amber}
-        />
-      </Sequence>
-      <Sequence from={48 * fps} durationInFrames={11 * fps}>
-        <ProductScene
-          duration={11 * fps}
-          eyebrow="Human review stays human"
-          headline="Resolve only what needs judgment."
-          supporting="Approve, reject, or resolve locally. Halba keeps every unsupported, stale, contradictory, and uncertain claim visible."
-          screenshot="review-resolved-desktop.png"
-          objectPosition="center top"
-          accent={colors.violet}
-        />
-      </Sequence>
-      <Sequence from={59 * fps} durationInFrames={10 * fps}>
-        <EvalScene duration={10 * fps} />
-      </Sequence>
-      <Sequence from={69 * fps} durationInFrames={9 * fps}>
-        <OutroScene duration={9 * fps} />
-      </Sequence>
-      <Audio src={staticFile("demo/narration.m4a")} volume={1} />
-      <Captions />
-    </AbsoluteFill>
-  );
+  return <AbsoluteFill>
+    <Sequence durationInFrames={7 * fps}><ColdOpen duration={7 * fps} /></Sequence>
+    <Sequence from={7 * fps} durationInFrames={7 * fps}><PacketScene duration={7 * fps} /></Sequence>
+    <Sequence from={14 * fps} durationInFrames={7.5 * fps}><AppScene duration={7.5 * fps} /></Sequence>
+    <Sequence from={21.5 * fps} durationInFrames={8 * fps}><OverrideScene duration={8 * fps} /></Sequence>
+    <Sequence from={29.5 * fps} durationInFrames={10 * fps}><SourceScene duration={10 * fps} /></Sequence>
+    <Sequence from={39.5 * fps} durationInFrames={7 * fps}><HumanScene duration={7 * fps} /></Sequence>
+    <Sequence from={46.5 * fps} durationInFrames={7 * fps}><EvalScene duration={7 * fps} /></Sequence>
+    <Sequence from={53.5 * fps} durationInFrames={4.5 * fps}><Outro duration={4.5 * fps} /></Sequence>
+    {[7, 14, 21.5, 29.5, 39.5, 46.5, 53.5].map((second) => <Sequence key={second} from={second * fps} durationInFrames={18} layout="none"><Audio src={staticFile("demo/proof-pulse.wav")} volume={0.32} /></Sequence>)}
+    <Audio src={staticFile("demo/sound-bed.wav")} volume={0.24} />
+    <Audio src={staticFile("demo/narration.m4a")} volume={1} />
+    <Captions />
+  </AbsoluteFill>;
 };

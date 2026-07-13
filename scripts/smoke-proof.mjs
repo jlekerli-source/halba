@@ -32,7 +32,8 @@ try {
   assert.ok(app.includes('fetch("/api/proof/run"'));
   assert.ok(app.includes('fetch("static-demo.json")'));
   assert.ok(app.includes('document.documentElement.dataset.staticDemo === "true"'));
-  assert.ok(app.includes("Can this agent claim"));
+  assert.ok(app.includes("Agent says “done.”"));
+  assert.ok(app.includes("Halba asks for proof."));
   assert.ok(app.includes("halba:proof-decisions:v1"));
   assert.ok(app.includes("function escapeHtml"));
 

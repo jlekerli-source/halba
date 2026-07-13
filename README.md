@@ -13,7 +13,7 @@ Halba is not a chatbot, kanban board, or agent Slack clone.
 ## Try the public demo
 
 - Public demo: [jlekerli-source.github.io/halba](https://jlekerli-source.github.io/halba/)
-- 78-second film: [jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
+- 58-second film: [jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
 
 Requirements: Node.js 20 or newer. Halba has no package dependencies.
@@ -116,7 +116,7 @@ Read [`docs/privacy.md`](docs/privacy.md) and [`SECURITY.md`](SECURITY.md).
 
 Halba began Build Week as a local evidence-feed MVP with stale detection, source previews, and review export. Proof Mode, the GPT-5.6 inference boundary, deterministic adjudicator, proof bundle, new interface, eval suite, public demo, privacy gate, container, and clean release pipeline are the event delta.
 
-The full disclosure is in [`submission/build-week-delta.md`](submission/build-week-delta.md). Judge-ready copy, a 90-second live script, a reproducible 78-second captioned film, and the evidence index live in [`submission/`](submission/).
+The full disclosure is in [`submission/build-week-delta.md`](submission/build-week-delta.md). Judge-ready copy, a 90-second live script, a reproducible 58-second captioned film, and the evidence index live in [`submission/`](submission/).
 
 ## Inspiration
 

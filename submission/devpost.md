@@ -56,7 +56,7 @@ Public release preparation was also a product problem. The pre-existing local ap
 - A regression corpus spanning every verdict, malformed output, prompt-like evidence, stale boundaries, false positives, and failed receipts.
 - A responsive desktop/mobile review surface built for a short live demo.
 - A dependency-free product runtime inside a reproducible, privacy-audited public release.
-- A captioned 78-second submission film whose Remotion source and narration are checked in.
+- A captioned 58-second submission film whose Remotion source, narration, captions, and original sound bed are checked in.
 
 ## What we learned
 
