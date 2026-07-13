@@ -5,7 +5,7 @@
 - Demo: [https://jlekerli-source.github.io/halba/](https://jlekerli-source.github.io/halba/)
 - Video: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [https://github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
-- Deploy proof: [GitHub Actions run 29256839400](https://github.com/jlekerli-source/halba/actions/runs/29256839400)
+- Deploy proof: [GitHub Actions run 29257080313](https://github.com/jlekerli-source/halba/actions/runs/29257080313)
 - `scripts/build-pages.mjs` and `.github/workflows/pages.yml` — public-safe static build and deployment path.
 - [`judging-matrix.md`](judging-matrix.md) — official criterion-to-evidence map and fast judge path.
 
@@ -13,7 +13,9 @@
 
 - `artifacts/demo/halba-demo.mp4` — captioned 58-second H.264/AAC product film, inspected at eight timestamps from the encoded artifact.
 - `artifacts/demo/halba-demo-still.png` — public poster frame.
+- `artifacts/demo/devpost-thumbnail.png` — 1200 × 800, 3:2 project-gallery artwork.
 - `submission/video/` — isolated, reproducible Remotion source, caption timings, and narration script.
+- [`video-hosting.md`](video-hosting.md) and [`devpost-checklist.md`](devpost-checklist.md) — exact upload metadata and final-form reconciliation gate.
 - `artifacts/screenshots/onboarding-desktop.png` — public bundle onboarding.
 - `artifacts/screenshots/loading-desktop.png` — stable loading and guard-adjudication state.
 - `artifacts/screenshots/proof-desktop.png` — full three-pane Proof Mode result.

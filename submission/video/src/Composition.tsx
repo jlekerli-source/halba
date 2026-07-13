@@ -268,6 +268,58 @@ const Outro: React.FC<{ duration: number }> = ({ duration }) => {
   </AbsoluteFill>;
 };
 
+export const HalbaThumbnail: React.FC = () => {
+  const trace: Array<[GlyphName, string]> = [
+    ["claim", "Claim"],
+    ["source", "Source"],
+    ["guard", "Guard"],
+    ["human", "Human"],
+  ];
+
+  return <AbsoluteFill style={{ background: colors.ink, color: colors.paper, fontFamily: bodyFont, overflow: "hidden" }}>
+    <div style={{ backgroundImage: "linear-gradient(rgba(101,232,202,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(101,232,202,.045) 1px, transparent 1px)", backgroundSize: "32px 32px", inset: 0, position: "absolute" }} />
+    <div style={{ background: "radial-gradient(circle, rgba(101,232,202,.2), transparent 67%)", height: 760, position: "absolute", right: -260, top: -270, width: 760 }} />
+    <div style={{ background: "linear-gradient(90deg, rgba(101,232,202,.12), transparent)", height: 3, left: 0, position: "absolute", right: 0, top: 0 }} />
+
+    <div style={{ display: "grid", gridTemplateColumns: ".88fr 1.12fr", height: "100%", padding: "58px 60px 54px", position: "relative" }}>
+      <div style={{ display: "flex", flexDirection: "column", paddingRight: 36 }}>
+        <Brand inverse compact />
+        <div style={{ marginTop: 84 }}>
+          <SceneLabel dark>OpenAI Build Week</SceneLabel>
+          <h1 style={{ fontFamily: displayFont, fontSize: 86, letterSpacing: -4, lineHeight: .83, margin: "22px 0 0" }}>
+            AGENT SAYS<br />“DONE.”
+            <span style={{ color: colors.signal, display: "block", marginTop: 12 }}>HALBA ASKS<br />FOR PROOF.</span>
+          </h1>
+          <p style={{ color: "rgba(244,246,241,.64)", fontSize: 18, fontWeight: 650, lineHeight: 1.42, margin: "28px 0 0", maxWidth: 410 }}>A local-first evidence control plane for AI-assisted work.</p>
+        </div>
+
+        <div style={{ alignItems: "center", display: "grid", gap: 8, gridTemplateColumns: "repeat(4, 1fr)", marginTop: "auto" }}>
+          {trace.map(([name, label], index) => <div key={label} style={{ alignItems: "center", display: "flex", gap: 7 }}>
+            <span style={{ alignItems: "center", background: index === 3 ? colors.signal : "rgba(101,232,202,.12)", borderRadius: 999, color: index === 3 ? colors.ink : colors.signal, display: "flex", height: 30, justifyContent: "center", width: 30 }}><Glyph name={name} size={16} /></span>
+            <span style={{ color: index === 3 ? colors.paper : "rgba(244,246,241,.56)", fontFamily: monoFont, fontSize: 11, fontWeight: 800, textTransform: "uppercase" }}>{label}</span>
+          </div>)}
+        </div>
+      </div>
+
+      <div style={{ alignItems: "center", display: "flex", justifyContent: "center", position: "relative" }}>
+        <div style={{ background: colors.raised, borderRadius: 24, boxShadow: "0 42px 100px rgba(0,0,0,.42), 0 0 0 1px rgba(255,255,255,.14)", height: 554, overflow: "hidden", position: "relative", rotate: "1.5deg", width: 624 }}>
+          <Img src={staticFile("screenshots/proof-desktop.png")} style={{ height: "100%", objectFit: "cover", objectPosition: "60% top", width: "100%" }} />
+          <div style={{ background: "linear-gradient(180deg, transparent 58%, rgba(9,24,21,.72))", inset: 0, position: "absolute" }} />
+        </div>
+
+        <div style={{ alignItems: "center", background: colors.red, borderRadius: 12, boxShadow: "0 18px 40px rgba(211,74,61,.32)", color: "white", display: "flex", fontSize: 15, fontWeight: 950, gap: 9, letterSpacing: 2.2, padding: "15px 20px", position: "absolute", right: -14, rotate: "-3deg", textTransform: "uppercase", top: 82 }}><Glyph name="split" size={21} /> Contradiction found</div>
+
+        <div style={{ background: colors.raised, borderRadius: 16, bottom: 60, boxShadow: "0 22px 54px rgba(0,0,0,.34)", color: colors.ink, display: "grid", gap: 17, gridTemplateColumns: "repeat(3, 1fr)", left: -8, padding: "20px 24px", position: "absolute", width: 520 }}>
+          {[["6", "claims"], ["4", "review gates"], ["5", "verdicts"]].map(([value, label]) => <div key={label}>
+            <strong style={{ color: colors.tealDark, display: "block", fontFamily: displayFont, fontSize: 36, lineHeight: .85 }}>{value}</strong>
+            <span style={{ color: colors.muted, display: "block", fontFamily: monoFont, fontSize: 11, fontWeight: 800, marginTop: 8, textTransform: "uppercase" }}>{label}</span>
+          </div>)}
+        </div>
+      </div>
+    </div>
+  </AbsoluteFill>;
+};
+
 export const HalbaBuildWeek: React.FC = () => {
   const { fps } = useVideoConfig();
   return <AbsoluteFill>

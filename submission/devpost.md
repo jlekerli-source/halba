@@ -14,6 +14,8 @@ The evidence control plane that checks whether an AI agent's “done” can pass
 - Video: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [https://github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
 
+The GitHub-hosted MP4 is the canonical evidence mirror. Devpost's video field must use the public YouTube or Vimeo URL recorded in [`video-hosting.md`](video-hosting.md) after upload.
+
 ## Inspiration
 
 AI coding agents can produce impressive work, but the final update often compresses a messy run into confident prose. The expensive part is no longer generating the change—it is finding out which claims are supported, stale, contradicted, or still need a person.

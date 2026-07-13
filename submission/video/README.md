@@ -8,10 +8,13 @@ This isolated Remotion project renders the captioned 58-second product film from
 npm install
 npm run lint
 npm run still
+npm run thumbnail
 npm run render
 ```
 
 The render uses `../../artifacts` as its public asset directory and writes `artifacts/demo/halba-demo.mp4`. Captions are typed JSON under `src/captions.json`; narration copy is in `narration.txt`. Rendering is capped at two Chromium workers because higher concurrency was unreliable on the Build Week Mac.
+
+`npm run thumbnail` renders the 1200 × 800 Devpost gallery image from the same visual system and accepted Proof Mode screenshot.
 
 ## Accepted render
 
