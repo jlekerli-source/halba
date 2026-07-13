@@ -41,6 +41,7 @@ The earlier 78-second film was rejected as too static. Its replacement is a 58-s
 - The mobile source view preserves the proof trail and human action targets without horizontal page overflow; long code remains contained in its source panel.
 - The normal onboarding-to-recorded-proof path produced zero console errors or warnings. The optional-live error test produced one expected failed HTTP request and a recoverable product state.
 - Headings use balanced wrapping, body copy uses pretty wrapping, numeric dashboard values use tabular figures, nested surfaces use concentric radii, interactive controls retain at least 40-pixel targets, and reduced-motion users bypass decorative animation.
+- The deployed Pages workflow was replayed after run 29256839400, then a contradictory claim was rejected. Open review changed from four to three, the browser-local decision persisted, and the deployed session produced zero console errors. The hosted film hash matched the accepted local encode exactly.
 
 ## Accepted artifacts
 

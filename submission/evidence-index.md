@@ -5,7 +5,7 @@
 - Demo: [https://jlekerli-source.github.io/halba/](https://jlekerli-source.github.io/halba/)
 - Video: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [https://github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
-- Deploy proof: [GitHub Actions run 29249065749](https://github.com/jlekerli-source/halba/actions/runs/29249065749)
+- Deploy proof: [GitHub Actions run 29256839400](https://github.com/jlekerli-source/halba/actions/runs/29256839400)
 - `scripts/build-pages.mjs` and `.github/workflows/pages.yml` — public-safe static build and deployment path.
 - [`judging-matrix.md`](judging-matrix.md) — official criterion-to-evidence map and fast judge path.
 
@@ -50,7 +50,7 @@ The release gate runs `check`, `smoke`, and `eval` inside the reconstructed tree
 
 The Dockerfile was also built from `dist/halba-public`. The resulting container reached `healthy`, served the UI and six-source bundle, and returned the six-claim recorded proof with four review gates.
 
-The public Pages app was also exercised through replay, the exact stale-clock diff, four local human decisions, the zero-open-review state, and persistence after reload. The release-candidate MP4 SHA-256 is `1e141f5e492b82735a333aaba56cca4870128cbd45cceb284bd2c8b8cf6186ab`; after deployment, the hosted asset must match this hash before the submission evidence is frozen.
+The redesigned public Pages app was exercised through replay and a browser-local human rejection with zero console errors; the open-gate count moved from four to three and the decision persisted in local storage. The hosted MP4 SHA-256 is `1e141f5e492b82735a333aaba56cca4870128cbd45cceb284bd2c8b8cf6186ab`, exactly matching the accepted local render. The local rendered-state suite separately covers the exact stale-clock diff, four decisions, zero open gates, and mobile source view.
 
 ## Disclosure
 
