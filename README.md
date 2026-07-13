@@ -12,6 +12,10 @@ Halba is not a chatbot, kanban board, or agent Slack clone.
 
 ## Try the public demo
 
+- Public demo: [jlekerli-source.github.io/halba](https://jlekerli-source.github.io/halba/)
+- 78-second film: [jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
+- Source: [github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
+
 Requirements: Node.js 20 or newer. Halba has no package dependencies.
 
 ```bash
@@ -21,7 +25,7 @@ npm start
 
 Open [http://localhost:4177](http://localhost:4177), then choose **Review the public run**. `pnpm` works in place of `npm`.
 
-The default demo is synthetic and public-safe. Its structured-inference fixture is visibly labeled **Recorded** and makes no OpenAI request.
+The default demo is synthetic and public-safe. Its structured-inference fixture is visibly labeled **Recorded** and makes no OpenAI request. The GitHub Pages deployment runs that same read-only recorded workflow entirely in the browser; the Node and Docker paths retain the optional live Responses API endpoint.
 
 ## What Proof Mode does
 
@@ -63,7 +67,7 @@ npm run eval
 
 The public regression corpus contains nine cases covering all five verdicts, citation fabrication, unknown sources, model/guard disagreement, failed receipts, the exact stale boundary, prompt-like evidence, malformed output, false positives, and deterministic replay.
 
-The checked-in replay report currently passes 9/9 with 100% expected-verdict accuracy and 0% final-verdict false positives on this compact golden corpus. This validates Halba's adjudication and grounding contract—not live-model quality. Live latency, usage, cost, and accuracy remain explicitly unmeasured without a credentialed run.
+The checked-in replay report currently passes 9/9 with 100% expected-verdict accuracy, 100% exact gold-source grounding precision and recall, and 0% final-verdict false positives on this compact golden corpus. It also records deterministic replay timing. This validates Halba's adjudication and grounding contract—not live-model quality. Optional live-model latency, usage, cost, and accuracy are not claimed by the replay report.
 
 Read [`artifacts/evals/latest.md`](artifacts/evals/latest.md) and [`docs/evals.md`](docs/evals.md).
 
@@ -112,7 +116,7 @@ Read [`docs/privacy.md`](docs/privacy.md) and [`SECURITY.md`](SECURITY.md).
 
 Halba began Build Week as a local evidence-feed MVP with stale detection, source previews, and review export. Proof Mode, the GPT-5.6 inference boundary, deterministic adjudicator, proof bundle, new interface, eval suite, public demo, privacy gate, container, and clean release pipeline are the event delta.
 
-The full disclosure is in [`submission/build-week-delta.md`](submission/build-week-delta.md). Judge-ready copy, a 90-second demo script, and the evidence index live in [`submission/`](submission/).
+The full disclosure is in [`submission/build-week-delta.md`](submission/build-week-delta.md). Judge-ready copy, a 90-second live script, a reproducible 78-second captioned film, and the evidence index live in [`submission/`](submission/).
 
 ## Inspiration
 

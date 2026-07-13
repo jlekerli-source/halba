@@ -18,6 +18,11 @@
       "kind": "source"
     },
     {
+      "path": "diffs/stale-review-clock.patch",
+      "label": "Actual stale-clock patch",
+      "kind": "diff"
+    },
+    {
       "path": "receipts/check.txt",
       "label": "Public check receipt",
       "kind": "receipt"
@@ -37,8 +42,8 @@
     {
       "claimId": "stale-gate",
       "type": "source_contains",
-      "path": "sources/change-summary.md",
-      "needle": "Review gate staleness now accepts an explicit evaluation time.",
+      "path": "diffs/stale-review-clock.patch",
+      "needle": "now = new Date()",
       "passVerdict": "supported",
       "failVerdict": "unsupported"
     },

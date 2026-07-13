@@ -1,0 +1,51 @@
+[
+  {
+    "text": "AI agents are getting faster at changing code. But can “done” actually pass human review?",
+    "startMs": 0,
+    "endMs": 7000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Halba turns reports, source files, diffs, and machine receipts into one bounded proof packet.",
+    "startMs": 7000,
+    "endMs": 19000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "GPT-5.6 extracts atomic claims and citations. Deterministic guards check the actual bytes.",
+    "startMs": 19000,
+    "endMs": 34000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Open the real patch, exact line range, hash, reasoning boundary, and guard result together.",
+    "startMs": 34000,
+    "endMs": 48000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Unsupported, stale, contradictory, and uncertain claims become focused human review gates.",
+    "startMs": 48000,
+    "endMs": 59000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "The public corpus passes nine of nine cases with exact source-grounding precision and recall.",
+    "startMs": 59000,
+    "endMs": 69000,
+    "timestampMs": null,
+    "confidence": null
+  },
+  {
+    "text": "Halba: agent claims in, traceable proof out—and a clear boundary for human judgment.",
+    "startMs": 69000,
+    "endMs": 78000,
+    "timestampMs": null,
+    "confidence": null
+  }
+]

@@ -3,7 +3,7 @@
 Replay corpus: Halba proof-quality regression corpus
 
 - Cases: 9/9 passed
-- Replay digest: `a192db19555de603ebf39436e8852c4a3961e18c1b1880323c2ce37da46bbf92`
+- Replay digest: `d93e5aebe74e7e997c62c1c97cbebddb8195a8a562d22c7b77cb11911281f2b9`
 - Live GPT eval: not_run — Live eval was not requested.
 - Live cost: not measured; Halba does not hardcode mutable pricing.
 
@@ -13,12 +13,25 @@ Replay corpus: Halba proof-quality regression corpus
 | --- | ---: |
 | verdictAccuracy | 100.0% |
 | normalCitationValidity | 100.0% |
+| sourceGroundingPrecision | 100.0% |
+| sourceGroundingRecall | 100.0% |
 | unsupportedRecall | 100.0% |
 | contradictionRecall | 100.0% |
 | reviewGateRecall | 100.0% |
 | falsePositiveRate | 0.0% |
 | degradedBehaviorPassRate | 100.0% |
 | deterministicReplay | true |
+
+## Replay timing
+
+Timing is informational and machine-dependent; it is not a regression threshold.
+
+| Metric | Result |
+| --- | ---: |
+| totalMs | 1.062 ms |
+| meanCaseMs | 0.118 ms |
+| p50CaseMs | 0.044 ms |
+| p95CaseMs | 0.553 ms |
 
 ## Cases
 

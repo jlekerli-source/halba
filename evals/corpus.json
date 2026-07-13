@@ -4,6 +4,8 @@
   "thresholds": {
     "verdictAccuracy": 1,
     "normalCitationValidity": 1,
+    "sourceGroundingPrecision": 1,
+    "sourceGroundingRecall": 1,
     "unsupportedRecall": 1,
     "contradictionRecall": 1,
     "reviewGateRecall": 1,
@@ -22,6 +24,24 @@
         "live-gpt": "contradictory",
         "privacy-current": "stale",
         "judge-ready": "uncertain"
+      },
+      "expectedCitations": {
+        "stale-gate": [
+          { "path": "diffs/stale-review-clock.patch", "startLine": 7, "endLine": 16 }
+        ],
+        "all-checks": [
+          { "path": "receipts/check.txt", "startLine": 1, "endLine": 4 }
+        ],
+        "deployed": [],
+        "live-gpt": [
+          { "path": "receipts/model-run.json", "startLine": 2, "endLine": 5 }
+        ],
+        "privacy-current": [
+          { "path": "receipts/privacy-audit.md", "startLine": 3, "endLine": 5 }
+        ],
+        "judge-ready": [
+          { "path": "sources/change-summary.md", "startLine": 5, "endLine": 5 }
+        ]
       }
     },
     {

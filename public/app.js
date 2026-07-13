@@ -17,6 +17,9 @@ const state = {
 };
 
 let sourceRequest = 0;
+let staticDemoRequest = null;
+
+const staticDemoMode = document.documentElement.dataset.staticDemo === "true";
 
 const app = document.querySelector("#app");
 const statusRegion = document.querySelector("#status-region");
@@ -28,9 +31,7 @@ initialize();
 async function initialize() {
   render();
   try {
-    const response = await fetch("/api/proof/bundle");
-    if (!response.ok) throw new Error("The public proof bundle could not be loaded.");
-    state.bundle = await response.json();
+    state.bundle = await requestBundle();
     state.phase = "ready";
   } catch (error) {
     state.phase = "error";
@@ -490,17 +491,7 @@ async function runProof(mode) {
   render();
 
   try {
-    const response = await fetch("/api/proof/run", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ mode })
-    });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const error = new Error(body.message || "Proof analysis failed.");
-      error.code = body.error || "proof_error";
-      throw error;
-    }
+    const body = await requestProof(mode);
     state.proof = body;
     state.phase = "proof";
     state.filter = "review";
@@ -549,14 +540,7 @@ async function loadSelectedSource() {
   state.sourceError = null;
   render();
   try {
-    const query = new URLSearchParams({
-      path: citation.path,
-      startLine: String(citation.startLine),
-      endLine: String(citation.endLine)
-    });
-    const response = await fetch(`/api/proof/source?${query}`);
-    const body = await response.json();
-    if (!response.ok) throw new Error(body.message || body.error || "Source unavailable.");
+    const body = await requestSource(citation);
     if (requestId !== sourceRequest) return;
     state.source = body;
     state.sourceStatus = "ready";
@@ -567,6 +551,81 @@ async function loadSelectedSource() {
     state.sourceError = error.message;
   }
   render();
+}
+
+async function requestBundle() {
+  if (staticDemoMode) return (await loadStaticDemo()).bundle;
+  const response = await fetch("/api/proof/bundle");
+  if (!response.ok) throw new Error("The public proof bundle could not be loaded.");
+  return response.json();
+}
+
+async function requestProof(mode) {
+  if (staticDemoMode) {
+    if (mode === "live") {
+      const error = new Error("The public Pages demo intentionally serves the labeled replay. Run the Node server to use the optional live Responses API path.");
+      error.code = "live_unavailable";
+      throw error;
+    }
+    return (await loadStaticDemo()).proof;
+  }
+
+  const response = await fetch("/api/proof/run", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ mode })
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(body.message || "Proof analysis failed.");
+    error.code = body.error || "proof_error";
+    throw error;
+  }
+  return body;
+}
+
+async function requestSource(citation) {
+  if (staticDemoMode) {
+    const source = (await loadStaticDemo()).sources[citation.path];
+    if (!source) throw new Error("Proof source not found.");
+    if (citation.startLine < 1 || citation.endLine < citation.startLine || citation.endLine > source.lineCount) {
+      throw new Error("Invalid proof source range.");
+    }
+    return {
+      path: source.path,
+      label: source.label,
+      kind: source.kind,
+      sha256: source.sha256,
+      startLine: citation.startLine,
+      endLine: citation.endLine,
+      lineCount: source.lineCount,
+      text: source.lines.slice(citation.startLine - 1, citation.endLine).join("\n")
+    };
+  }
+
+  const query = new URLSearchParams({
+    path: citation.path,
+    startLine: String(citation.startLine),
+    endLine: String(citation.endLine)
+  });
+  const response = await fetch(`/api/proof/source?${query}`);
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.message || body.error || "Source unavailable.");
+  return body;
+}
+
+async function loadStaticDemo() {
+  if (!staticDemoRequest) {
+    staticDemoRequest = fetch("static-demo.json").then(async (response) => {
+      if (!response.ok) throw new Error("The static proof packet could not be loaded.");
+      const body = await response.json();
+      if (body?.schemaVersion !== 1 || !body.bundle || !body.proof || !body.sources) {
+        throw new Error("The static proof packet is malformed.");
+      }
+      return body;
+    });
+  }
+  return staticDemoRequest;
 }
 
 function saveDecision(claimId, status) {

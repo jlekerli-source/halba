@@ -1,0 +1,15 @@
+AI agents are getting faster at changing code. But the expensive question remains: can a claim of done actually pass human review?
+
+Halba is a local-first evidence control plane. It imports an agent report, source files, diffs, and machine receipts into one bounded proof packet.
+
+GPT-5.6 Sol, at max reasoning, extracts atomic claims and precise citations. Then Halba checks the actual bytes. Deterministic guards own paths, line ranges, dates, receipts, and explicit contradictions.
+
+Here, the model claims the analysis was live. The execution receipt says recorded. Halba marks the contradiction and opens the exact lines.
+
+This is the real Build Week patch for the stale review clock. The diff, boundary tests, hash, model reasoning boundary, and guard result stay visible together.
+
+Claims that remain unsupported, stale, contradictory, or uncertain enter a human gate. Approve, reject, or resolve; the decision stays local.
+
+The public regression corpus passes nine of nine cases, with one hundred percent verdict accuracy and exact source-grounding precision and recall.
+
+Halba turns agent claims into traceable proof, and shows exactly where a person still matters.

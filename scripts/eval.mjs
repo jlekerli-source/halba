@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { performance } from "node:perf_hooks";
 import { fileURLToPath } from "node:url";
 import { loadProofBundle } from "../src/proof/bundle.js";
 import { adjudicateProof } from "../src/proof/engine.js";
@@ -22,6 +23,9 @@ let normalCitationCount = 0;
 let normalValidCitationCount = 0;
 let degradedPassed = 0;
 let degradedTotal = 0;
+let groundingExpected = 0;
+let groundingPredicted = 0;
+let groundingMatches = 0;
 
 for (const testCase of corpus.cases) {
   const bundle = cloneBundle(baseBundle);
@@ -29,12 +33,14 @@ for (const testCase of corpus.cases) {
   applyMutation(testCase.mutation, bundle, modelRun);
   let proof = null;
   let error = null;
+  const startedAt = performance.now();
 
   try {
     proof = adjudicateProof(bundle, modelRun);
   } catch (caught) {
     error = caught;
   }
+  const durationMs = performance.now() - startedAt;
 
   const checks = [];
   if (testCase.expectedError) {
@@ -73,6 +79,23 @@ for (const testCase of corpus.cases) {
         expected: true
       });
     }
+    for (const [claimId, expectedCitations] of Object.entries(testCase.expectedCitations || {})) {
+      const finding = proof?.findings.find((item) => item.claimId === claimId);
+      const predicted = (finding?.citations || []).filter((citation) => citation.valid).map(citationKey);
+      const expected = expectedCitations.map(citationKey);
+      const predictedSet = new Set(predicted);
+      const expectedSet = new Set(expected);
+      const matches = predicted.filter((citation) => expectedSet.has(citation)).length;
+      groundingExpected += expected.length;
+      groundingPredicted += predicted.length;
+      groundingMatches += matches;
+      checks.push({
+        label: `${claimId} exact source grounding`,
+        passed: predicted.length === expected.length && predicted.every((citation) => expectedSet.has(citation)) && expected.every((citation) => predictedSet.has(citation)),
+        actual: predicted,
+        expected
+      });
+    }
     if (testCase.expectedIssue) {
       const issueText = proof?.findings.flatMap((finding) => finding.issues).join(" ") || "";
       checks.push({
@@ -101,6 +124,7 @@ for (const testCase of corpus.cases) {
     group: testCase.group,
     description: testCase.description,
     passed,
+    durationMs: roundMs(durationMs),
     checks
   });
 }
@@ -120,6 +144,8 @@ const falsePositives = verdictAssertions.filter((item) => item.expected !== "sup
 const metrics = {
   verdictAccuracy: ratio(correctVerdicts, verdictAssertions.length),
   normalCitationValidity: ratio(normalValidCitationCount, normalCitationCount),
+  sourceGroundingPrecision: ratio(groundingMatches, groundingPredicted),
+  sourceGroundingRecall: ratio(groundingMatches, groundingExpected),
   unsupportedRecall: ratio(expectedUnsupported.filter((item) => item.actual === "unsupported").length, expectedUnsupported.length),
   contradictionRecall: ratio(expectedContradictions.filter((item) => item.actual === "contradictory").length, expectedContradictions.length),
   reviewGateRecall: ratio(expectedReviewGates.filter((item) => item.reviewRequired).length, expectedReviewGates.length),
@@ -131,6 +157,8 @@ const metrics = {
 const thresholdChecks = [
   threshold("verdictAccuracy", metrics.verdictAccuracy, corpus.thresholds.verdictAccuracy, ">="),
   threshold("normalCitationValidity", metrics.normalCitationValidity, corpus.thresholds.normalCitationValidity, ">="),
+  threshold("sourceGroundingPrecision", metrics.sourceGroundingPrecision, corpus.thresholds.sourceGroundingPrecision, ">="),
+  threshold("sourceGroundingRecall", metrics.sourceGroundingRecall, corpus.thresholds.sourceGroundingRecall, ">="),
   threshold("unsupportedRecall", metrics.unsupportedRecall, corpus.thresholds.unsupportedRecall, ">="),
   threshold("contradictionRecall", metrics.contradictionRecall, corpus.thresholds.contradictionRecall, ">="),
   threshold("reviewGateRecall", metrics.reviewGateRecall, corpus.thresholds.reviewGateRecall, ">="),
@@ -138,6 +166,14 @@ const thresholdChecks = [
   threshold("degradedBehaviorPassRate", metrics.degradedBehaviorPassRate, corpus.thresholds.degradedBehaviorPassRate, ">="),
   { metric: "deterministicReplay", actual: deterministicReplay, expected: true, passed: deterministicReplay }
 ];
+
+const durations = results.map((result) => result.durationMs).sort((a, b) => a - b);
+const timing = {
+  totalMs: roundMs(durations.reduce((sum, value) => sum + value, 0)),
+  meanCaseMs: roundMs(durations.reduce((sum, value) => sum + value, 0) / durations.length),
+  p50CaseMs: percentile(durations, 0.5),
+  p95CaseMs: percentile(durations, 0.95)
+};
 
 let live = {
   requested: requestLive,
@@ -178,6 +214,7 @@ const report = {
   failedCaseCount: results.filter((result) => !result.passed).length,
   replayDigest: replayDigestA,
   metrics,
+  timing,
   thresholds: thresholdChecks,
   results,
   live
@@ -193,7 +230,8 @@ if (writeReport) {
 for (const result of results) {
   console.log(`${result.passed ? "PASS" : "FAIL"} ${result.id}`);
 }
-console.log(`eval metrics: accuracy=${percent(metrics.verdictAccuracy)} citation_validity=${percent(metrics.normalCitationValidity)} unsupported_recall=${percent(metrics.unsupportedRecall)} contradiction_recall=${percent(metrics.contradictionRecall)} false_positive_rate=${percent(metrics.falsePositiveRate)}`);
+console.log(`eval metrics: accuracy=${percent(metrics.verdictAccuracy)} grounding_precision=${percent(metrics.sourceGroundingPrecision)} grounding_recall=${percent(metrics.sourceGroundingRecall)} unsupported_recall=${percent(metrics.unsupportedRecall)} contradiction_recall=${percent(metrics.contradictionRecall)} false_positive_rate=${percent(metrics.falsePositiveRate)}`);
+console.log(`replay timing: total=${timing.totalMs}ms mean=${timing.meanCaseMs}ms p50=${timing.p50CaseMs}ms p95=${timing.p95CaseMs}ms`);
 console.log(`live eval: ${live.status} (${live.reason || `${live.latencyMs} ms`})`);
 
 assert.equal(results.every((result) => result.passed), true, "one or more eval cases failed");
@@ -256,6 +294,19 @@ function percent(value) {
   return `${(value * 100).toFixed(1)}%`;
 }
 
+function citationKey(citation) {
+  return `${citation.path}:L${citation.startLine}-L${citation.endLine}`;
+}
+
+function roundMs(value) {
+  return Math.round(value * 1000) / 1000;
+}
+
+function percentile(sorted, fraction) {
+  if (!sorted.length) return 0;
+  return sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * fraction) - 1)];
+}
+
 function digest(value) {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
@@ -266,6 +317,9 @@ function markdownReport(report) {
     .join("\n");
   const caseRows = report.results
     .map((result) => `| ${result.passed ? "PASS" : "FAIL"} | ${result.id} | ${result.description} |`)
+    .join("\n");
+  const timingRows = Object.entries(report.timing)
+    .map(([name, value]) => `| ${name} | ${value} ms |`)
     .join("\n");
   return `# Halba proof eval report
 
@@ -281,6 +335,14 @@ Replay corpus: ${report.corpus}
 | Metric | Result |
 | --- | ---: |
 ${metricRows}
+
+## Replay timing
+
+Timing is informational and machine-dependent; it is not a regression threshold.
+
+| Metric | Result |
+| --- | ---: |
+${timingRows}
 
 ## Cases
 

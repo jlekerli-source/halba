@@ -1,11 +1,27 @@
 # Submission evidence index
 
+## Public surfaces
+
+- Demo: [https://jlekerli-source.github.io/halba/](https://jlekerli-source.github.io/halba/)
+- Video: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
+- Source: [https://github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
+- `scripts/build-pages.mjs` and `.github/workflows/pages.yml` — public-safe static build and deployment path.
+
 ## Product proof
 
+- `artifacts/demo/halba-demo.mp4` — captioned 78-second H.264/AAC product film, inspected from the encoded artifact.
+- `artifacts/demo/halba-demo-still.png` — public poster frame.
+- `submission/video/` — isolated, reproducible Remotion source, caption timings, and narration script.
 - `artifacts/screenshots/onboarding-desktop.png` — public bundle onboarding.
+- `artifacts/screenshots/loading-desktop.png` — stable loading and guard-adjudication state.
 - `artifacts/screenshots/proof-desktop.png` — full three-pane Proof Mode result.
+- `artifacts/screenshots/proof-diff-desktop.png` — actual Build Week stale-clock diff opened at its exact source range.
+- `artifacts/screenshots/review-resolved-desktop.png` — zero-open-review completion state.
+- `artifacts/screenshots/live-unavailable-desktop.png` — explicit, recoverable optional-live error state.
 - `artifacts/screenshots/proof-mobile-source.png` — exact-source mobile view.
+- [`visual-qa.md`](visual-qa.md) — rendered-state critique and recapture record.
 - `data/demo/` — synthetic public proof bundle and labeled recording.
+- `data/demo/diffs/stale-review-clock.patch` — public-safe diff derived from the immutable pre-event baseline and current implementation.
 
 ## Evaluation proof
 
@@ -30,8 +46,10 @@ The command produces:
 
 The release gate runs `check`, `smoke`, and `eval` inside the reconstructed tree, extracts the archive, and runs the same suites again from the extracted copy. It does not publish or deploy anything.
 
+The Dockerfile was also built from `dist/halba-public`. The resulting container reached `healthy`, served the UI and six-source bundle, and returned the six-claim recorded proof with four review gates.
+
 ## Disclosure
 
 - [`build-week-delta.md`](build-week-delta.md) separates pre-existing work from the event delta.
 - [`attribution.md`](attribution.md) records the verified inspiration source and non-affiliation boundary.
-- Live GPT latency, token usage, cost, and accuracy are not claimed until a credentialed run is performed.
+- Optional live GPT latency, token usage, cost, and accuracy are not inferred from the replay report.

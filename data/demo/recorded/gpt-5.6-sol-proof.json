@@ -17,13 +17,13 @@
         "claim": "The date-sensitive stale review gate is fixed.",
         "assessment": "supported",
         "confidence": 0.99,
-        "reasoning_boundary": "The cited summary confirms the time dependency was made explicit; deterministic tests remain the authority for behavior.",
+        "reasoning_boundary": "The actual patch shows the injected evaluation clock and the exact seven/eight-day boundary assertions; the executed test receipt remains the authority for whether the suite passed.",
         "citations": [
           {
-            "path": "sources/change-summary.md",
-            "start_line": 3,
-            "end_line": 4,
-            "quote": "Review gate staleness now accepts an explicit evaluation time.\nProduction callers still default to the actual current time."
+            "path": "diffs/stale-review-clock.patch",
+            "start_line": 7,
+            "end_line": 16,
+            "quote": "-export function reviewGateSummary(feed, { visibleFocusCount = (feed?.focus || []).length } = {}) {\n+export function reviewGateSummary(feed, {\n+  visibleFocusCount = (feed?.focus || []).length,\n+  now = new Date()\n+} = {}) {\n   const qa = feed?.qa || [];\n   return {\n-    staleProjectCount: (feed?.projects || []).filter((project) => isStale(project)).length,\n+    staleProjectCount: (feed?.projects || []).filter((project) => isStale(project, now)).length,\n     redQaCount: qa.filter((item) => item.severity === \"red\").length,"
           }
         ],
         "human_review": false

@@ -1,6 +1,6 @@
 # Halba Build Week execution plan
 
-Status: local release candidate complete; live credential and external publication gates remain
+Status: release hardening complete locally; authorized publication, deployment, and Devpost setup in progress
 
 Thesis: Halba is a local-first evidence control plane for AI-assisted work. It turns agent runs, diffs, receipts, and source files into a traceable evidence graph, detects unsupported or stale claims, and shows what actually requires human review.
 
@@ -14,20 +14,20 @@ The acceptance checklists below preserve the original implementation contract. T
 | --- | --- | --- |
 | 1. Date determinism | Complete | Explicit evaluation time plus exact seven/eight-day boundary tests; full check passes. |
 | 2. Public boundary | Complete | Public sample defaults, ignored private artifacts, allowlist audit, Apache-2.0 license, and sanitized root commit. |
-| 3. Proof bundle | Complete | Five bounded, hashed, line-addressable public sources; traversal, symlink, size, and malformed-input checks. |
+| 3. Proof bundle | Complete | Six bounded, hashed, line-addressable public sources, including the actual public-safe Build Week diff; traversal, symlink, size, and malformed-input checks. |
 | 4. Deterministic findings | Complete | Six claims cover all five verdicts; quote, receipt, JSON-field, citation, and freshness guards. |
-| 5. GPT-5.6 integration | Adapter complete; live run not performed | Sol/max Responses API request, strict schema, storage off, safe metadata, and mocked success/refusal/timeout/malformed paths. No local key was available. |
+| 5. GPT-5.6 integration | Complete for the reproducible submission path | Sol/max Responses API adapter, strict schema, storage off, safe metadata, mocked success/refusal/timeout/malformed paths, and an explicitly labeled structured-inference replay. The optional live API path is not a release gate. |
 | 6. API and review lifecycle | Complete | Bundle, run, and exact-source endpoints; guarded errors; browser-local approve/reject/resolve decisions. |
 | 7. Proof Mode UI | Complete | Real Chrome desktop/mobile screenshots; loading, replay, live-unavailable, empty queue, source, and human-decision states rendered. Normal demo path has zero console errors or warnings. |
-| 8. Evals | Complete for replay; live not performed | Nine of nine cases pass, including degraded inputs and deterministic replay. Live latency, usage, cost, and accuracy remain unmeasured. |
-| 9. Reproducible package | Complete | `release:check` reconstructs only allowlisted files, reruns check, smoke, and eval, hashes the archive, extracts it, and runs the suites again from the extracted copy. |
-| 10. Submission package | Complete locally | Public screenshots, Devpost copy, 90-second script, architecture, disclosure, attribution, deployment guide, and evidence index are present. |
+| 8. Evals | Complete for replay | Nine of nine cases pass, including degraded inputs and deterministic replay. Exact gold-source grounding precision and recall are 100%; replay latency is reported separately from unmeasured optional live-model latency, usage, cost, and accuracy. |
+| 9. Reproducible package | Complete | `release:check` reconstructs 106 allowlisted files, reruns check, smoke, and eval, hashes the archive, extracts it, and runs the suites again from the extracted copy. The final Docker image built from that exact tree and passed its health, UI, bundle, recorded-proof, and embedded-video hash checks. |
+| 10. Submission package | Complete locally; publication in progress | Public screenshots, Devpost copy, 90-second live script, reproducible 78-second captioned film, architecture, disclosure, attribution, deployment guide, evidence index, canonical repository URL, and GitHub Pages target are present. |
 
 Remaining gates:
 
-- A server-side OpenAI credential is required for a genuine live GPT run and live eval. The no-key path is verified and fails closed.
-- No container runtime is installed on this machine, so the dependency-free Node deployment path is verified but the Dockerfile has not been built locally.
-- Creating a remote, pushing, deploying, uploading a video, or submitting Devpost remains an explicit external-authorization step.
+- Publish only the sanitized `main` branch, deploy the public demo, and record the resulting URLs after external authentication succeeds.
+- Devpost currently exposes registration but has not yet published the official rules or submission form; reconcile the final package with those fields as soon as they appear.
+- A live Responses API run is optional development evidence, not a release gate. The recorded path remains explicit and the live path continues to fail closed when it is not configured.
 
 ## Event baseline and delta policy
 
@@ -35,7 +35,7 @@ Remaining gates:
 - That baseline includes the full working tree and Git metadata, file hashes, command transcripts, and real Chrome screenshots at desktop and mobile sizes.
 - The baseline contains private local artifacts and must never enter public history, release archives, screenshots, or remotes.
 - The Build Week delta starts with this plan and will be disclosed separately from pre-existing Halba work.
-- No remote, deployment, publication, submission, or credential mutation occurs without explicit operator authorization.
+- External publication is authorized as of 2026-07-13. Only the audited public branch and clean release artifact may leave this machine; private baseline and local tool refs remain local.
 
 ## Architecture decisions
 
@@ -351,7 +351,7 @@ Estimated scope: medium.
 | Risk | Impact | Mitigation |
 | --- | --- | --- |
 | Private local data enters public history | Critical | Immutable private backup, allowlist packaging, ignored private paths, content scans, intended-branch/tag enumeration, and an explicit branch-only push before any remote action. Never mirror local tool refs. |
-| No API credential is available | High | Implement and verify the adapter with mock HTTP plus labeled recorded responses; report live GPT verification as blocked, never implied. |
+| Optional live API execution is not part of the development gate | Medium | Verify the adapter with mock HTTP plus labeled recorded responses; keep replay and live execution visibly distinct and never imply a live call. |
 | Model output cites nonexistent proof | High | Validate every path, hash, and line range deterministically; reject invalid citations and require review. |
 | The UI remains a dense dashboard instead of a demo story | High | Make Proof Mode the first viewport, move metadata behind disclosure, render at judge and mobile widths, and iterate from screenshots. |
 | Public demo data feels synthetic | Medium | Use Halba's own public Build Week delta and command receipts as the demo bundle, with reproducible generation instructions. |
@@ -359,7 +359,7 @@ Estimated scope: medium.
 | Max reasoning is slow or costly | Medium | Preserve `max` for the judge-quality workflow, measure live latency/cost when possible, and keep deterministic replay for development and demos. |
 | Deterministic and model verdicts conflict | Medium | Deterministic guards remain authoritative; surface disagreement as a human-review reason. |
 | Attribution is inaccurate | Medium | Verify the original public source before including names or quotes; describe inspiration only, never partnership or endorsement. |
-| External deployment or remote creation would exceed authorization | High | Prepare artifacts locally and stop before any external write until explicit approval. |
+| Public release could accidentally include local-only refs or artifacts | Critical | External publication is authorized, but push only audited `main`; never mirror local tool refs or upload the private baseline. |
 
 ## Project-wide definition of done
 

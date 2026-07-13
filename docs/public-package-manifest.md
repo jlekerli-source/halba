@@ -5,8 +5,10 @@ This allowlist defines the only files eligible for a public Halba release candid
 ## Include
 
 - `.gitignore`
+- `.gitattributes`
 - `.dockerignore`
 - `.env.example`
+- `.github/workflows/pages.yml`
 - `Dockerfile`
 - `package.json`
 - `pnpm-lock.yaml`
@@ -19,8 +21,10 @@ This allowlist defines the only files eligible for a public Halba release candid
 - `src/domain/`
 - `src/proof/`
 - `scripts/audit-public.mjs`
+- `scripts/build-pages.mjs`
 - `scripts/check-feed-sort.mjs`
 - `scripts/check-openai-adapter.mjs`
+- `scripts/check-pages.mjs`
 - `scripts/check-public-manifest.mjs`
 - `scripts/check-proof-bundle.mjs`
 - `scripts/check-proof-engine.mjs`
@@ -42,6 +46,7 @@ This allowlist defines the only files eligible for a public Halba release candid
 - `data/demo/`
 - `evals/`
 - `artifacts/evals/`
+- `artifacts/demo/`
 - `artifacts/screenshots/`
 - `docs/build-week/plan.md`
 - `docs/architecture.md`

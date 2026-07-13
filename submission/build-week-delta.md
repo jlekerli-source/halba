@@ -10,19 +10,22 @@ Before product changes, the full working tree and Git metadata were preserved in
 
 - Proof Mode as the flagship end-to-end workflow.
 - A portable proof-bundle format with bounded files, hashes, and line maps.
+- The actual public-safe stale-clock patch as first-class, line-addressable evidence.
 - GPT-5.6 Sol/max structured claim-and-citation inference.
 - Deterministic quote, receipt, freshness, and citation guards.
 - Supported, unsupported, stale, contradicted, and uncertain adjudication.
 - Exact source inspection and persistent human approve/reject/resolve gates.
 - A new responsive evidence-examiner interface and public screenshots.
-- A regression eval corpus with report artifacts and release gates.
+- A regression eval corpus with exact gold-source grounding, replay timing, report artifacts, and release gates.
 - A synthetic public demo bundle and recorded-response mode.
 - Privacy audit, Apache-2.0 license, public documentation, container, and clean-package reconstruction.
+- A credential-free GitHub Pages adapter and deployment workflow for the complete recorded proof path.
+- A captioned 78-second product film with reproducible Remotion source, narration, poster, and encoded-artifact inspection.
 - A proper fix and boundary tests for the date-sensitive stale-count regression.
 
 ## Honest limitations
 
 - The checked-in structured-inference fixture is a recording and is labeled in the product; it is not evidence of a live API call.
-- Live GPT execution requires the judge or operator to provide an API key; it is not represented as tested when no credential was available.
+- The checked-in submission evidence uses an explicitly labeled structured-inference replay. Optional live Responses API execution is a separate path and no replay metric is presented as live-model evidence.
 - Review decisions live in one browser profile; there is no hosted identity or team sync.
 - The public release imports the documented bundle format. Additional adapters are future work.

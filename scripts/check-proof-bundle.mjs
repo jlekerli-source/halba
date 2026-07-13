@@ -12,8 +12,9 @@ const bundle = await loadProofBundle();
 const summary = publicBundleSummary(bundle);
 
 assert.equal(bundle.definition.id, "halba-build-week-demo");
-assert.equal(bundle.sources.length, 5);
+assert.equal(bundle.sources.length, 6);
 assert.equal(bundle.sourceByPath.get(bundle.definition.reportPath).kind, "report");
+assert.equal(bundle.sourceByPath.get("diffs/stale-review-clock.patch").kind, "diff");
 assert.ok(bundle.sources.every((source) => source.sha256.length === 64));
 assert.ok(bundle.sources.every((source) => source.lineCount > 0));
 assert.ok(summary.sources.every((source) => !Object.hasOwn(source, "text")), "public summary leaked source text");

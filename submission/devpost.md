@@ -8,6 +8,12 @@ Halba
 
 The evidence control plane that checks whether an AI agent's “done” can pass human review.
 
+## Links
+
+- Demo: [https://jlekerli-source.github.io/halba/](https://jlekerli-source.github.io/halba/)
+- Video: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
+- Source: [https://github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
+
 ## Inspiration
 
 AI coding agents can produce impressive work, but the final update often compresses a messy run into confident prose. The expensive part is no longer generating the change—it is finding out which claims are supported, stale, contradicted, or still need a person.
@@ -34,7 +40,7 @@ Halba is a dependency-free Node.js application with a static browser frontend. P
 
 The live inference path uses the OpenAI Responses API with `gpt-5.6-sol`, max reasoning, strict Structured Outputs, and `store: false`. Model output is never authoritative by itself. The adjudicator checks exact quotes and runs deterministic receipt, freshness, JSON-field, and required-citation guards before producing a verdict.
 
-The public demo uses synthetic evidence and a clearly labeled structured-inference fixture so judges can reproduce the full workflow without providing credentials. It is not presented as evidence of a live GPT request. The live path fails closed when credentials or a valid model response are unavailable.
+The public Pages demo uses synthetic evidence and a clearly labeled structured-inference fixture so judges can reproduce the full workflow without providing credentials. It is not presented as evidence of a live GPT request. The Node and Docker paths retain the optional live integration, which fails closed when it is not configured or returns an invalid model response.
 
 ## Challenges
 
@@ -49,7 +55,8 @@ Public release preparation was also a product problem. The pre-existing local ap
 - Deterministic guards that can override model overconfidence.
 - A regression corpus spanning every verdict, malformed output, prompt-like evidence, stale boundaries, false positives, and failed receipts.
 - A responsive desktop/mobile review surface built for a short live demo.
-- A reproducible, privacy-audited, dependency-free public artifact.
+- A dependency-free product runtime inside a reproducible, privacy-audited public release.
+- A captioned 78-second submission film whose Remotion source and narration are checked in.
 
 ## What we learned
 
@@ -64,4 +71,4 @@ The useful boundary is not “AI versus rules.” GPT-5.6 is excellent at turnin
 
 ## Built with
 
-OpenAI Responses API, GPT-5.6 Sol, Node.js, HTML, CSS, JavaScript, local JSON, and Playwright-based browser verification.
+OpenAI Responses API, GPT-5.6 Sol, Codex, Node.js, HTML, CSS, JavaScript, local JSON, Docker, GitHub Pages, Playwright-based browser verification, and Remotion for the submission film.

@@ -1,5 +1,7 @@
 # 90-second demo script
 
+The rendered submission film is [`../artifacts/demo/halba-demo.mp4`](../artifacts/demo/halba-demo.mp4): 78 seconds, 1280 × 720, 30 fps, H.264 video with AAC narration and burned-in captions. Its reproducible source is in [`video/`](video/). This script remains the live-demo version.
+
 ## 0:00–0:12 — The expensive question
 
 Show the onboarding screen.
@@ -10,7 +12,7 @@ Point to the bundle summary: six claims, six local sources and receipts, no clou
 
 ## 0:12–0:25 — Run Proof Mode
 
-Click **Run recorded proof**.
+Click **Review the public run**.
 
 > “For this reproducible demo, the structured-inference fixture is recorded and labeled. The live button uses GPT-5.6 Sol with max reasoning, strict structured output, and storage disabled.”
 
@@ -43,4 +45,4 @@ Return to the summary.
 - Record at 1440 × 900 with browser zoom at 100%.
 - Keep the cursor still while speaking over source evidence.
 - Do not crop the recorded/live disclosure.
-- End on the five-verdict summary and the resolved review count.
+- End on the five-verdict summary and the zero-open-review state.

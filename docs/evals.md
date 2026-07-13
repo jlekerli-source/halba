@@ -28,13 +28,16 @@ The versioned corpus covers:
 - explicit contradictions;
 - stale proof and the exact freshness boundary;
 - invalid quotes and unknown source paths;
+- gold source-path and exact line-range grounding;
 - model/guard disagreement;
 - a failed command receipt;
 - prompt-injection text inside an evidence file;
 - malformed structured model output;
 - deterministic replay stability.
 
-Regression thresholds are 100% for verdict accuracy, normal citation validity, unsupported recall, contradiction recall, review-gate recall, and degraded-input behavior, with a 0% tolerated final-verdict false-positive rate on this compact golden corpus.
+Regression thresholds are 100% for verdict accuracy, normal citation validity, gold-source grounding precision and recall, unsupported recall, contradiction recall, review-gate recall, and degraded-input behavior, with a 0% tolerated final-verdict false-positive rate on this compact golden corpus.
+
+The report also records total, mean, p50, and p95 deterministic replay time. These figures are machine-dependent and informational rather than thresholded. Gold-source grounding evaluates the checked-in replay contract; it does not stand in for live-model citation quality.
 
 ## Live eval
 

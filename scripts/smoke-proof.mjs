@@ -30,6 +30,8 @@ try {
   assert.ok(css.includes("prefers-reduced-motion: reduce"));
   assert.ok(!css.includes("transition: all"));
   assert.ok(app.includes('fetch("/api/proof/run"'));
+  assert.ok(app.includes('fetch("static-demo.json")'));
+  assert.ok(app.includes('document.documentElement.dataset.staticDemo === "true"'));
   assert.ok(app.includes("Can this agent claim"));
   assert.ok(app.includes("halba:proof-decisions:v1"));
   assert.ok(app.includes("function escapeHtml"));
@@ -38,7 +40,8 @@ try {
   const bundle = await bundleResponse.json();
   assert.equal(bundleResponse.status, 200);
   assert.equal(bundle.id, "halba-build-week-demo");
-  assert.equal(bundle.sourceCount, 5);
+  assert.equal(bundle.sourceCount, 6);
+  assert.ok(bundle.sources.some((source) => source.kind === "diff" && source.path === "diffs/stale-review-clock.patch"));
   assert.ok(bundle.sources.every((source) => source.sha256.length === 64));
 
   const proofResponse = await postJson("/api/proof/run", { mode: "recorded" });
@@ -53,9 +56,9 @@ try {
   const sourceResponse = await fetch(`${origin}/api/proof/source?path=${encodeURIComponent(citation.path)}&startLine=${citation.startLine}&endLine=${citation.endLine}`);
   const source = await sourceResponse.json();
   assert.equal(sourceResponse.status, 200);
-  assert.equal(source.startLine, 3);
-  assert.equal(source.endLine, 4);
-  assert.ok(source.text.startsWith("Review gate staleness"));
+  assert.equal(source.startLine, 7);
+  assert.equal(source.endLine, 16);
+  assert.ok(source.text.startsWith("-export function reviewGateSummary"));
 
   assert.equal((await fetch(`${origin}/api/proof/source?path=../bundle.json`)).status, 404);
   assert.equal((await fetch(`${origin}/api/proof/source?path=${encodeURIComponent(citation.path)}&startLine=0&endLine=4`)).status, 400);

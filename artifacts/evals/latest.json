@@ -4,16 +4,24 @@
   "caseCount": 9,
   "passedCaseCount": 9,
   "failedCaseCount": 0,
-  "replayDigest": "a192db19555de603ebf39436e8852c4a3961e18c1b1880323c2ce37da46bbf92",
+  "replayDigest": "d93e5aebe74e7e997c62c1c97cbebddb8195a8a562d22c7b77cb11911281f2b9",
   "metrics": {
     "verdictAccuracy": 1,
     "normalCitationValidity": 1,
+    "sourceGroundingPrecision": 1,
+    "sourceGroundingRecall": 1,
     "unsupportedRecall": 1,
     "contradictionRecall": 1,
     "reviewGateRecall": 1,
     "falsePositiveRate": 0,
     "degradedBehaviorPassRate": 1,
     "deterministicReplay": true
+  },
+  "timing": {
+    "totalMs": 1.062,
+    "meanCaseMs": 0.118,
+    "p50CaseMs": 0.044,
+    "p95CaseMs": 0.553
   },
   "thresholds": [
     {
@@ -25,6 +33,20 @@
     },
     {
       "metric": "normalCitationValidity",
+      "actual": 1,
+      "expected": 1,
+      "operator": ">=",
+      "passed": true
+    },
+    {
+      "metric": "sourceGroundingPrecision",
+      "actual": 1,
+      "expected": 1,
+      "operator": ">=",
+      "passed": true
+    },
+    {
+      "metric": "sourceGroundingRecall",
       "actual": 1,
       "expected": 1,
       "operator": ">=",
@@ -78,6 +100,7 @@
       "group": "normal",
       "description": "Recorded run covers supported, unsupported, contradictory, stale, and uncertain findings.",
       "passed": true,
+      "durationMs": 0.553,
       "checks": [
         {
           "label": "adjudication completed",
@@ -120,6 +143,62 @@
           "passed": true,
           "actual": "uncertain",
           "expected": "uncertain"
+        },
+        {
+          "label": "stale-gate exact source grounding",
+          "passed": true,
+          "actual": [
+            "diffs/stale-review-clock.patch:L7-L16"
+          ],
+          "expected": [
+            "diffs/stale-review-clock.patch:L7-L16"
+          ]
+        },
+        {
+          "label": "all-checks exact source grounding",
+          "passed": true,
+          "actual": [
+            "receipts/check.txt:L1-L4"
+          ],
+          "expected": [
+            "receipts/check.txt:L1-L4"
+          ]
+        },
+        {
+          "label": "deployed exact source grounding",
+          "passed": true,
+          "actual": [],
+          "expected": []
+        },
+        {
+          "label": "live-gpt exact source grounding",
+          "passed": true,
+          "actual": [
+            "receipts/model-run.json:L2-L5"
+          ],
+          "expected": [
+            "receipts/model-run.json:L2-L5"
+          ]
+        },
+        {
+          "label": "privacy-current exact source grounding",
+          "passed": true,
+          "actual": [
+            "receipts/privacy-audit.md:L3-L5"
+          ],
+          "expected": [
+            "receipts/privacy-audit.md:L3-L5"
+          ]
+        },
+        {
+          "label": "judge-ready exact source grounding",
+          "passed": true,
+          "actual": [
+            "sources/change-summary.md:L5-L5"
+          ],
+          "expected": [
+            "sources/change-summary.md:L5-L5"
+          ]
         }
       ]
     },
@@ -128,6 +207,7 @@
       "group": "degraded",
       "description": "A fabricated quote cannot support an otherwise supported claim.",
       "passed": true,
+      "durationMs": 0.221,
       "checks": [
         {
           "label": "adjudication completed",
@@ -154,6 +234,7 @@
       "group": "degraded",
       "description": "A citation to a source outside the bundle is rejected.",
       "passed": true,
+      "durationMs": 0.072,
       "checks": [
         {
           "label": "adjudication completed",
@@ -180,6 +261,7 @@
       "group": "normal",
       "description": "Model support cannot override an expired proof window.",
       "passed": true,
+      "durationMs": 0.032,
       "checks": [
         {
           "label": "adjudication completed",
@@ -206,6 +288,7 @@
       "group": "normal",
       "description": "A deterministic zero-exit receipt can confirm a claim the model marked uncertain.",
       "passed": true,
+      "durationMs": 0.044,
       "checks": [
         {
           "label": "adjudication completed",
@@ -232,6 +315,7 @@
       "group": "degraded",
       "description": "A non-zero command receipt contradicts a passing-check claim.",
       "passed": true,
+      "durationMs": 0.035,
       "checks": [
         {
           "label": "adjudication completed",
@@ -252,6 +336,7 @@
       "group": "normal",
       "description": "Proof exactly seven days old remains inside a seven-day window.",
       "passed": true,
+      "durationMs": 0.026,
       "checks": [
         {
           "label": "adjudication completed",
@@ -272,6 +357,7 @@
       "group": "degraded",
       "description": "Instructions embedded in evidence do not change deterministic verdicts.",
       "passed": true,
+      "durationMs": 0.023,
       "checks": [
         {
           "label": "adjudication completed",
@@ -298,6 +384,7 @@
       "group": "degraded",
       "description": "Missing required structured-output fields stop adjudication.",
       "passed": true,
+      "durationMs": 0.056,
       "checks": [
         {
           "label": "error invalid_proof_output",

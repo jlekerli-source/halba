@@ -1,0 +1,29 @@
+diff --git a/src/domain/feed.js b/src/domain/feed.js
+--- a/src/domain/feed.js
++++ b/src/domain/feed.js
+@@ -21,10 +21,13 @@ export function importReceiptSummary(feed) {
+ }
+ 
+-export function reviewGateSummary(feed, { visibleFocusCount = (feed?.focus || []).length } = {}) {
++export function reviewGateSummary(feed, {
++  visibleFocusCount = (feed?.focus || []).length,
++  now = new Date()
++} = {}) {
+   const qa = feed?.qa || [];
+   return {
+-    staleProjectCount: (feed?.projects || []).filter((project) => isStale(project)).length,
++    staleProjectCount: (feed?.projects || []).filter((project) => isStale(project, now)).length,
+     redQaCount: qa.filter((item) => item.severity === "red").length,
+     amberQaCount: qa.filter((item) => item.severity === "amber").length,
+     visibleFocusCount,
+diff --git a/scripts/check-stale.mjs b/scripts/check-stale.mjs
+--- a/scripts/check-stale.mjs
++++ b/scripts/check-stale.mjs
+@@ -4,6 +4,8 @@ import { isStale } from "../src/domain/stale.js";
+ const now = new Date("2026-06-23T12:00:00Z");
+ 
+ assert.equal(isStale({ lastProofDate: "2026-06-20", proofWindowDays: 7 }, now), false);
++assert.equal(isStale({ lastProofDate: "2026-06-16", proofWindowDays: 7 }, now), false);
++assert.equal(isStale({ lastProofDate: "2026-06-15", proofWindowDays: 7 }, now), true);
+ assert.equal(isStale({ lastProofDate: "2026-06-01", proofWindowDays: 7 }, now), true);
+ assert.equal(isStale({ lastProofDate: "", proofWindowDays: 7 }, now), true);

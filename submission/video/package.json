@@ -1,0 +1,35 @@
+{
+  "name": "halba-build-week-video",
+  "version": "1.0.0",
+  "description": "Reproducible Halba Build Week demo film.",
+  "repository": "https://github.com/jlekerli-source/halba",
+  "license": "Apache-2.0",
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.489",
+    "@remotion/captions": "4.0.489",
+    "@remotion/media": "4.0.489",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.489"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.489",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "render": "remotion render src/index.ts HalbaBuildWeek ../../artifacts/demo/halba-demo.mp4 --public-dir ../../artifacts --codec h264 --crf 18 --browser-executable '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'",
+    "still": "remotion still src/index.ts HalbaBuildWeek ../../artifacts/demo/halba-demo-still.png --public-dir ../../artifacts --frame 945 --browser-executable '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
+}
