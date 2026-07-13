@@ -3,9 +3,10 @@
 ## Public surfaces
 
 - Demo: [https://jlekerli-source.github.io/halba/](https://jlekerli-source.github.io/halba/)
-- Video: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
+- Submission film: [https://youtu.be/5wuC21fJVdo](https://youtu.be/5wuC21fJVdo)
+- Downloadable film mirror: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [https://github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
-- Deploy proof: [GitHub Actions run 29257080313](https://github.com/jlekerli-source/halba/actions/runs/29257080313)
+- Deploy proof: [GitHub Actions run 29269751495](https://github.com/jlekerli-source/halba/actions/runs/29269751495)
 - `scripts/build-pages.mjs` and `.github/workflows/pages.yml` — public-safe static build and deployment path.
 - [`judging-matrix.md`](judging-matrix.md) — official criterion-to-evidence map and fast judge path.
 

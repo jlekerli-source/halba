@@ -13,6 +13,7 @@ This is the operational handoff for the official OpenAI Build Week form. It sepa
 | Built with | OpenAI Responses API, GPT-5.6 Sol, Codex, Node.js, HTML, CSS, JavaScript, local JSON, Docker, GitHub Pages, Remotion | Ready |
 | Try it out | `https://jlekerli-source.github.io/halba/` | Live and verified |
 | Source repository | `https://github.com/jlekerli-source/halba` | Public, Apache-2.0 |
+| Submission film | `https://youtu.be/5wuC21fJVdo` | Public; 59 seconds; processing and copyright checks complete |
 | Downloadable film mirror | `https://jlekerli-source.github.io/halba/demo/halba-demo.mp4` | Live; not valid for Devpost's video field |
 | Screenshots | [`../artifacts/screenshots/`](../artifacts/screenshots/) | Seven accepted rendered states |
 | Existing-work disclosure | [`build-week-delta.md`](build-week-delta.md) | Ready |
@@ -27,7 +28,6 @@ This is the operational handoff for the official OpenAI Build Week form. It sepa
 | Join/register | Public submission manager currently asks the visitor to register | Confirm the signed-in account is registered |
 | Official rules | Event rules page currently says rules are not yet available | Read every rule after publication and reconcile this checklist |
 | Category/track | Four tracks are published | Select **Developer Tools**; Halba is an agentic developer workflow and proof/review tool |
-| Video field | A public YouTube video under three minutes is required, with audio explaining both Codex and GPT-5.6 | Upload the accepted MP4 using [`video-hosting.md`](video-hosting.md) and verify signed-out playback |
 | Codex session | The form requires the `/feedback` session ID where most core functionality was built | Use `019f58c5-7614-7de0-a316-3f72db0023ad`, the Build Week implementation task ID |
 | Custom questions | The overview now publishes the core requirements; exact form labels still require inspection | Answer from repository evidence; do not improvise metrics or affiliations |
 | Final submit | Submission period is open | Preview, proofread, accept the published rules, submit, and verify the green submitted state |

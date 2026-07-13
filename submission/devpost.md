@@ -11,10 +11,11 @@ The evidence control plane that checks whether an AI agent's “done” can pass
 ## Links
 
 - Demo: [https://jlekerli-source.github.io/halba/](https://jlekerli-source.github.io/halba/)
-- Video: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
+- Video: [https://youtu.be/5wuC21fJVdo](https://youtu.be/5wuC21fJVdo)
+- Downloadable film mirror: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [https://github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
 
-The GitHub-hosted MP4 is the canonical evidence mirror. Devpost's video field must use the public YouTube or Vimeo URL recorded in [`video-hosting.md`](video-hosting.md) after upload.
+The public YouTube URL is the Devpost video-field value. The GitHub-hosted MP4 remains the canonical evidence mirror.
 
 ## Inspiration
 

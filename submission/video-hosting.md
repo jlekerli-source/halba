@@ -4,6 +4,8 @@ Devpost's standard video field accepts a public YouTube, Vimeo, or Youku URL. Th
 
 ## YouTube metadata
 
+Published URL: [https://youtu.be/5wuC21fJVdo](https://youtu.be/5wuC21fJVdo)
+
 ### Title
 
 Halba — Can an AI Agent Prove It Is Done? | OpenAI Build Week
@@ -32,7 +34,9 @@ Built independently for OpenAI Build Week. Inspired by a public problem prompt f
 - Paid promotion: **No**.
 - Thumbnail: [`../artifacts/demo/devpost-thumbnail.png`](../artifacts/demo/devpost-thumbnail.png).
 - Captions: burned into the accepted encode; do not enable an incorrect auto-caption track over them.
-- Altered content: no realistic person, event, or place is impersonated; narration is disclosed above as synthesized.
+- AI-use disclosure: **Yes** because the narration is synthesized; no real person, event, or place is impersonated.
+
+YouTube reported upload and SD processing complete with no copyright issues before publication on July 13, 2026. The public page reports a 59-second duration.
 
 ## Integrity check after upload
 
