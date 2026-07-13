@@ -52,7 +52,7 @@ The release gate runs `check`, `smoke`, and `eval` inside the reconstructed tree
 
 The Dockerfile was also built from `dist/halba-public`. The resulting container reached `healthy`, served the UI and six-source bundle, and returned the six-claim recorded proof with four review gates.
 
-The redesigned public Pages app was exercised through replay and a browser-local human rejection with zero console errors; the open-gate count moved from four to three and the decision persisted in local storage. The hosted MP4 SHA-256 is `1e141f5e492b82735a333aaba56cca4870128cbd45cceb284bd2c8b8cf6186ab`, exactly matching the accepted local render. The local rendered-state suite separately covers the exact stale-clock diff, four decisions, zero open gates, and mobile source view.
+The redesigned public Pages app was exercised through replay and a browser-local human rejection with zero console errors; the open-gate count moved from four to three and the decision persisted in local storage. The submission-ready MP4 SHA-256 is `3ea02dadd67a4eb7ba80034cb8b3ab79dd2a76844b4015e7e43e94fae9de021d`; deployment verification must match that digest before submission. The local rendered-state suite separately covers the exact stale-clock diff, four decisions, zero open gates, and mobile source view.
 
 ## Disclosure
 

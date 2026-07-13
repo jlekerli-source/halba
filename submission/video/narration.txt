@@ -1,4 +1,4 @@
-An agent says the work shipped. But the machine receipt says the proof was recorded. Done is a claim.
+Codex built Halba's proof workflow and produced the change report it inspects. Done is still a claim.
 
 Halba turns reports, diffs, source files, and run receipts into one bounded evidence packet.
 

@@ -40,6 +40,8 @@ Every claim opens to exact source lines, a content hash, the model's reasoning b
 
 Halba is a dependency-free Node.js application with a static browser frontend. Proof bundles are local JSON plus source files. The server rejects absolute paths, traversal, undeclared files, symlinks, oversized inputs, and invalid line ranges.
 
+Codex accelerated the Build Week delta end to end: baseline and privacy auditing, Proof Mode implementation, deterministic guards, the eval corpus, rendered frontend iteration, the Remotion film, Docker verification, and public release automation. The most important decisions were to keep evidence local, separate inference from proof authority, label recorded versus live execution, and reserve unresolved decisions for a human. The public demo includes a safe version of the Codex-authored report, diff, and receipts it was built to inspect.
+
 The live inference path uses the OpenAI Responses API with `gpt-5.6-sol`, max reasoning, strict Structured Outputs, and `store: false`. Model output is never authoritative by itself. The adjudicator checks exact quotes and runs deterministic receipt, freshness, JSON-field, and required-citation guards before producing a verdict.
 
 The public Pages demo uses synthetic evidence and a clearly labeled structured-inference fixture so judges can reproduce the full workflow without providing credentials. It is not presented as evidence of a live GPT request. The Node and Docker paths retain the optional live integration, which fails closed when it is not configured or returns an invalid model response.

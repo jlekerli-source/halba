@@ -26,16 +26,17 @@ This is the operational handoff for the official OpenAI Build Week form. It sepa
 | --- | --- | --- |
 | Join/register | Public submission manager currently asks the visitor to register | Confirm the signed-in account is registered |
 | Official rules | Event rules page currently says rules are not yet available | Read every rule after publication and reconcile this checklist |
-| Category/track | Event resources say categories will be published when submissions open | Choose the strongest eligible category from the actual form |
-| Video field | Devpost requires YouTube, Vimeo, or Youku | Upload the accepted MP4 using [`video-hosting.md`](video-hosting.md) and verify signed-out playback |
-| Custom questions | Not yet published | Answer from repository evidence; do not improvise metrics or affiliations |
-| Final submit | Form is not yet open | Preview, proofread, accept the published rules, submit, and verify the green submitted state |
+| Category/track | Four tracks are published | Select **Developer Tools**; Halba is an agentic developer workflow and proof/review tool |
+| Video field | A public YouTube video under three minutes is required, with audio explaining both Codex and GPT-5.6 | Upload the accepted MP4 using [`video-hosting.md`](video-hosting.md) and verify signed-out playback |
+| Codex session | The form requires the `/feedback` session ID where most core functionality was built | Use `019f58c5-7614-7de0-a316-3f72db0023ad`, the Build Week implementation task ID |
+| Custom questions | The overview now publishes the core requirements; exact form labels still require inspection | Answer from repository evidence; do not improvise metrics or affiliations |
+| Final submit | Submission period is open | Preview, proofread, accept the published rules, submit, and verify the green submitted state |
 
 ## Final form reconciliation
 
-- Confirm the event permits pre-existing projects and that the Build Week delta satisfies its rule language.
+- Confirm the official rules permit pre-existing projects and that the documented Build Week delta satisfies the exact rule language; the overview alone does not settle this.
 - Confirm the required OpenAI product/model wording against the live form.
-- Confirm maximum video duration and whether public or unlisted hosting is permitted; prefer public.
+- Confirm the video is public, under three minutes, and its audio explains how both Codex and GPT-5.6 were used.
 - Confirm the selected category and any prize opt-ins appear in the final preview.
 - Confirm the thumbnail is not cropped through the Halba wordmark, headline, or contradiction badge.
 - Confirm Markdown links render and all public URLs work in a signed-out window.

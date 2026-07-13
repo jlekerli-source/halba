@@ -14,9 +14,11 @@ Halba is a local-first evidence control plane for AI-assisted work.
 
 When an agent says the work is done, Proof Mode turns its report, source files, diffs, and machine receipts into a traceable evidence graph. GPT-5.6 proposes atomic claims and precise citations; deterministic guards inspect the actual bytes; a human makes the final decision.
 
+Codex built the Build Week implementation delta, including Proof Mode, the eval corpus, the rendered interface, and the public release path. Halba's public proof packet includes a safe version of the Codex-authored change report and receipts that the product inspects.
+
 Try Halba: https://jlekerli-source.github.io/halba/
 Source: https://github.com/jlekerli-source/halba
-Release evidence: https://github.com/jlekerli-source/halba/releases/tag/v0.3.0-build-week
+Release evidence: https://github.com/jlekerli-source/halba/releases/tag/v0.3.1-build-week
 
 The public demo uses synthetic evidence and a visibly labeled structured-inference replay so it works without credentials. The optional live Responses API path is included in the Node and Docker builds and fails closed when it is unavailable or invalid.
 

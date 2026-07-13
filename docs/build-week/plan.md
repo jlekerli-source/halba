@@ -1,6 +1,6 @@
 # Halba Build Week execution plan
 
-Status: sanitized source, public demo, and demo film deployed; Devpost submission is waiting on the official form and rules
+Status: sanitized source and public demo deployed; official submission requirements reconciled and the compliant film is being published
 
 Thesis: Halba is a local-first evidence control plane for AI-assisted work. It turns agent runs, diffs, receipts, and source files into a traceable evidence graph, detects unsupported or stale claims, and shows what actually requires human review.
 
@@ -21,11 +21,12 @@ The acceptance checklists below preserve the original implementation contract. T
 | 7. Proof Mode UI | Complete | Real Chrome desktop/mobile screenshots; loading, replay, live-unavailable, empty queue, source, and human-decision states rendered. Normal demo path has zero console errors or warnings. |
 | 8. Evals | Complete for replay | Nine of nine cases pass, including degraded inputs and deterministic replay. Exact gold-source grounding precision and recall are 100%; replay latency is reported separately from unmeasured optional live-model latency, usage, cost, and accuracy. |
 | 9. Reproducible package | Complete | `release:check` reconstructs 113 allowlisted files, reruns check, smoke, and eval, hashes the archive, extracts it, and runs the suites again from the extracted copy. The final Docker image built from that exact tree and passed its health, UI, bundle, recorded-proof, and embedded-video hash checks. |
-| 10. Submission package | Public visual release deployed and verified; Devpost reconciliation remains | Public screenshots, Devpost copy, 90-second live script, reproducible 58-second captioned film, 3:2 gallery thumbnail, video-host metadata, architecture, disclosure, attribution, deployment guide, evidence index, and form checklist are present. Pages run 29257080313 deployed the final visual release; the hosted bundle, workflow, and film hash were verified. The official Devpost form/rules and a signed-in YouTube or Vimeo upload still remain. |
+| 10. Submission package | Official overview requirements reconciled; external upload/form execution remains | Public screenshots, Devpost copy, 90-second live script, reproducible 58-second captioned film, 3:2 gallery thumbnail, video-host metadata, architecture, disclosure, attribution, deployment guide, evidence index, and form checklist are present. The film is public-host compliant, under three minutes, and audibly explains both Codex and GPT-5.6. Developer Tools is the selected track. The signed-in YouTube upload and Devpost form submission remain. |
 
 Remaining gates:
 
-- Return when Devpost publishes the official rules and opens the submission form, reconcile any new required fields or tracks, authenticate the owner, upload the accepted film to an embeddable host, and submit before July 21 at 5:00 PM PT.
+- Upload the accepted film to public YouTube, provide the Build Week Codex task ID in the required `/feedback` field, select Developer Tools, and submit before July 21 at 5:00 PM PT.
+- The event overview is live, but the dedicated rules page still shows the placeholder notice. Recheck it before the final terms acceptance.
 - A live Responses API run is optional development evidence, not a release gate. The recorded path remains explicit and the live path continues to fail closed when it is not configured.
 
 ## Event baseline and delta policy

@@ -29,7 +29,7 @@ The first final-state capture pass revealed black masks in loading, diff, and co
 
 The final polish pass replaced generic letters, arrows, and punctuation with a consistent stroke-icon family for claims, sources, diffs, receipts, guards, verdicts, and human decisions. Onboarding now introduces a four-step claim → source → guard → human proof trace, which becomes the signature motion system in the film. The mobile trace was changed from a clipped four-column strip to a deliberate 2 × 2 layout.
 
-The earlier 78-second film was rejected as too static. Its replacement is a 58-second, eight-shot composition with a contradiction cold-open, animated proof packet, actual app surface, model-versus-receipt override, exact-source magnification, human-decision payoff, eval frame, and trace outro. Eight frames were extracted from the encoded MP4 and inspected. Narration was generated per scene and aligned to the timeline; an original synthesized bed and transition pulse were mixed to −16.0 LUFS integrated / −1.4 dB true peak.
+The earlier 78-second film was rejected as too static. Its replacement is a 58-second, eight-shot composition with a contradiction cold-open, animated proof packet, actual app surface, model-versus-receipt override, exact-source magnification, human-decision payoff, eval frame, and trace outro. Eight frames were extracted from the encoded MP4 and inspected. Narration was generated per scene and aligned to the timeline; an original synthesized bed and transition pulse were mixed to −16.2 LUFS integrated / −1.4 dB true peak. After the official requirements appeared, the first scene was recut so its audio and burned-in caption explicitly explain how Codex built the workflow, while the next product scene explains GPT-5.6's role.
 
 ## Result
 

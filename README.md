@@ -71,6 +71,14 @@ The checked-in replay report currently passes 9/9 with 100% expected-verdict acc
 
 Read [`artifacts/evals/latest.md`](artifacts/evals/latest.md) and [`docs/evals.md`](docs/evals.md).
 
+## How Codex and GPT-5.6 were used
+
+Codex was the Build Week implementation partner. It audited the private pre-event baseline, implemented Proof Mode and its deterministic guards, built the public-safe bundle and eval corpus, iterated the rendered interface, produced the reproducible film, and exercised the clean release in GitHub Pages and Docker. The public demo's own completion report, diff, and receipts make part of that Codex-authored delta inspectable inside Halba.
+
+GPT-5.6 Sol is part of the shipped product rather than only the development process. It converts an unstructured completion report into atomic claims, precise citations, uncertainty, and review questions under a strict schema. Halba then validates its output against exact source lines and lets deterministic guards override the model where receipts, dates, or required citations provide stronger authority.
+
+The key product decisions were to keep source bytes local, make recorded and live execution visibly distinct, preserve deterministic authority, and require a human decision for unresolved boundaries. Those decisions are encoded in the runtime, evals, screenshots, and release checks—not only described in submission copy.
+
 ## Reconstruct the public release
 
 ```bash

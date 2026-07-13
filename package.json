@@ -1,6 +1,6 @@
 {
   "name": "halba",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "Local-first evidence control plane for AI-assisted work.",
   "type": "module",
