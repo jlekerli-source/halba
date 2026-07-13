@@ -19,7 +19,7 @@ export async function buildPages(outputRoot = defaultPagesRoot) {
 
   const demoRoot = path.join(outputRoot, "demo");
   await mkdir(demoRoot, { recursive: true });
-  for (const file of ["halba-demo.mp4", "halba-demo-still.png"]) {
+  for (const file of ["halba-demo.mp4", "halba-demo-still.png", "devpost-thumbnail.png"]) {
     await copyFile(path.join(root, "artifacts", "demo", file), path.join(demoRoot, file));
   }
 
@@ -53,7 +53,8 @@ export async function buildPages(outputRoot = defaultPagesRoot) {
     bundleId: staticDemo.bundle.id,
     sourceCount: staticDemo.bundle.sourceCount,
     findingCount: staticDemo.proof.findings.length,
-    demoVideoPath: path.join(outputRoot, "demo", "halba-demo.mp4")
+    demoVideoPath: path.join(outputRoot, "demo", "halba-demo.mp4"),
+    devpostThumbnailPath: path.join(outputRoot, "demo", "devpost-thumbnail.png")
   };
 }
 

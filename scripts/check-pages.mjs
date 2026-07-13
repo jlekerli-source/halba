@@ -13,6 +13,7 @@ try {
   const packet = JSON.parse(await readFile(path.join(temporaryRoot, "static-demo.json"), "utf8"));
   const video = await readFile(path.join(temporaryRoot, "demo", "halba-demo.mp4"));
   const poster = await stat(path.join(temporaryRoot, "demo", "halba-demo-still.png"));
+  const thumbnail = await readFile(path.join(temporaryRoot, "demo", "devpost-thumbnail.png"));
 
   assert.ok(html.includes('data-static-demo="true"'));
   assert.ok(html.includes('href="styles.css"'));
@@ -27,8 +28,10 @@ try {
   assert.ok(video.length > 5_000_000, "demo video is unexpectedly small");
   assert.equal(video.subarray(4, 8).toString("ascii"), "ftyp");
   assert.ok(poster.size > 150_000, "demo poster is unexpectedly small");
+  assert.ok(thumbnail.length > 150_000, "Devpost thumbnail is unexpectedly small");
+  assert.equal(thumbnail.subarray(1, 4).toString("ascii"), "PNG");
 
-  console.log("check passed: Pages preserves the six-source proof workflow and demo film");
+  console.log("check passed: Pages preserves the six-source proof workflow, film, and Devpost thumbnail");
 } finally {
   await rm(temporaryRoot, { recursive: true, force: true });
 }
