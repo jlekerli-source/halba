@@ -19,7 +19,7 @@ Before product changes, the full working tree and Git metadata were preserved in
 - A regression eval corpus with exact gold-source grounding, replay timing, report artifacts, and release gates.
 - A synthetic public demo bundle and recorded-response mode.
 - Privacy audit, Apache-2.0 license, public documentation, container, and clean-package reconstruction.
-- A credential-free GitHub Pages adapter and deployment workflow for the complete recorded proof path.
+- A deployed credential-free GitHub Pages adapter and workflow for the complete recorded proof path.
 - A captioned 78-second product film with reproducible Remotion source, narration, poster, and encoded-artifact inspection.
 - A proper fix and boundary tests for the date-sensitive stale-count regression.
 

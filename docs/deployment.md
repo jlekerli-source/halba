@@ -51,4 +51,11 @@ The recorded path remains available when a judge does not provide credentials. L
 
 ## Publication status
 
-The repository scripts prepare and verify a reproducible public artifact but do not themselves create remotes, push code, deploy services, upload videos, or submit forms. External publication was authorized on 2026-07-13. The public source target is [github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba), and the read-only demo target is [jlekerli-source.github.io/halba](https://jlekerli-source.github.io/halba/).
+External publication was authorized and completed on 2026-07-13:
+
+- Source: [github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
+- Demo: [jlekerli-source.github.io/halba](https://jlekerli-source.github.io/halba/)
+- Film: [jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
+- Deploy proof: [GitHub Actions run 29248505905](https://github.com/jlekerli-source/halba/actions/runs/29248505905)
+
+The live app was exercised through onboarding, replay, exact-source inspection, four human decisions, the zero-open-review state, and reload persistence. The live static packet reports six sources, six findings, and four review gates. The hosted film hashes to the accepted local render. No private refs or local baseline objects were pushed.

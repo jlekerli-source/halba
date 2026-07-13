@@ -5,6 +5,7 @@
 - Demo: [https://jlekerli-source.github.io/halba/](https://jlekerli-source.github.io/halba/)
 - Video: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [https://github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
+- Deploy proof: [GitHub Actions run 29248505905](https://github.com/jlekerli-source/halba/actions/runs/29248505905)
 - `scripts/build-pages.mjs` and `.github/workflows/pages.yml` — public-safe static build and deployment path.
 
 ## Product proof
@@ -47,6 +48,8 @@ The command produces:
 The release gate runs `check`, `smoke`, and `eval` inside the reconstructed tree, extracts the archive, and runs the same suites again from the extracted copy. It does not publish or deploy anything.
 
 The Dockerfile was also built from `dist/halba-public`. The resulting container reached `healthy`, served the UI and six-source bundle, and returned the six-claim recorded proof with four review gates.
+
+The public Pages app was also exercised through replay, the exact stale-clock diff, four local human decisions, the zero-open-review state, and persistence after reload. The hosted MP4 SHA-256 is `e7ddba950409e4beef4b347f2e7458484677562afb690fd0eda50c7130be788c`, matching the accepted render.
 
 ## Disclosure
 

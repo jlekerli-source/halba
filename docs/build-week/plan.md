@@ -1,6 +1,6 @@
 # Halba Build Week execution plan
 
-Status: release hardening complete locally; authorized publication, deployment, and Devpost setup in progress
+Status: sanitized source, public demo, and demo film deployed; Devpost submission is waiting on the official form and rules
 
 Thesis: Halba is a local-first evidence control plane for AI-assisted work. It turns agent runs, diffs, receipts, and source files into a traceable evidence graph, detects unsupported or stale claims, and shows what actually requires human review.
 
@@ -21,12 +21,11 @@ The acceptance checklists below preserve the original implementation contract. T
 | 7. Proof Mode UI | Complete | Real Chrome desktop/mobile screenshots; loading, replay, live-unavailable, empty queue, source, and human-decision states rendered. Normal demo path has zero console errors or warnings. |
 | 8. Evals | Complete for replay | Nine of nine cases pass, including degraded inputs and deterministic replay. Exact gold-source grounding precision and recall are 100%; replay latency is reported separately from unmeasured optional live-model latency, usage, cost, and accuracy. |
 | 9. Reproducible package | Complete | `release:check` reconstructs 106 allowlisted files, reruns check, smoke, and eval, hashes the archive, extracts it, and runs the suites again from the extracted copy. The final Docker image built from that exact tree and passed its health, UI, bundle, recorded-proof, and embedded-video hash checks. |
-| 10. Submission package | Complete locally; publication in progress | Public screenshots, Devpost copy, 90-second live script, reproducible 78-second captioned film, architecture, disclosure, attribution, deployment guide, evidence index, canonical repository URL, and GitHub Pages target are present. |
+| 10. Submission package | Public surfaces complete; Devpost blocked externally | Public screenshots, Devpost copy, 90-second live script, reproducible 78-second captioned film, architecture, disclosure, attribution, deployment guide, and evidence index are present. Sanitized `main`, the Pages app, and the direct film URL are live. Devpost still says “Submissions open soon,” and its rules page says the official rules are not yet available. |
 
 Remaining gates:
 
-- Publish only the sanitized `main` branch, deploy the public demo, and record the resulting URLs after external authentication succeeds.
-- Devpost currently exposes registration but has not yet published the official rules or submission form; reconcile the final package with those fields as soon as they appear.
+- Return when Devpost publishes the official rules and opens the submission form, reconcile any new required fields or tracks, authenticate the owner, and submit before July 21 at 5:00 PM PT.
 - A live Responses API run is optional development evidence, not a release gate. The recorded path remains explicit and the live path continues to fail closed when it is not configured.
 
 ## Event baseline and delta policy
