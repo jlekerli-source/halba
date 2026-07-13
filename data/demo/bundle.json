@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "id": "halba-build-week-demo",
+  "title": "Halba Build Week proof review",
+  "generatedAt": "2026-07-13T00:00:00.000Z",
+  "evaluationDate": "2026-07-13",
+  "agent": "Codex",
+  "reportPath": "sources/agent-report.md",
+  "sources": [
+    {
+      "path": "sources/agent-report.md",
+      "label": "Agent completion report",
+      "kind": "report"
+    },
+    {
+      "path": "sources/change-summary.md",
+      "label": "Reviewed code-change summary",
+      "kind": "source"
+    },
+    {
+      "path": "receipts/check.txt",
+      "label": "Public check receipt",
+      "kind": "receipt"
+    },
+    {
+      "path": "receipts/model-run.json",
+      "label": "Model execution receipt",
+      "kind": "receipt"
+    },
+    {
+      "path": "receipts/privacy-audit.md",
+      "label": "Privacy audit receipt",
+      "kind": "receipt"
+    }
+  ],
+  "guards": [
+    {
+      "claimId": "stale-gate",
+      "type": "source_contains",
+      "path": "sources/change-summary.md",
+      "needle": "Review gate staleness now accepts an explicit evaluation time.",
+      "passVerdict": "supported",
+      "failVerdict": "unsupported"
+    },
+    {
+      "claimId": "all-checks",
+      "type": "receipt_exit",
+      "path": "receipts/check.txt",
+      "expectedExit": 0,
+      "passVerdict": "supported",
+      "failVerdict": "contradictory"
+    },
+    {
+      "claimId": "deployed",
+      "type": "citation_required",
+      "passVerdict": "supported",
+      "failVerdict": "unsupported"
+    },
+    {
+      "claimId": "live-gpt",
+      "type": "json_field_equals",
+      "path": "receipts/model-run.json",
+      "field": "mode",
+      "expected": "live",
+      "passVerdict": "supported",
+      "failVerdict": "contradictory"
+    },
+    {
+      "claimId": "privacy-current",
+      "type": "freshness",
+      "path": "receipts/privacy-audit.md",
+      "proofDate": "2026-07-01",
+      "maxAgeDays": 7,
+      "passVerdict": "supported",
+      "failVerdict": "stale"
+    }
+  ]
+}

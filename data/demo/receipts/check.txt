@@ -1,0 +1,4 @@
+command: pnpm run check
+exit: 0
+result: public checks passed
+scope: feed, stale logic, sorting, exports, source guards, privacy allowlist

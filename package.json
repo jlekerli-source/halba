@@ -1,24 +1,30 @@
 {
   "name": "halba",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Local-first evidence control plane for AI-assisted work.",
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "check": "node scripts/check.mjs && node scripts/check-stale.mjs && node scripts/check-feed-sort.mjs && node scripts/check-review-export.mjs && node scripts/check-source-preview-copy.mjs && node scripts/check-sample-feed.mjs && node scripts/check-view-state.mjs && node scripts/check-public-manifest.mjs && node scripts/audit-public.mjs",
+    "check": "node scripts/check.mjs && node scripts/check-stale.mjs && node scripts/check-feed-sort.mjs && node scripts/check-review-export.mjs && node scripts/check-source-preview-copy.mjs && node scripts/check-sample-feed.mjs && node scripts/check-view-state.mjs && node scripts/check-proof-bundle.mjs && node scripts/check-proof-engine.mjs && node scripts/check-openai-adapter.mjs && node scripts/check-public-manifest.mjs && node scripts/audit-public.mjs",
     "check:data": "node scripts/check.mjs",
     "check:sort": "node scripts/check-feed-sort.mjs",
     "check:stale": "node scripts/check-stale.mjs",
     "check:review": "node scripts/check-review-export.mjs",
     "check:source-preview": "node scripts/check-source-preview-copy.mjs",
-    "check:agent-updates": "node scripts/check-agent-updates.mjs",
     "check:sample-feed": "node scripts/check-sample-feed.mjs",
     "check:public-manifest": "node scripts/check-public-manifest.mjs",
+    "check:proof-bundle": "node scripts/check-proof-bundle.mjs",
+    "check:proof-engine": "node scripts/check-proof-engine.mjs",
+    "check:openai-adapter": "node scripts/check-openai-adapter.mjs",
     "audit:public": "node scripts/audit-public.mjs",
+    "eval": "node scripts/eval.mjs",
+    "eval:report": "node scripts/eval.mjs --write",
     "check:view-state": "node scripts/check-view-state.mjs",
     "package:dry-run": "node scripts/public-package-dry-run.mjs",
-    "smoke": "node scripts/smoke-sample.mjs"
+    "release:check": "node scripts/release-check.mjs",
+    "smoke": "node scripts/smoke-sample.mjs && node scripts/smoke-proof.mjs",
+    "smoke:proof": "node scripts/smoke-proof.mjs"
   },
   "engines": {
     "node": ">=20"

@@ -4,6 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { mergeAgentUpdates } from "./domain/agent-updates.js";
 import { formatImportRunDelta, formatImportRunDeltaDetails, importRunDelta } from "./domain/feed.js";
+import { loadProofBundle, publicBundleSummary } from "./proof/bundle.js";
+import { runProof } from "./proof/run.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = path.join(root, "public");
@@ -18,6 +20,7 @@ const importRunsPath = process.env.HALBA_IMPORT_RUNS_FILE
   : null;
 const port = Number(process.env.PORT || 4177);
 const sourceLimit = 14000;
+const requestBodyLimit = 4096;
 
 const types = {
   ".css": "text/css; charset=utf-8",
@@ -232,6 +235,85 @@ async function roadmapResponse() {
   }
 }
 
+async function proofBundleResponse() {
+  const bundle = await loadProofBundle();
+  return { status: 200, body: publicBundleSummary(bundle) };
+}
+
+async function proofSourceResponse(searchParams) {
+  const sourcePath = searchParams.get("path") || "";
+  const bundle = await loadProofBundle();
+  const source = bundle.sourceByPath.get(sourcePath);
+  if (!source) return { status: 404, body: { error: "proof source not found" } };
+
+  const requestedStart = Number(searchParams.get("startLine") || 1);
+  const requestedEnd = Number(searchParams.get("endLine") || source.lineCount);
+  if (
+    !Number.isInteger(requestedStart)
+    || !Number.isInteger(requestedEnd)
+    || requestedStart < 1
+    || requestedEnd < requestedStart
+    || requestedEnd > source.lineCount
+  ) {
+    return { status: 400, body: { error: "invalid proof source range" } };
+  }
+
+  return {
+    status: 200,
+    body: {
+      path: source.path,
+      label: source.label,
+      kind: source.kind,
+      sha256: source.sha256,
+      startLine: requestedStart,
+      endLine: requestedEnd,
+      lineCount: source.lineCount,
+      text: source.lines.slice(requestedStart - 1, requestedEnd).join("\n")
+    }
+  };
+}
+
+async function proofRunResponse(req) {
+  const body = await readJsonBody(req);
+  const proof = await runProof({ mode: body.mode || "recorded" });
+  return { status: 200, body: proof };
+}
+
+async function readJsonBody(req) {
+  const contentType = String(req.headers["content-type"] || "").split(";", 1)[0].trim();
+  if (contentType !== "application/json") throw apiError("content_type_required", "Proof requests require application/json.", 415);
+
+  const chunks = [];
+  let bytes = 0;
+  for await (const chunk of req) {
+    bytes += chunk.length;
+    if (bytes > requestBodyLimit) throw apiError("request_too_large", "Proof request exceeds the 4 KB limit.", 413);
+    chunks.push(chunk);
+  }
+
+  try {
+    const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("invalid body");
+    return body;
+  } catch {
+    throw apiError("invalid_json", "Proof request body must be a JSON object.", 400);
+  }
+}
+
+function apiError(code, message, status) {
+  const error = new Error(message);
+  error.code = code;
+  error.status = status;
+  return error;
+}
+
+function errorBody(error) {
+  return {
+    error: error?.code || "internal_error",
+    message: error?.status ? error.message : "Proof analysis failed unexpectedly."
+  };
+}
+
 function resolveRequest(url) {
   const pathname = new URL(url, "http://localhost").pathname;
   if (pathname === "/api/feed") return feedPath;
@@ -263,6 +345,39 @@ const server = http.createServer(async (req, res) => {
     const { status, body } = await roadmapResponse();
     res.writeHead(status, { "content-type": types[".json"] });
     res.end(JSON.stringify(body));
+    return;
+  }
+  if (url.pathname === "/api/proof/bundle" && req.method === "GET") {
+    try {
+      const { status, body } = await proofBundleResponse();
+      res.writeHead(status, { "content-type": types[".json"] });
+      res.end(JSON.stringify(body));
+    } catch (error) {
+      res.writeHead(error?.status || 500, { "content-type": types[".json"] });
+      res.end(JSON.stringify(errorBody(error)));
+    }
+    return;
+  }
+  if (url.pathname === "/api/proof/source" && req.method === "GET") {
+    try {
+      const { status, body } = await proofSourceResponse(url.searchParams);
+      res.writeHead(status, { "content-type": types[".json"] });
+      res.end(JSON.stringify(body));
+    } catch (error) {
+      res.writeHead(error?.status || 500, { "content-type": types[".json"] });
+      res.end(JSON.stringify(errorBody(error)));
+    }
+    return;
+  }
+  if (url.pathname === "/api/proof/run" && req.method === "POST") {
+    try {
+      const { status, body } = await proofRunResponse(req);
+      res.writeHead(status, { "content-type": types[".json"] });
+      res.end(JSON.stringify(body));
+    } catch (error) {
+      res.writeHead(error?.status || 500, { "content-type": types[".json"] });
+      res.end(JSON.stringify(errorBody(error)));
+    }
     return;
   }
   if (url.pathname === "/api/source") {

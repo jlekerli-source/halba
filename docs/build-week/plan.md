@@ -1,10 +1,33 @@
 # Halba Build Week execution plan
 
-Status: active execution plan
+Status: local release candidate complete; live credential and external publication gates remain
 
 Thesis: Halba is a local-first evidence control plane for AI-assisted work. It turns agent runs, diffs, receipts, and source files into a traceable evidence graph, detects unsupported or stale claims, and shows what actually requires human review.
 
 Flagship workflow: **Proof Mode** is part of Halba. It is not a separate product, chatbot, kanban board, or social surface.
+
+## Execution ledger — 2026-07-13
+
+The acceptance checklists below preserve the original implementation contract. This ledger records the verified outcome without rewriting that history.
+
+| Slice | Status | Evidence |
+| --- | --- | --- |
+| 1. Date determinism | Complete | Explicit evaluation time plus exact seven/eight-day boundary tests; full check passes. |
+| 2. Public boundary | Complete | Public sample defaults, ignored private artifacts, allowlist audit, Apache-2.0 license, and sanitized root commit. |
+| 3. Proof bundle | Complete | Five bounded, hashed, line-addressable public sources; traversal, symlink, size, and malformed-input checks. |
+| 4. Deterministic findings | Complete | Six claims cover all five verdicts; quote, receipt, JSON-field, citation, and freshness guards. |
+| 5. GPT-5.6 integration | Adapter complete; live run not performed | Sol/max Responses API request, strict schema, storage off, safe metadata, and mocked success/refusal/timeout/malformed paths. No local key was available. |
+| 6. API and review lifecycle | Complete | Bundle, run, and exact-source endpoints; guarded errors; browser-local approve/reject/resolve decisions. |
+| 7. Proof Mode UI | Complete | Real Chrome desktop/mobile screenshots; loading, replay, live-unavailable, empty queue, source, and human-decision states rendered. Normal demo path has zero console errors or warnings. |
+| 8. Evals | Complete for replay; live not performed | Nine of nine cases pass, including degraded inputs and deterministic replay. Live latency, usage, cost, and accuracy remain unmeasured. |
+| 9. Reproducible package | Complete | `release:check` reconstructs only allowlisted files, reruns check, smoke, and eval, hashes the archive, extracts it, and runs the suites again from the extracted copy. |
+| 10. Submission package | Complete locally | Public screenshots, Devpost copy, 90-second script, architecture, disclosure, attribution, deployment guide, and evidence index are present. |
+
+Remaining gates:
+
+- A server-side OpenAI credential is required for a genuine live GPT run and live eval. The no-key path is verified and fails closed.
+- No container runtime is installed on this machine, so the dependency-free Node deployment path is verified but the Dockerfile has not been built locally.
+- Creating a remote, pushing, deploying, uploading a video, or submitting Devpost remains an explicit external-authorization step.
 
 ## Event baseline and delta policy
 
@@ -82,7 +105,7 @@ Verification:
 
 - [ ] `pnpm run audit:public`
 - [ ] `pnpm run package:dry-run`
-- [ ] `git rev-list --objects --all` is audited after the sanitized initial commit.
+- [ ] `git rev-list --objects refs/heads/main` is audited after the sanitized initial commit; local tool refs are never mirrored or pushed.
 
 Dependencies: Slice 1.
 
@@ -327,7 +350,7 @@ Estimated scope: medium.
 
 | Risk | Impact | Mitigation |
 | --- | --- | --- |
-| Private local data enters public history | Critical | Immutable private backup, allowlist packaging, ignored private paths, content scans, and public-history enumeration before any remote action. |
+| Private local data enters public history | Critical | Immutable private backup, allowlist packaging, ignored private paths, content scans, intended-branch/tag enumeration, and an explicit branch-only push before any remote action. Never mirror local tool refs. |
 | No API credential is available | High | Implement and verify the adapter with mock HTTP plus labeled recorded responses; report live GPT verification as blocked, never implied. |
 | Model output cites nonexistent proof | High | Validate every path, hash, and line range deterministically; reject invalid citations and require review. |
 | The UI remains a dense dashboard instead of a demo story | High | Make Proof Mode the first viewport, move metadata behind disclosure, render at judge and mobile widths, and iterate from screenshots. |

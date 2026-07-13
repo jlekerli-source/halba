@@ -2,97 +2,129 @@
 
 Halba is a local-first evidence control plane for AI-assisted work.
 
-It is built for a simple but expensive question: when an agent says work is complete, what evidence actually supports that claim?
+When an agent says the work is done, Halba answers four questions: **what changed, what is verified, what is unsupported, and what still needs human review?**
 
-Halba keeps source files, run receipts, diffs, tests, and human review gates connected. Its Build Week flagship workflow, **Proof Mode**, is being developed to extract claims with GPT-5.6, validate exact source references with deterministic guards, and show what is verified, unsupported, stale, contradictory, or still uncertain.
+Its flagship workflow, **Proof Mode**, turns an agent report, local source files, and run receipts into a traceable evidence graph. GPT-5.6 extracts claims and precise citations; deterministic guards check the actual bytes; a human makes the final decision.
 
-Halba is not a chatbot, kanban board, or team-chat clone.
+Halba is not a chatbot, kanban board, or agent Slack clone.
 
-## Public-safe quickstart
+![Proof Mode showing a contradicted claim beside its exact receipt](artifacts/screenshots/proof-desktop.png)
 
-Requirements:
+## Try the public demo
 
-- Node.js 20 or newer.
-- No package dependencies.
-
-Run the checked-in public sample:
+Requirements: Node.js 20 or newer. Halba has no package dependencies.
 
 ```bash
 npm run check
 npm start
 ```
 
-Open [http://localhost:4177](http://localhost:4177).
+Open [http://localhost:4177](http://localhost:4177), then choose **Review the public run**. `pnpm` works in place of `npm`.
 
-`pnpm` can be used in place of `npm`.
+The default demo is synthetic and public-safe. Its structured-inference fixture is visibly labeled **Recorded** and makes no OpenAI request.
 
-The default runtime serves only:
+## What Proof Mode does
 
-- `data/sample-feed.json`
-- source files under `data/sample-source/`
+1. Loads one bounded local proof bundle containing claims, source files, and receipts.
+2. Uses GPT-5.6 Sol with max reasoning and strict Structured Outputs to propose claim boundaries and citations.
+3. Verifies source membership, line ranges, and exact quotes.
+4. Applies authoritative receipt, freshness, JSON-field, and required-citation guards.
+5. Assigns `supported`, `unsupported`, `stale`, `contradicted`, or `uncertain`.
+6. Opens every verdict to the exact source, content hash, model reasoning boundary, and guard trace.
+7. Records a human approve, reject, or resolve decision locally in the browser.
 
-To serve another local feed, set explicit paths:
+The model proposes; Halba checks; the human decides.
+
+## Optional live GPT-5.6
+
+Provide a key only to the server process:
 
 ```bash
-HALBA_FEED_FILE=/absolute/path/to/feed.json \
-HALBA_SOURCE_ROOT=/absolute/path/to/source-root \
-npm start
+OPENAI_API_KEY=... npm start
 ```
 
-Source paths inside the feed must remain relative to the configured source root. Halba rejects absolute, URI-like, Windows-absolute, and traversal-shaped source references.
+Then choose **Run live GPT-5.6**. The request uses:
 
-## Current verification
+- `gpt-5.6-sol`;
+- reasoning effort `max`;
+- strict JSON Schema output;
+- `store: false`;
+- only the bounded active proof packet.
+
+Credentials never enter browser code. Missing credentials, refusals, timeouts, malformed JSON, and schema-invalid responses fail closed; Halba does not silently substitute the recording.
+
+See [`docs/openai.md`](docs/openai.md) for the inference boundary.
+
+## Evaluation
 
 ```bash
-npm run check
-npm run smoke
-npm run audit:public
-npm run package:dry-run
+npm run eval
 ```
 
-- `check` validates the public feed contract, date and stale logic, sorting, exports, source-preview receipts, view-state helpers, the public manifest, and the privacy allowlist.
-- `smoke` starts the public sample server and verifies the feed, source previews, and path guards over HTTP.
-- `audit:public` scans only public-manifest files for private paths, private-source markers, and credential-shaped content.
-- `package:dry-run` enumerates public include and local-only exclude paths without copying or publishing anything.
+The public regression corpus contains nine cases covering all five verdicts, citation fabrication, unknown sources, model/guard disagreement, failed receipts, the exact stale boundary, prompt-like evidence, malformed output, false positives, and deterministic replay.
+
+The checked-in replay report currently passes 9/9 with 100% expected-verdict accuracy and 0% final-verdict false positives on this compact golden corpus. This validates Halba's adjudication and grounding contract—not live-model quality. Live latency, usage, cost, and accuracy remain explicitly unmeasured without a credentialed run.
+
+Read [`artifacts/evals/latest.md`](artifacts/evals/latest.md) and [`docs/evals.md`](docs/evals.md).
+
+## Reconstruct the public release
+
+```bash
+npm run release:check
+```
+
+This command:
+
+- copies only the explicit public allowlist into `dist/halba-public/`;
+- proves known private paths are absent;
+- reruns checks, HTTP smoke tests, and evals inside that clean tree;
+- creates `dist/halba-public.tar.gz` and a SHA-256 evidence record;
+- extracts the archive and reruns the same suites from the extracted copy;
+- performs no push, deployment, upload, or submission.
+
+The allowlist is [`docs/public-package-manifest.md`](docs/public-package-manifest.md). Container instructions are in [`docs/deployment.md`](docs/deployment.md).
 
 ## Architecture
 
-Halba intentionally starts small:
+Halba intentionally stays small:
 
-- Node.js standard-library HTTP server.
-- Static HTML, CSS, and browser JavaScript.
-- Local JSON and source files.
-- Read-only source preview with path containment.
-- Deterministic proof guards ahead of model inference.
-- Optional server-side OpenAI integration; credentials never enter browser code.
+- dependency-free Node.js HTTP server;
+- static HTML, CSS, and browser JavaScript;
+- local JSON and source files;
+- bounded, read-only source inspection;
+- server-side OpenAI integration;
+- deterministic guards ahead of final verdicts;
+- browser-local human review records.
 
-The active Build Week execution plan is in [`docs/build-week/plan.md`](docs/build-week/plan.md).
+See [`docs/architecture.md`](docs/architecture.md) and [`docs/proof-bundle.md`](docs/proof-bundle.md).
 
 ## Privacy model
 
 - Public sample data is the default.
-- Local operator data and adapters are ignored and excluded from the public manifest.
-- OpenAI requests, when enabled, are server-side, bounded to the selected evidence packet, and configured with storage disabled.
-- A recorded-response demo must be labeled as recorded; it is never evidence of a live API call.
-- No remote, deployment, or publication is created by the repository scripts.
+- The release is built from an allowlist, not from the working tree by exclusion alone.
+- Personal paths, known private-source markers, and credential-shaped content are audit failures.
+- OpenAI requests are opt-in, bounded, server-side, and configured with storage disabled.
+- Local feeds, raw transcripts, environment files, import histories, and private adapters are not in the public artifact.
 
-## Project boundary
+Read [`docs/privacy.md`](docs/privacy.md) and [`SECURITY.md`](SECURITY.md).
 
-In scope:
+## Build Week disclosure
 
-- evidence ingestion;
-- claim and citation extraction;
-- stale, contradictory, missing, and unsupported proof detection;
-- exact source inspection;
-- human approve, reject, and resolve gates;
-- repeatable evals and review exports.
+Halba began Build Week as a local evidence-feed MVP with stale detection, source previews, and review export. Proof Mode, the GPT-5.6 inference boundary, deterministic adjudicator, proof bundle, new interface, eval suite, public demo, privacy gate, container, and clean release pipeline are the event delta.
 
-Out of scope:
+The full disclosure is in [`submission/build-week-delta.md`](submission/build-week-delta.md). Judge-ready copy, a 90-second demo script, and the evidence index live in [`submission/`](submission/).
 
-- DMs, channels, presence, reactions, and realtime collaboration;
-- hosted accounts and sync;
-- generic task or roadmap management;
-- agent command execution.
+## Inspiration
+
+The original prompt was inspired by Theo Browne's June 22, 2026 video, [“I don't have time to build these things, will you?”](https://www.youtube.com/watch?v=wEAb0x3wTRc), which included a call for a Slack alternative that works for agents.
+
+Halba is an independent response focused on evidence and human review. Theo and the T3 Code ecosystem did not build, sponsor, partner on, or endorse Halba. See the [attribution record](submission/attribution.md).
+
+## Scope
+
+In scope: evidence ingestion, claim extraction, exact-source grounding, stale and contradictory proof detection, human review gates, evals, and review exports.
+
+Out of scope: DMs, channels, presence, reactions, realtime collaboration, hosted accounts, generic roadmap management, and agent command execution.
 
 ## License
 
