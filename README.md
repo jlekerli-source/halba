@@ -13,6 +13,7 @@ Halba is not a chatbot, kanban board, or agent Slack clone.
 ## Try the public demo
 
 - Public demo: [jlekerli-source.github.io/halba](https://jlekerli-source.github.io/halba/)
+- Build Week submission: [devpost.com/software/halba](https://devpost.com/software/halba)
 - 58-second film: [jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
 

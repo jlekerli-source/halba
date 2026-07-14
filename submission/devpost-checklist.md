@@ -1,6 +1,6 @@
 # Devpost submission checklist
 
-This is the operational handoff for the official OpenAI Build Week form. It separates fields that are ready from event-specific questions that are not yet public.
+This was the operational handoff for the official OpenAI Build Week form. Halba was submitted on July 15, 2026; the final public project is [devpost.com/software/halba](https://devpost.com/software/halba). The observed confirmation is recorded in [`devpost-submission.md`](devpost-submission.md).
 
 ## Ready to paste
 
@@ -21,25 +21,23 @@ This is the operational handoff for the official OpenAI Build Week form. It sepa
 | Submitter type | Individual | Ready unless the team changes |
 | Country | Switzerland | Listed as eligible on the event overview; recheck the official rules |
 
-## Requires external state
+## External state reconciled
 
-| Item | Current evidence | Completion condition |
+| Item | Final evidence | Status |
 | --- | --- | --- |
-| Join/register | Public submission manager currently asks the visitor to register | Confirm the signed-in account is registered |
-| Official rules | Event rules page currently says rules are not yet available | Read every rule after publication and reconcile this checklist |
-| Category/track | Four tracks are published | Select **Developer Tools**; Halba is an agentic developer workflow and proof/review tool |
-| Codex session | The form requires the `/feedback` session ID where most core functionality was built | Use `019f58c5-7614-7de0-a316-3f72db0023ad`, the Build Week implementation task ID |
-| Custom questions | The overview now publishes the core requirements; exact form labels still require inspection | Answer from repository evidence; do not improvise metrics or affiliations |
-| Final submit | Submission period is open | Preview, proofread, accept the published rules, submit, and verify the green submitted state |
+| Join/register | Signed-in Devpost account `jlekerli-source` reached the event submission manager | Complete |
+| Official rules and terms | Accepted on the finalization form under the submitter's explicit submission authorization | Complete |
+| Category/track | **Developer Tools** | Complete |
+| Codex session | `019f58c5-7614-7de0-a316-3f72db0023ad` | Complete |
+| Custom questions | Public repo, credential-free judge path, installation/testing instructions, individual submitter type, and Switzerland entered | Complete |
+| Final submit | Devpost displayed `Project submitted!` and opened the public project page | Complete |
 
-## Final form reconciliation
+## Final form reconciliation completed
 
-- Confirm the official rules permit pre-existing projects and that the documented Build Week delta satisfies the exact rule language; the overview alone does not settle this.
-- Confirm the required OpenAI product/model wording against the live form.
-- Confirm the video is public, under three minutes, and its audio explains how both Codex and GPT-5.6 were used.
-- Confirm the selected category and any prize opt-ins appear in the final preview.
-- Confirm the thumbnail is not cropped through the Halba wordmark, headline, or contradiction badge.
-- Confirm Markdown links render and all public URLs work in a signed-out window.
-- Confirm the recorded/live disclosure remains visible in both the project story and product.
-- Confirm no private baseline path, private portfolio content, secret, local username, or private adapter appears in the submission.
-- Submit early enough to preserve time for Devpost eligibility feedback and edits.
+- The live form required a public/private repo, Codex/GPT-5.6 README coverage, category, country, submitter type, judge path, developer-tool instructions, and the `/feedback` session ID; all were entered.
+- The public project renders the edited Markdown story without the form's starter headings.
+- The public page embeds the 59-second YouTube film and shows the 3:2 Halba artwork without cropping the headline or contradiction badge.
+- The public page exposes both the credential-free Pages demo and public GitHub repository.
+- The story preserves the recorded-versus-live disclosure, pre-existing-work boundary, and independent-inspiration attribution.
+- No private baseline path, private portfolio content, secret, local username, or private adapter was entered into the form.
+- Devpost states that the project remains editable until the deadline.
