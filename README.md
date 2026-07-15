@@ -37,6 +37,7 @@ The default demo is synthetic and public-safe. Its structured-inference fixture 
 5. Assigns `supported`, `unsupported`, `stale`, `contradicted`, or `uncertain`.
 6. Opens every verdict to the exact source, content hash, model reasoning boundary, and guard trace.
 7. Records a human approve, reject, or resolve decision locally in the browser.
+8. Downloads a portable Markdown review record with verdicts, exact source ranges and hashes, guards, and human decisions.
 
 The model proposes; Halba checks; the human decides.
 

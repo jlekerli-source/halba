@@ -4,7 +4,7 @@ This matrix maps the four published OpenAI Build Week judging criteria to eviden
 
 ## Technical implementation
 
-Judge question: Does Halba use GPT-5.6 thoroughly in a working, non-trivial implementation?
+Judge question: How thoroughly and skillfully does Halba use Codex, and does the code reflect genuine effort and a working, non-trivial implementation?
 
 Halba assigns GPT-5.6 Sol/max the semantic task that deterministic code cannot handle reliably: extracting atomic claims, proposing precise citations, and expressing bounded uncertainty. The model response is strict structured input, never authority. The adjudicator independently validates paths, line ranges, quotes, dates, receipts, and explicit contradictions.
 
@@ -15,6 +15,7 @@ Evidence:
 - `src/proof/engine.js` — citation validation and deterministic verdict precedence.
 - `scripts/check-openai-adapter.mjs` — request-shape, success, refusal, timeout, and malformed-output coverage.
 - `evals/corpus.json` — nine regression cases across all verdicts and degraded inputs.
+- The downloadable review record preserves every verdict, reasoning boundary, exact source range and hash, deterministic guard, and human decision in one portable Markdown artifact.
 - Film: 00:14–00:40 shows the real app, structured inference, deterministic override, and exact evidence.
 
 Honest boundary: the public credential-free demo uses a visibly labeled structured-inference fixture. It proves the shipped inference contract and end-to-end workflow, not a live API request.
@@ -71,8 +72,9 @@ Evidence:
 3. Open the contradictory live-GPT claim and compare it with `receipts/model-run.json`.
 4. Switch to **Verified** and open the stale-clock claim to see the actual Build Week diff.
 5. Reject or resolve a gate and confirm the local decision count changes.
-6. Read `artifacts/evals/latest.md` for the compact corpus results and stated limitations.
+6. Download the review record and confirm the human decision, exact citations, hashes, and guard outcomes are portable.
+7. Read `artifacts/evals/latest.md` for the compact corpus results and stated limitations.
 
 ## Submission reconciliation
 
-When the official rules and form appear, check this matrix against any newly published tracks, mandatory fields, disclosure language, media-host restrictions, or eligibility acknowledgements before submitting. Do not infer those requirements from the placeholder event page.
+Reconciled July 15, 2026 against the live Devpost Hackathons plugin: **Technological Implementation**, **Design**, **Potential Impact**, and **Quality of the Idea** are the four published criteria; Halba remains submitted under **Developer Tools**.

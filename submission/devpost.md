@@ -60,6 +60,7 @@ Public release preparation was also a product problem. The pre-existing local ap
 - Deterministic guards that can override model overconfidence.
 - A regression corpus spanning every verdict, malformed output, prompt-like evidence, stale boundaries, false positives, and failed receipts.
 - A responsive desktop/mobile review surface built for a short live demo.
+- A downloadable review record that preserves exact source hashes, guard outcomes, and human decisions.
 - A dependency-free product runtime inside a reproducible, privacy-audited public release.
 - A captioned 58-second submission film whose Remotion source, narration, captions, and original sound bed are checked in.
 

@@ -225,6 +225,7 @@ function renderSummaryPane() {
   const proof = state.proof;
   const decisions = Object.values(state.decisions).filter((decision) => proof.findings.some((finding) => finding.claimId === decision.claimId));
   const openReviewCount = proof.findings.filter((finding) => finding.reviewRequired && !state.decisions[finding.claimId]).length;
+  const reviewRecordUrl = `data:text/markdown;charset=utf-8,${encodeURIComponent(proofReceipt())}`;
   return `
     <div class="pane-head">
       <div>
@@ -263,6 +264,7 @@ function renderSummaryPane() {
     </dl>
 
     <div class="summary-actions">
+      <a class="button button-primary" href="${reviewRecordUrl}" download="halba-proof-review.md">${icon("download", "button-icon")}Download review record</a>
       <button class="button button-secondary" type="button" data-copy-receipt>Copy proof receipt</button>
       <button class="text-action" type="button" data-run-mode="recorded">Run again</button>
     </div>
@@ -515,7 +517,8 @@ function icon(name, className = "glyph") {
     uncertain: '<path d="M9.5 9a2.8 2.8 0 1 1 4.5 2.2c-1.3.8-2 1.3-2 2.8M12 18h.01"/>',
     diff: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5M10 12h5M10 16h2M14 16h3"/>',
     receipt: '<path d="M7 3h10v18l-2-1.5L13 21l-2-1.5L9 21l-2-1.5z"/><path d="M10 8h4M10 12h4"/>',
-    report: '<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>'
+    report: '<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+    download: '<path d="M12 4v11M8 11l4 4 4-4M5 20h14"/>'
   };
   return `<svg class="${escapeHtml(className)}" viewBox="0 0 24 24" aria-hidden="true">${paths[name] || paths.claim}</svg>`;
 }
@@ -732,20 +735,41 @@ function proofReceipt() {
   const proof = state.proof;
   const decisionCount = proof.findings.filter((finding) => state.decisions[finding.claimId]).length;
   return [
-    "Halba Proof Mode receipt",
-    `bundle: ${proof.bundle.id}`,
-    `mode: ${proof.execution.mode}`,
-    `model: ${proof.execution.model}`,
-    `reasoning: ${proof.execution.reasoningEffort}`,
-    `store: ${proof.execution.store}`,
-    `supported: ${proof.counts.supported}`,
-    `unsupported: ${proof.counts.unsupported}`,
-    `contradictory: ${proof.counts.contradictory}`,
-    `stale: ${proof.counts.stale}`,
-    `uncertain: ${proof.counts.uncertain}`,
-    `human decisions: ${decisionCount}`,
+    "# Halba Proof Mode review record",
     "",
-    ...proof.findings.map((finding) => `- ${finding.claimId}: ${finding.verdict}${state.decisions[finding.claimId] ? ` / human ${state.decisions[finding.claimId].status}` : ""}`)
+    `- Bundle: ${proof.bundle.id}`,
+    `- Generated: ${proof.bundle.generatedAt}`,
+    `- Execution: ${proof.execution.mode} / ${proof.execution.model} / reasoning ${proof.execution.reasoningEffort}`,
+    `- API storage: ${proof.execution.store ? "on" : "off"}`,
+    `- Verdicts: ${proof.counts.supported} verified, ${proof.counts.unsupported} unsupported, ${proof.counts.contradictory} contradictory, ${proof.counts.stale} stale, ${proof.counts.uncertain} uncertain`,
+    `- Human decisions: ${decisionCount} of ${proof.findings.filter((finding) => finding.reviewRequired).length} review gates`,
+    "",
+    "## Claims",
+    "",
+    ...proof.findings.flatMap((finding) => {
+      const decision = state.decisions[finding.claimId];
+      const citations = finding.citations.filter((citation) => citation.valid);
+      return [
+        `### ${finding.claimId}`,
+        "",
+        finding.claim,
+        "",
+        `- Final verdict: ${verdictLabel(finding.verdict)}`,
+        `- Model assessment: ${verdictLabel(finding.modelAssessment)} (${Math.round(finding.confidence * 100)}%)`,
+        `- Reasoning boundary: ${finding.reasoningBoundary}`,
+        `- Human decision: ${decision?.status || (finding.reviewRequired ? "pending" : "not required")}`,
+        decision?.note ? `- Review note: ${decision.note}` : "",
+        "- Evidence:",
+        ...(citations.length
+          ? citations.map((citation) => `  - ${citation.path}:L${citation.startLine}-L${citation.endLine} / sha256:${citation.sourceSha256}`)
+          : ["  - No valid citation"]),
+        "- Deterministic guards:",
+        ...(finding.guardResults.length
+          ? finding.guardResults.map((guard) => `  - ${guard.passed ? "PASS" : "FAIL"} ${guard.type}: ${guard.explanation}`)
+          : ["  - None can settle this claim"]),
+        ""
+      ].filter(Boolean);
+    })
   ].join("\n");
 }
 

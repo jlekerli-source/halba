@@ -1071,8 +1071,13 @@ dd {
 .summary-actions {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
+}
+
+.summary-actions > .button-primary {
+  flex: 1 0 100%;
 }
 
 .summary-pane .button-secondary {

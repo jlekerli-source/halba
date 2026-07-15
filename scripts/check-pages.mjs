@@ -10,6 +10,7 @@ const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "halba-pages-"));
 try {
   const result = await buildPages(temporaryRoot);
   const html = await readFile(path.join(temporaryRoot, "index.html"), "utf8");
+  const app = await readFile(path.join(temporaryRoot, "app.js"), "utf8");
   const packet = JSON.parse(await readFile(path.join(temporaryRoot, "static-demo.json"), "utf8"));
   const video = await readFile(path.join(temporaryRoot, "demo", "halba-demo.mp4"));
   const poster = await stat(path.join(temporaryRoot, "demo", "halba-demo-still.png"));
@@ -18,6 +19,9 @@ try {
   assert.ok(html.includes('data-static-demo="true"'));
   assert.ok(html.includes('href="styles.css"'));
   assert.ok(html.includes('src="app.js"'));
+  assert.ok(app.includes('download="halba-proof-review.md"'));
+  assert.ok(app.includes("citation.sourceSha256"));
+  assert.ok(app.includes("encodeURIComponent(proofReceipt())"));
   assert.equal(result.bundleId, "halba-build-week-demo");
   assert.equal(packet.bundle.sourceCount, 6);
   assert.equal(packet.proof.execution.mode, "recorded");
