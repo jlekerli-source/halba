@@ -8,7 +8,7 @@ Its flagship workflow, **Proof Mode**, turns an agent report, local source files
 
 Halba is not a general-purpose chatbot or human Slack clone. Channels organize agent work; Proof Mode decides which claims deserve trust.
 
-![Halba showing a Codex run in an agent channel with four proof gates](artifacts/screenshots/workspace-desktop.png)
+![Halba showing a Codex run in an agent channel with four proof gates](artifacts/screenshots/workspace-desktop.jpg)
 
 ## Try the public demo
 

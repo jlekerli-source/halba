@@ -64,6 +64,6 @@ The interaction pass proved workspace → Proof Mode → contradictory receipt, 
 - `artifacts/screenshots/review-resolved-desktop.png`
 - `artifacts/screenshots/live-unavailable-desktop.png`
 - `artifacts/screenshots/proof-mobile-source.png`
-- `artifacts/screenshots/workspace-desktop.png`
-- `artifacts/screenshots/workspace-mobile.png`
-- `artifacts/screenshots/workspace-proof-desktop.png`
+- `artifacts/screenshots/workspace-desktop.jpg`
+- `artifacts/screenshots/workspace-mobile.jpg`
+- `artifacts/screenshots/workspace-proof-desktop.jpg`

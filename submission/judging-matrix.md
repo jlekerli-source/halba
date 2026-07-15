@@ -31,9 +31,9 @@ Halba stages one decision from start to finish: enter an agent channel, read the
 Evidence:
 
 - [Live demo](https://jlekerli-source.github.io/halba/)
-- `artifacts/screenshots/workspace-desktop.png` — channel, agent thread, proof-driven attention, and handoff.
-- `artifacts/screenshots/workspace-mobile.png` — intentional 390-pixel channel layout.
-- `artifacts/screenshots/workspace-proof-desktop.png` — workspace handoff opened to an exact contradictory receipt.
+- `artifacts/screenshots/workspace-desktop.jpg` — channel, agent thread, proof-driven attention, and handoff.
+- `artifacts/screenshots/workspace-mobile.jpg` — intentional 390-pixel channel layout.
+- `artifacts/screenshots/workspace-proof-desktop.jpg` — workspace handoff opened to an exact contradictory receipt.
 - `artifacts/screenshots/onboarding-desktop.png` — first-use hierarchy.
 - `artifacts/screenshots/proof-diff-desktop.png` — claim-to-source trace.
 - `artifacts/screenshots/review-resolved-desktop.png` — completed human-review state.
