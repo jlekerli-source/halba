@@ -19,10 +19,12 @@ This allowlist defines the only files eligible for a public Halba release candid
 - `public/`
 - `src/server.js`
 - `src/domain/`
+- `src/importers/codex-proof.js`
 - `src/proof/`
 - `scripts/audit-public.mjs`
 - `scripts/build-pages.mjs`
 - `scripts/check-feed-sort.mjs`
+- `scripts/check-codex-import.mjs`
 - `scripts/check-openai-adapter.mjs`
 - `scripts/check-pages.mjs`
 - `scripts/check-public-manifest.mjs`
@@ -33,9 +35,13 @@ This allowlist defines the only files eligible for a public Halba release candid
 - `scripts/check-source-preview-copy.mjs`
 - `scripts/check-stale.mjs`
 - `scripts/check-view-state.mjs`
+- `scripts/check-workspace.mjs`
+- `scripts/check-workspace-import.mjs`
 - `scripts/check.mjs`
 - `scripts/feed-validation.mjs`
 - `scripts/eval.mjs`
+- `scripts/eval-workspace.mjs`
+- `scripts/import-codex-run.mjs`
 - `scripts/public-manifest.mjs`
 - `scripts/public-package-dry-run.mjs`
 - `scripts/release-check.mjs`
@@ -49,6 +55,7 @@ This allowlist defines the only files eligible for a public Halba release candid
 - `artifacts/demo/`
 - `artifacts/screenshots/`
 - `docs/build-week/plan.md`
+- `docs/agent-workspace-plan.md`
 - `docs/architecture.md`
 - `docs/deployment.md`
 - `docs/feed-contract.md`

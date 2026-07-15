@@ -1,8 +1,13 @@
+import { validateImportedWorkspace } from "./workspace-import.js";
+import { decisionClosesGate, shouldAdvanceReviewSelection } from "./workspace-state.js";
+
 const decisionStorageKey = "halba:proof-decisions:v1";
+const workspaceUiStorageKey = "halba:workspace-ui:v1";
 
 const state = {
   phase: "boot",
   bundle: null,
+  workspace: null,
   proof: null,
   error: null,
   activeRunMode: null,
@@ -13,7 +18,14 @@ const state = {
   sourceError: null,
   filter: "review",
   mobileView: "summary",
-  decisions: readDecisions()
+  decisions: readDecisions(),
+  selectedThreadId: null,
+  activeProofThreadId: null,
+  workspaceScope: { kind: "channel", id: null },
+  workspaceFilter: "all",
+  workspaceQuery: "",
+  workspaceNotice: null,
+  workspaceImported: false
 };
 
 let sourceRequest = 0;
@@ -31,13 +43,14 @@ initialize();
 async function initialize() {
   render();
   try {
-    state.bundle = await requestBundle();
+    [state.bundle, state.workspace] = await Promise.all([requestBundle(), requestWorkspace()]);
+    hydrateWorkspaceUi();
     state.phase = "ready";
   } catch (error) {
     state.phase = "error";
     state.error = {
-      code: "bundle_unavailable",
-      message: error.message || "The public proof bundle could not be loaded."
+      code: "workspace_unavailable",
+      message: error.message || "The public agent workspace could not be loaded."
     };
   }
   render();
@@ -69,13 +82,13 @@ function updateHeader() {
   for (const step of document.querySelectorAll("[data-process-step]")) {
     const name = step.dataset.processStep;
     const current = (
-      (state.phase === "ready" && name === "run")
-      || (state.phase === "loading" && name === "adjudicate")
-      || (state.phase === "proof" && name === "review")
+      (state.phase === "ready" && name === "workspace")
+      || (state.phase === "loading" && name === "thread")
+      || (state.phase === "proof" && name === "proof")
     );
     const complete = (
-      (state.phase === "loading" && name === "run")
-      || (state.phase === "proof" && ["run", "adjudicate"].includes(name))
+      (state.phase === "loading" && name === "workspace")
+      || (state.phase === "proof" && ["workspace", "thread"].includes(name))
     );
     step.classList.toggle("is-current", current);
     step.classList.toggle("is-complete", complete);
@@ -100,72 +113,274 @@ function renderBoot() {
 }
 
 function renderOnboarding() {
-  const bundle = state.bundle;
+  const workspace = state.workspace.workspace;
+  const threads = visibleWorkspaceThreads();
+  const thread = selectedWorkspaceThread(threads);
+  const scope = workspaceScopeDetails();
+  const openReviewCount = workspaceTotalAttention();
   return `
-    <section class="onboarding">
-      <div class="onboarding-copy">
-        <p class="eyebrow">Local-first evidence control plane</p>
-        <h1>Agent says “done.”<br><span>Halba asks for proof.</span></h1>
-        <p class="lede">Turn completion reports, diffs, source files, and run receipts into a traceable proof graph. GPT-5.6 finds the claim boundary; deterministic guards decide what the bytes can prove.</p>
-
-        <ol class="proof-trace" aria-label="How Halba evaluates a claim">
-          <li>${icon("claim")}<span><strong>Claim</strong><small>Extract the assertion</small></span></li>
-          <li>${icon("source")}<span><strong>Source</strong><small>Open exact lines</small></span></li>
-          <li>${icon("guard")}<span><strong>Guard</strong><small>Check actual facts</small></span></li>
-          <li>${icon("human")}<span><strong>Human</strong><small>Decide the boundary</small></span></li>
-        </ol>
-
-        <div class="onboarding-actions">
-          <button class="button button-primary button-large" type="button" data-run-mode="recorded">
-            ${icon("play", "button-icon")}<span class="button-copy"><strong>Review the public run</strong>
-            <span>Recorded, deterministic demo</span>
-            </span>
-          </button>
-          <button class="button button-secondary button-large" type="button" data-run-mode="live">
-            ${icon("pulse", "button-icon")}<span class="button-copy"><strong>Run live GPT-5.6</strong>
-            <span>Optional in the local runtime</span>
-            </span>
-          </button>
+    <section class="workspace-shell">
+      <aside class="workspace-rail" aria-label="${escapeHtml(workspace.name)} workspace">
+        <div class="workspace-switcher">
+          <span class="workspace-mark">${escapeHtml(initials(workspace.name))}</span>
+          <div><strong>${escapeHtml(workspace.name)}</strong><small>${state.workspaceImported ? "Imported browser session" : "Public-safe local sample"}</small></div>
+          <span class="local-dot">Local</span>
         </div>
 
-        <dl class="trust-strip">
-          <div><dt>Model</dt><dd>GPT-5.6 Sol</dd></div>
-          <div><dt>Reasoning</dt><dd>Max</dd></div>
-          <div><dt>Storage</dt><dd>Off</dd></div>
-          <div><dt>Authority</dt><dd>Deterministic guards</dd></div>
-        </dl>
-      </div>
+        <nav class="workspace-nav" aria-label="Workspace navigation">
+          <p>Attention</p>
+          ${workspaceNavButton({ kind: "attention", id: "review", iconName: openReviewCount ? "alert" : "check", label: openReviewCount ? "Needs review" : "Review complete", count: openReviewCount, alert: openReviewCount > 0 })}
+          <p>Channels</p>
+          ${state.workspace.channels.map((channel) => workspaceNavButton({ kind: "channel", id: channel.id, hash: true, label: channel.name, count: state.workspace.threads.filter((item) => item.channelId === channel.id).length })).join("")}
+          <p>Agents</p>
+          ${state.workspace.agents.map((agent) => { const count = state.workspace.threads.filter((item) => item.agentId === agent.id).length; return workspaceNavButton({ kind: "agent", id: agent.id, initial: agent.initial, label: agent.name, meta: `${count} ${pluralize(count, "run")}` }); }).join("")}
+        </nav>
 
-      <aside class="packet-preview" aria-label="Public proof packet">
-        <div class="packet-head">
-          <span>Evidence packet</span>
-          <strong>${escapeHtml(bundle.id)}</strong>
+        <div class="workspace-boundary">
+          ${icon("guard")}
+          <p><strong>Source stays local</strong><span>Agent claims are not proof.</span></p>
         </div>
-        <div class="packet-title">
-          <span class="packet-glyph" aria-hidden="true">${icon("packet")}</span>
-          <div>
-            <small>Ready to review</small>
-            <h2>${escapeHtml(bundle.title)}</h2>
-            <p>${escapeHtml(bundle.agent)} · ${formatTimestamp(bundle.generatedAt)}</p>
-          </div>
-        </div>
-        <ul class="source-stack">
-          ${bundle.sources.map((source, index) => `
-            <li style="--source-index:${index}">
-              <span class="source-kind">${sourceKindIcon(source.kind)}<em>${escapeHtml(source.kind)}</em></span>
-              <strong>${escapeHtml(source.label)}</strong>
-              <small>${escapeHtml(source.path)} · ${source.lineCount} lines</small>
-            </li>
-          `).join("")}
-        </ul>
-        <div class="packet-foot">
-          <span>${bundle.sourceCount} sources</span>
-          <span>${formatBytes(bundle.totalBytes)}</span>
-          <span>SHA-256 indexed</span>
-        </div>
+        <button class="workspace-import" type="button" data-import-workspace>${icon("download")}<span><strong>Import workspace JSON</strong><small>Validated in this browser only</small></span></button>
       </aside>
+
+      <main class="channel-thread">
+        ${state.workspaceNotice ? `<div class="workspace-notice notice-${escapeHtml(state.workspaceNotice.tone)}" role="status">${icon(state.workspaceNotice.tone === "error" ? "alert" : "check")}<span>${escapeHtml(state.workspaceNotice.message)}</span><button type="button" data-dismiss-notice aria-label="Dismiss">×</button></div>` : ""}
+        <header class="channel-head">
+          <div>
+            <p class="eyebrow">${escapeHtml(scope.eyebrow)}</p>
+            <h1>${scope.kind === "channel" ? "<span>#</span>" : ""}${escapeHtml(scope.title)}</h1>
+            <p>${escapeHtml(scope.description)}</p>
+          </div>
+          <span class="channel-status${openReviewCount ? "" : " is-complete"}"><i></i>${openReviewCount ? `${openReviewCount} decisions needed` : "Review complete"}</span>
+        </header>
+
+        <section class="workspace-toolbar" aria-label="Run controls">
+          <label class="workspace-search">${icon("search")}<input type="search" data-workspace-search placeholder="Search runs and evidence" value="${escapeHtml(state.workspaceQuery)}" aria-label="Search runs and evidence"></label>
+          <div class="workspace-filters" aria-label="Filter runs">
+            ${workspaceFilterButton("all", "All")}
+            ${workspaceFilterButton("review", "Needs review")}
+            ${workspaceFilterButton("completed", "Completed")}
+          </div>
+        </section>
+
+        ${threads.length ? `
+          <div class="run-index" role="list" aria-label="Runs in this view">
+            ${threads.map(renderRunIndexItem).join("")}
+          </div>
+          ${renderSelectedThread(thread)}
+        ` : renderEmptyWorkspace()}
+      </main>
+
+      ${renderRunInspector(thread)}
     </section>
   `;
+}
+
+function workspaceNavButton({ kind, id, iconName, hash = false, initial, label, count, meta, alert = false }) {
+  const active = state.workspaceScope.kind === kind && state.workspaceScope.id === id;
+  const leading = hash ? '<span class="channel-hash">#</span>' : initial ? `<span class="agent-presence">${escapeHtml(initial)}</span>` : icon(iconName);
+  return `<button class="workspace-nav-item${active ? " is-active" : ""}${alert ? " is-alert" : ""}${!alert && kind === "attention" ? " is-complete" : ""}" type="button" data-workspace-scope="${escapeHtml(kind)}" data-workspace-scope-id="${escapeHtml(id)}" aria-pressed="${active}">${leading}<span>${escapeHtml(label)}</span>${Number.isInteger(count) ? `<strong>${count}</strong>` : `<small>${escapeHtml(meta || "")}</small>`}</button>`;
+}
+
+function workspaceFilterButton(value, label) {
+  return `<button type="button" data-workspace-filter="${value}" aria-pressed="${state.workspaceFilter === value}">${label}</button>`;
+}
+
+function renderRunIndexItem(thread) {
+  const agent = workspaceAgent(thread.agentId);
+  const openCount = workspaceAttentionCount(thread);
+  const selected = thread.id === state.selectedThreadId;
+  return `
+    <button class="run-index-item status-${escapeHtml(thread.status)}${selected ? " is-selected" : ""}" type="button" data-thread-id="${escapeHtml(thread.id)}" aria-pressed="${selected}" role="listitem">
+      <span class="agent-presence">${escapeHtml(agent.initial)}</span>
+      <span class="run-index-copy"><strong>${escapeHtml(thread.title)}</strong><small>${escapeHtml(agent.name)} · ${formatRelativeDate(thread.updatedAt)}</small></span>
+      <span class="run-index-status">${openCount ? `${openCount} open` : threadStatusLabel(thread.status)}</span>
+    </button>
+  `;
+}
+
+function renderSelectedThread(thread) {
+  const agent = workspaceAgent(thread.agentId);
+  const timestamp = thread.completedAt || thread.updatedAt;
+  return `
+    <div class="thread-date"><span>${escapeHtml(agent.name)} run · ${formatTimestamp(timestamp)}</span></div>
+    <article class="agent-thread-card">
+      <div class="agent-avatar" aria-hidden="true">${escapeHtml(agent.initial)}</div>
+      <div class="agent-thread-body">
+        <header>
+          <div><strong>${escapeHtml(agent.name)}</strong><span>${escapeHtml(agent.role)}</span></div>
+          <time datetime="${escapeHtml(timestamp)}">${formatTime(timestamp)}</time>
+        </header>
+        <h2 class="agent-run-title">${escapeHtml(thread.title)}</h2>
+        <p class="agent-message">${escapeHtml(thread.summary)}</p>
+        <ol class="run-timeline" aria-label="Agent run events">
+          ${thread.events.map((event) => `<li class="${eventNeedsReview(event.type) ? "is-review" : "is-complete"}">${icon(eventIcon(event.type))}<div><strong>${escapeHtml(event.title)}</strong><span>${escapeHtml(event.detail)}</span></div><time datetime="${escapeHtml(event.at)}">${formatTime(event.at)}</time></li>`).join("")}
+        </ol>
+        ${renderThreadHandoff(thread)}
+      </div>
+    </article>
+  `;
+}
+
+function renderThreadHandoff(thread) {
+  const openCount = workspaceAttentionCount(thread);
+  if (threadProofAvailable(thread)) {
+    return `
+      <section class="proof-handoff">
+        <div class="proof-handoff-head"><span class="proof-seal">${icon("guard")}</span><div><p class="eyebrow">Proof handoff</p><h2>Agent says “done.” Halba asks for proof.</h2></div></div>
+        <p>GPT-5.6 extracted atomic claims. Deterministic guards checked exact paths, line ranges, freshness, receipts, and contradictions before routing unresolved gates to a human.</p>
+        <div class="handoff-metrics"><span><strong>${thread.verdictCounts.supported}</strong> verified</span><span><strong>${thread.verdictCounts.contradictory}</strong> contradiction</span><span><strong>${openCount}</strong> open gates</span></div>
+        <button class="button button-primary button-large" type="button" data-run-mode="recorded" data-proof-thread="${escapeHtml(thread.id)}">${icon("trace", "button-icon")}<span class="button-copy"><strong>Open Proof Mode</strong><span>Trace every claim to exact evidence</span></span></button>
+      </section>
+    `;
+  }
+  const unavailable = thread.proofState === "ready";
+  return `
+    <section class="run-outcome${unavailable ? " is-unavailable" : ""}">
+      <span class="run-outcome-mark">${icon(unavailable ? "alert" : "check")}</span>
+      <div><p class="eyebrow">${unavailable ? "Proof packet unavailable" : "Deterministic run receipt"}</p><h2>${unavailable ? "Load the matching evidence bundle to inspect these claims." : "This run closed without a human evidence gate."}</h2><p>${unavailable ? "The imported workspace remains navigable, but Halba will not pretend that a different local bundle proves it." : "No completion claim from this operational run was handed to Proof Mode. Its typed event history remains inspectable here."}</p></div>
+    </section>
+  `;
+}
+
+function renderRunInspector(thread) {
+  const agent = workspaceAgent(thread.agentId);
+  const channel = state.workspace.channels.find((item) => item.id === thread.channelId);
+  const openCount = workspaceAttentionCount(thread);
+  const proofAvailable = threadProofAvailable(thread);
+  return `
+    <aside class="run-inspector" aria-label="Selected agent run">
+      <div class="run-inspector-head"><p class="eyebrow">Selected run</p><span class="mode-pill ${proofAvailable ? "mode-recorded" : "mode-local"}">${proofAvailable ? "Proof ready" : "Local receipt"}</span></div>
+      <h2>${escapeHtml(thread.title)}</h2>
+      <p class="run-goal">${escapeHtml(thread.goal)}</p>
+      <dl class="workspace-run-meta">
+        <div><dt>Channel</dt><dd><span class="channel-hash">#</span>${escapeHtml(channel.name)}</dd></div>
+        <div><dt>Agent</dt><dd><span class="agent-presence">${escapeHtml(agent.initial)}</span>${escapeHtml(agent.name)}</dd></div>
+        <div><dt>Status</dt><dd class="${openCount ? "attention-value" : ""}">${openCount ? `${openCount} need review` : threadStatusLabel(thread.status)}</dd></div>
+        <div><dt>Events</dt><dd>${thread.events.length} typed</dd></div>
+        <div><dt>Claims</dt><dd>${thread.claimCount ? `${thread.claimCount} extracted` : "None handed off"}</dd></div>
+        <div><dt>Duration</dt><dd>${formatDuration(thread.startedAt, thread.completedAt || thread.updatedAt)}</dd></div>
+      </dl>
+      ${proofAvailable ? `
+        <section class="source-manifest"><h3>Attached evidence</h3><ul>${state.bundle.sources.slice(0, 4).map((source) => `<li>${sourceKindIcon(source.kind)}<span><strong>${escapeHtml(source.label)}</strong><small>${escapeHtml(shortPath(source.path))}</small></span></li>`).join("")}</ul><small>+ ${Math.max(0, state.bundle.sourceCount - 4)} more in Proof Mode</small></section>
+        <button class="button button-primary" type="button" data-run-mode="recorded" data-proof-thread="${escapeHtml(thread.id)}">${icon("trace", "button-icon")}Open recorded proof</button>
+        <button class="button button-secondary" type="button" data-run-mode="live" data-proof-thread="${escapeHtml(thread.id)}">${icon("pulse", "button-icon")}Run live locally</button>
+      ` : `<section class="inspector-events"><h3>Run receipt</h3>${thread.events.map((event) => `<div>${icon(eventIcon(event.type))}<span><strong>${escapeHtml(event.title)}</strong><small>${formatTime(event.at)}</small></span></div>`).join("")}</section>`}
+      <p class="mode-disclosure">${state.workspaceImported ? "Imported data stays in this browser session and is never uploaded." : "The public sample is synthetic and bounded. Only the selected proof-ready run can open the checked-in evidence packet."}</p>
+    </aside>
+  `;
+}
+
+function renderEmptyWorkspace() {
+  return `<section class="workspace-empty"><span>${icon("search")}</span><h2>No runs match this view.</h2><p>Clear the search or choose a different status, channel, or agent.</p><button class="text-action" type="button" data-clear-workspace-filters>Clear filters</button></section>`;
+}
+
+function hydrateWorkspaceUi({ reset = false } = {}) {
+  const saved = reset ? {} : readWorkspaceUi();
+  const defaultThread = state.workspace.threads.find((thread) => workspaceAttentionCount(thread) > 0) || state.workspace.threads[0];
+  const savedThread = state.workspace.threads.find((thread) => thread.id === saved.selectedThreadId);
+  state.selectedThreadId = savedThread?.id || defaultThread.id;
+  const selected = savedThread || defaultThread;
+  const scopeIsValid = (
+    (saved.scopeKind === "channel" && state.workspace.channels.some((channel) => channel.id === saved.scopeId))
+    || (saved.scopeKind === "agent" && state.workspace.agents.some((agent) => agent.id === saved.scopeId))
+    || (saved.scopeKind === "attention" && saved.scopeId === "review")
+  );
+  state.workspaceScope = scopeIsValid
+    ? { kind: saved.scopeKind, id: saved.scopeId }
+    : { kind: "channel", id: selected.channelId };
+  state.workspaceFilter = ["all", "review", "completed"].includes(saved.filter) ? saved.filter : "all";
+  state.workspaceQuery = typeof saved.query === "string" ? saved.query.slice(0, 120) : "";
+  ensureVisibleThread();
+}
+
+function visibleWorkspaceThreads() {
+  const query = state.workspaceQuery.trim().toLowerCase();
+  return state.workspace.threads
+    .filter((thread) => {
+      if (state.workspaceScope.kind === "channel") return thread.channelId === state.workspaceScope.id;
+      if (state.workspaceScope.kind === "agent") return thread.agentId === state.workspaceScope.id;
+      return workspaceAttentionCount(thread) > 0;
+    })
+    .filter((thread) => {
+      if (state.workspaceFilter === "review") return workspaceAttentionCount(thread) > 0;
+      if (state.workspaceFilter === "completed") return thread.status === "completed";
+      return true;
+    })
+    .filter((thread) => {
+      if (!query) return true;
+      const agent = workspaceAgent(thread.agentId);
+      const channel = state.workspace.channels.find((item) => item.id === thread.channelId);
+      const haystack = [thread.title, thread.goal, thread.summary, agent.name, channel?.name, ...thread.events.flatMap((event) => [event.title, event.detail])].join(" ").toLowerCase();
+      return haystack.includes(query);
+    })
+    .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
+}
+
+function selectedWorkspaceThread(visible = visibleWorkspaceThreads()) {
+  return visible.find((thread) => thread.id === state.selectedThreadId) || visible[0] || state.workspace.threads[0];
+}
+
+function ensureVisibleThread() {
+  const visible = visibleWorkspaceThreads();
+  if (visible.length && !visible.some((thread) => thread.id === state.selectedThreadId)) state.selectedThreadId = visible[0].id;
+}
+
+function workspaceScopeDetails() {
+  if (state.workspaceScope.kind === "attention") {
+    return { kind: "attention", eyebrow: "Human review queue", title: "Needs review", description: "Completion claims that deterministic evidence cannot safely close on its own." };
+  }
+  if (state.workspaceScope.kind === "agent") {
+    const agent = workspaceAgent(state.workspaceScope.id);
+    return { kind: "agent", eyebrow: "Agent run history", title: agent.name, description: `${agent.role}. Typed activity only; no chat transcript or command surface.` };
+  }
+  const channel = state.workspace.channels.find((item) => item.id === state.workspaceScope.id) || state.workspace.channels[0];
+  return { kind: "channel", eyebrow: "Agent operations channel", title: channel.name, description: channel.topic };
+}
+
+function workspaceAgent(agentId) {
+  return state.workspace.agents.find((agent) => agent.id === agentId) || { id: "unknown", name: "Unknown agent", role: "unavailable", initial: "?" };
+}
+
+function workspaceTotalAttention() {
+  return state.workspace.threads.reduce((sum, thread) => sum + workspaceAttentionCount(thread), 0);
+}
+
+function threadProofAvailable(thread) {
+  return thread?.proofState === "ready" && thread.proofBundleId === state.bundle?.id;
+}
+
+function proofReadyThread(threadId) {
+  const requested = state.workspace.threads.find((thread) => thread.id === threadId);
+  if (requested && threadProofAvailable(requested)) return requested;
+  const selected = state.workspace.threads.find((thread) => thread.id === state.selectedThreadId);
+  if (selected && threadProofAvailable(selected)) return selected;
+  return state.workspace.threads.find(threadProofAvailable) || null;
+}
+
+function threadStatusLabel(status) {
+  return { running: "Running", needs_review: "Needs review", completed: "Completed", failed: "Failed" }[status] || status;
+}
+
+function readWorkspaceUi() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(workspaceUiStorageKey) || "{}");
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function persistWorkspaceUi() {
+  try {
+    localStorage.setItem(workspaceUiStorageKey, JSON.stringify({
+      selectedThreadId: state.selectedThreadId,
+      scopeKind: state.workspaceScope.kind,
+      scopeId: state.workspaceScope.id,
+      filter: state.workspaceFilter,
+      query: state.workspaceQuery
+    }));
+  } catch {}
 }
 
 function renderLoading() {
@@ -223,10 +438,13 @@ function renderProof() {
 
 function renderSummaryPane() {
   const proof = state.proof;
-  const decisions = Object.values(state.decisions).filter((decision) => proof.findings.some((finding) => finding.claimId === decision.claimId));
-  const openReviewCount = proof.findings.filter((finding) => finding.reviewRequired && !state.decisions[finding.claimId]).length;
+  const proofThread = state.workspace.threads.find((thread) => thread.id === state.activeProofThreadId) || proofReadyThread();
+  const channel = state.workspace.channels.find((item) => item.id === proofThread.channelId);
+  const decisions = Object.values(state.decisions).filter((decision) => decisionClosesGate(decision) && proof.findings.some((finding) => finding.claimId === decision.claimId));
+  const openReviewCount = proof.findings.filter((finding) => finding.reviewRequired && !decisionClosesGate(state.decisions[finding.claimId])).length;
   const reviewRecordUrl = `data:text/markdown;charset=utf-8,${encodeURIComponent(proofReceipt())}`;
   return `
+    <button class="workspace-back" type="button" data-reset>${icon("arrow")}Back to #${escapeHtml(channel.name)}</button>
     <div class="pane-head">
       <div>
         <p class="eyebrow">Proof result</p>
@@ -317,7 +535,7 @@ function renderClaimCard(finding, index) {
       <span class="claim-foot">
         <span class="citation-count">${validCitations.length ? `${validCitations.length} exact ${pluralize(validCitations.length, "source")}` : "No valid source"}</span>
         ${finding.modelDisagreement ? '<span class="disagreement">Model / guard disagreement</span>' : ""}
-        ${decision ? `<span class="decision-pill decision-${escapeHtml(decision.status)}">Human: ${escapeHtml(decision.status)}</span>` : ""}
+        ${decision ? `<span class="decision-pill decision-${escapeHtml(decision.status)}">Human: ${escapeHtml(decisionLabel(decision.status))}</span>` : ""}
       </span>
       <span class="claim-arrow" aria-hidden="true">${icon("arrow")}</span>
     </button>
@@ -382,7 +600,7 @@ function renderTracePane(finding) {
       <div class="human-gate-head">
         <div>
           <p class="eyebrow">Human gate</p>
-          <h3>${decision ? `Marked ${escapeHtml(decision.status)}` : "What should happen to this claim?"}</h3>
+          <h3>${decision ? escapeHtml(decisionLabel(decision.status)) : "What should happen to this claim?"}</h3>
         </div>
         ${decision ? `<button class="text-action" type="button" data-clear-decision="${escapeHtml(finding.claimId)}">Clear</button>` : ""}
       </div>
@@ -394,6 +612,7 @@ function renderTracePane(finding) {
         <button type="button" class="decision-button approve" data-decision="approved" data-claim="${escapeHtml(finding.claimId)}">Approve</button>
         <button type="button" class="decision-button reject" data-decision="rejected" data-claim="${escapeHtml(finding.claimId)}">Reject</button>
         <button type="button" class="decision-button resolve" data-decision="resolved" data-claim="${escapeHtml(finding.claimId)}">Resolve</button>
+        <button type="button" class="decision-button more-proof" data-decision="more-proof" data-claim="${escapeHtml(finding.claimId)}">Request proof</button>
       </div>
     </section>
   `;
@@ -518,7 +737,8 @@ function icon(name, className = "glyph") {
     diff: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5M10 12h5M10 16h2M14 16h3"/>',
     receipt: '<path d="M7 3h10v18l-2-1.5L13 21l-2-1.5L9 21l-2-1.5z"/><path d="M10 8h4M10 12h4"/>',
     report: '<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
-    download: '<path d="M12 4v11M8 11l4 4 4-4M5 20h14"/>'
+    download: '<path d="M12 4v11M8 11l4 4 4-4M5 20h14"/>',
+    search: '<circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/>'
   };
   return `<svg class="${escapeHtml(className)}" viewBox="0 0 24 24" aria-hidden="true">${paths[name] || paths.claim}</svg>`;
 }
@@ -528,15 +748,25 @@ function filteredFindings() {
   if (state.filter === "all") return state.proof.findings;
   if (state.filter === "supported") return state.proof.findings.filter((finding) => finding.verdict === "supported");
   if (state.filter === "decided") return state.proof.findings.filter((finding) => state.decisions[finding.claimId]);
-  return state.proof.findings.filter((finding) => finding.reviewRequired && !state.decisions[finding.claimId]);
+  return state.proof.findings.filter((finding) => finding.reviewRequired && !decisionClosesGate(state.decisions[finding.claimId]));
 }
 
 function selectedFinding() {
   return state.proof?.findings.find((finding) => finding.claimId === state.selectedClaimId) || null;
 }
 
-async function runProof(mode) {
+async function runProof(mode, threadId) {
   if (state.phase === "loading") return;
+  const thread = proofReadyThread(threadId);
+  if (!thread) {
+    state.workspaceNotice = { tone: "error", message: "No loaded run references the current proof bundle." };
+    state.phase = "ready";
+    render();
+    return;
+  }
+  state.activeProofThreadId = thread.id;
+  state.selectedThreadId = thread.id;
+  persistWorkspaceUi();
   state.phase = "loading";
   state.activeRunMode = mode;
   state.error = null;
@@ -614,6 +844,13 @@ async function requestBundle() {
   return response.json();
 }
 
+async function requestWorkspace() {
+  if (staticDemoMode) return (await loadStaticDemo()).workspace;
+  const response = await fetch("/api/workspace");
+  if (!response.ok) throw new Error("The public agent workspace could not be loaded.");
+  return response.json();
+}
+
 async function requestProof(mode) {
   if (staticDemoMode) {
     if (mode === "live") {
@@ -673,7 +910,7 @@ async function loadStaticDemo() {
     staticDemoRequest = fetch("static-demo.json").then(async (response) => {
       if (!response.ok) throw new Error("The static proof packet could not be loaded.");
       const body = await response.json();
-      if (body?.schemaVersion !== 1 || !body.bundle || !body.proof || !body.sources) {
+      if (body?.schemaVersion !== 1 || !body.workspace || !body.bundle || !body.proof || !body.sources) {
         throw new Error("The static proof packet is malformed.");
       }
       return body;
@@ -692,7 +929,7 @@ function saveDecision(claimId, status) {
   };
   persistDecisions();
   const next = filteredFindings().find((finding) => finding.claimId !== claimId);
-  if (state.filter === "review" && next) state.selectedClaimId = next.claimId;
+  if (state.filter === "review" && shouldAdvanceReviewSelection(status) && next) state.selectedClaimId = next.claimId;
   render();
   loadSelectedSource();
 }
@@ -733,7 +970,8 @@ async function copyText(button, text) {
 
 function proofReceipt() {
   const proof = state.proof;
-  const decisionCount = proof.findings.filter((finding) => state.decisions[finding.claimId]).length;
+  const responseCount = proof.findings.filter((finding) => state.decisions[finding.claimId]).length;
+  const closedCount = proof.findings.filter((finding) => decisionClosesGate(state.decisions[finding.claimId])).length;
   return [
     "# Halba Proof Mode review record",
     "",
@@ -742,7 +980,7 @@ function proofReceipt() {
     `- Execution: ${proof.execution.mode} / ${proof.execution.model} / reasoning ${proof.execution.reasoningEffort}`,
     `- API storage: ${proof.execution.store ? "on" : "off"}`,
     `- Verdicts: ${proof.counts.supported} verified, ${proof.counts.unsupported} unsupported, ${proof.counts.contradictory} contradictory, ${proof.counts.stale} stale, ${proof.counts.uncertain} uncertain`,
-    `- Human decisions: ${decisionCount} of ${proof.findings.filter((finding) => finding.reviewRequired).length} review gates`,
+    `- Human responses: ${responseCount}; closed gates: ${closedCount} of ${proof.findings.filter((finding) => finding.reviewRequired).length}`,
     "",
     "## Claims",
     "",
@@ -758,6 +996,7 @@ function proofReceipt() {
         `- Model assessment: ${verdictLabel(finding.modelAssessment)} (${Math.round(finding.confidence * 100)}%)`,
         `- Reasoning boundary: ${finding.reasoningBoundary}`,
         `- Human decision: ${decision?.status || (finding.reviewRequired ? "pending" : "not required")}`,
+        decision?.updatedAt ? `- Decision time: ${decision.updatedAt}` : "",
         decision?.note ? `- Review note: ${decision.note}` : "",
         "- Evidence:",
         ...(citations.length
@@ -776,7 +1015,56 @@ function proofReceipt() {
 document.addEventListener("click", async (event) => {
   const runButton = event.target.closest("[data-run-mode]");
   if (runButton) {
-    await runProof(runButton.dataset.runMode);
+    await runProof(runButton.dataset.runMode, runButton.dataset.proofThread);
+    return;
+  }
+
+  const scopeButton = event.target.closest("[data-workspace-scope]");
+  if (scopeButton) {
+    state.workspaceScope = { kind: scopeButton.dataset.workspaceScope, id: scopeButton.dataset.workspaceScopeId };
+    state.workspaceFilter = state.workspaceScope.kind === "attention" ? "review" : "all";
+    state.workspaceQuery = "";
+    ensureVisibleThread();
+    persistWorkspaceUi();
+    render();
+    return;
+  }
+
+  const threadButton = event.target.closest("[data-thread-id]");
+  if (threadButton) {
+    state.selectedThreadId = threadButton.dataset.threadId;
+    persistWorkspaceUi();
+    render();
+    return;
+  }
+
+  const workspaceFilterButton = event.target.closest("[data-workspace-filter]");
+  if (workspaceFilterButton) {
+    state.workspaceFilter = workspaceFilterButton.dataset.workspaceFilter;
+    ensureVisibleThread();
+    persistWorkspaceUi();
+    render();
+    return;
+  }
+
+  const importButton = event.target.closest("[data-import-workspace]");
+  if (importButton) {
+    document.querySelector("#workspace-file")?.click();
+    return;
+  }
+
+  if (event.target.closest("[data-dismiss-notice]")) {
+    state.workspaceNotice = null;
+    render();
+    return;
+  }
+
+  if (event.target.closest("[data-clear-workspace-filters]")) {
+    state.workspaceFilter = "all";
+    state.workspaceQuery = "";
+    ensureVisibleThread();
+    persistWorkspaceUi();
+    render();
     return;
   }
 
@@ -784,6 +1072,7 @@ document.addEventListener("click", async (event) => {
   if (resetButton) {
     state.phase = state.bundle ? "ready" : "boot";
     state.error = null;
+    if (state.activeProofThreadId) state.selectedThreadId = state.activeProofThreadId;
     render();
     return;
   }
@@ -850,6 +1139,38 @@ document.addEventListener("click", async (event) => {
   }
 });
 
+document.addEventListener("input", (event) => {
+  const search = event.target.closest("[data-workspace-search]");
+  if (!search) return;
+  state.workspaceQuery = search.value.slice(0, 120);
+  ensureVisibleThread();
+  persistWorkspaceUi();
+  render();
+  const replacement = document.querySelector("[data-workspace-search]");
+  replacement?.focus();
+  replacement?.setSelectionRange(state.workspaceQuery.length, state.workspaceQuery.length);
+});
+
+document.querySelector("#workspace-file")?.addEventListener("change", async (event) => {
+  const file = event.target.files?.[0];
+  event.target.value = "";
+  if (!file) return;
+  try {
+    if (file.size > 64 * 1024) throw new Error("Workspace files must be 64 KB or smaller.");
+    const imported = validateImportedWorkspace(JSON.parse(await file.text()));
+    state.workspace = imported;
+    state.workspaceImported = true;
+    state.workspaceNotice = { tone: "success", message: `Imported ${imported.threads.length} runs from ${file.name}. The file never left this browser.` };
+    hydrateWorkspaceUi({ reset: true });
+    state.phase = "ready";
+    render();
+  } catch (error) {
+    state.workspaceNotice = { tone: "error", message: error instanceof SyntaxError ? "That file is not valid JSON." : error.message };
+    state.phase = "ready";
+    render();
+  }
+});
+
 function verdictLabel(value) {
   return {
     supported: "Verified",
@@ -880,9 +1201,72 @@ function formatTimestamp(value) {
   }).format(date);
 }
 
+function formatTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("en", { hour: "2-digit", minute: "2-digit" }).format(date);
+}
+
+function formatRelativeDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const days = Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days}d ago`;
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(date);
+}
+
+function formatDuration(startValue, endValue) {
+  const duration = Date.parse(endValue) - Date.parse(startValue);
+  if (!Number.isFinite(duration) || duration < 0) return "Unavailable";
+  const minutes = Math.round(duration / 60_000);
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ${minutes % 60}m`;
+}
+
 function formatBytes(value) {
   if (value < 1024) return `${value} B`;
   return `${(value / 1024).toFixed(1)} KB`;
+}
+
+function decisionLabel(status) {
+  return {
+    approved: "Approved",
+    rejected: "Rejected",
+    resolved: "Resolved",
+    "more-proof": "More proof requested"
+  }[status] || status;
+}
+
+function workspaceAttentionCount(thread) {
+  return thread.reviewClaimIds.filter((claimId) => !decisionClosesGate(state.decisions[claimId])).length;
+}
+
+function initials(value) {
+  return String(value || "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function eventIcon(type) {
+  return {
+    file_changed: "diff",
+    check_completed: "check",
+    claim_made: "claim",
+    proof_completed: "guard",
+    human_gate: "human",
+    run_completed: "check"
+  }[type] || "source";
+}
+
+function eventNeedsReview(type) {
+  return type === "claim_made" || type === "human_gate";
 }
 
 function escapeHtml(value) {

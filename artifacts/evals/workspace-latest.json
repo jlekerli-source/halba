@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "corpus": "halba-agent-workspace-boundaries-v1",
+  "caseCount": 10,
+  "passedCaseCount": 10,
+  "failedCaseCount": 0,
+  "metrics": {
+    "outcomeAccuracy": 1,
+    "unsafeAcceptanceRate": 0,
+    "falseRejectionRate": 0
+  },
+  "timing": {
+    "totalMs": 0.553,
+    "meanCaseMs": 0.055,
+    "p95CaseMs": 0.299
+  },
+  "thresholds": [
+    {
+      "metric": "outcomeAccuracy",
+      "actual": 1,
+      "expected": 1,
+      "operator": ">=",
+      "passed": true
+    },
+    {
+      "metric": "unsafeAcceptanceRate",
+      "actual": 0,
+      "expected": 0,
+      "operator": "<=",
+      "passed": true
+    },
+    {
+      "metric": "falseRejectionRate",
+      "actual": 0,
+      "expected": 0,
+      "operator": "<=",
+      "passed": true
+    }
+  ],
+  "results": [
+    {
+      "id": "valid-public-codex-run",
+      "description": "Accept the checked-in public-safe Codex workspace fixture.",
+      "expected": "accepted",
+      "actual": "accepted",
+      "passed": true,
+      "error": null,
+      "durationMs": 0.299
+    },
+    {
+      "id": "unknown-channel",
+      "description": "Reject a thread routed to a channel outside the workspace.",
+      "expected": "rejected",
+      "actual": "rejected",
+      "passed": true,
+      "error": "invalid workspace: thread halba-build-week-demo-run references an unknown channel",
+      "durationMs": 0.06
+    },
+    {
+      "id": "unknown-agent",
+      "description": "Reject a thread attributed to an agent outside the workspace.",
+      "expected": "rejected",
+      "actual": "rejected",
+      "passed": true,
+      "error": "invalid workspace: thread halba-build-week-demo-run references an unknown agent",
+      "durationMs": 0.012
+    },
+    {
+      "id": "unknown-event-type",
+      "description": "Reject chat-like or otherwise untyped agent activity.",
+      "expected": "rejected",
+      "actual": "rejected",
+      "passed": true,
+      "error": "invalid workspace: event source-boundary has an unknown type",
+      "durationMs": 0.023
+    },
+    {
+      "id": "duplicate-event-id",
+      "description": "Reject ambiguous evidence timelines with duplicate event identifiers.",
+      "expected": "rejected",
+      "actual": "rejected",
+      "passed": true,
+      "error": "invalid workspace: thread halba-build-week-demo-run event ids must be unique",
+      "durationMs": 0.096
+    },
+    {
+      "id": "event-outside-thread",
+      "description": "Reject events whose timestamps fall outside the bounded run.",
+      "expected": "rejected",
+      "actual": "rejected",
+      "passed": true,
+      "error": "invalid workspace: event source-boundary is outside its thread",
+      "durationMs": 0.017
+    },
+    {
+      "id": "wrong-proof-bundle",
+      "description": "Reject a run that points at a different proof bundle than the loaded evidence.",
+      "expected": "rejected",
+      "actual": "rejected",
+      "passed": true,
+      "error": "invalid workspace: thread halba-build-week-demo-run references the wrong proof bundle",
+      "durationMs": 0.01
+    },
+    {
+      "id": "review-gate-mismatch",
+      "description": "Reject attention counts that do not match their concrete review claims.",
+      "expected": "rejected",
+      "actual": "rejected",
+      "passed": true,
+      "error": "invalid workspace: thread halba-build-week-demo-run review claims must match its gate count",
+      "durationMs": 0.01
+    },
+    {
+      "id": "unsafe-id",
+      "description": "Reject identifiers that are unsafe to route through URLs or DOM selectors.",
+      "expected": "rejected",
+      "actual": "rejected",
+      "passed": true,
+      "error": "invalid workspace: thread ids must be safe slugs",
+      "durationMs": 0.006
+    },
+    {
+      "id": "inverted-time-boundary",
+      "description": "Reject runs that claim to complete before they started.",
+      "expected": "rejected",
+      "actual": "rejected",
+      "passed": true,
+      "error": "invalid workspace: thread halba-build-week-demo-run ends before it starts",
+      "durationMs": 0.02
+    }
+  ]
+}

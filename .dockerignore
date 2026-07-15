@@ -2,6 +2,9 @@
 .env*
 !.env.example
 node_modules
+**/node_modules
+**/.cache
+submission/video/out
 dist
 output
 .playwright-cli

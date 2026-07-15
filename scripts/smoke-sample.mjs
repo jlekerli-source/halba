@@ -46,6 +46,7 @@ try {
   assert.equal(forbidden.status, 403);
   console.log("check passed: sample server smoke works");
 } finally {
+  const exited = server.exitCode === null ? new Promise((resolve) => server.once("exit", resolve)) : Promise.resolve();
   server.kill();
-  await new Promise((resolve) => server.once("exit", resolve));
+  await exited;
 }

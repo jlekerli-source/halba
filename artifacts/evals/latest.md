@@ -28,10 +28,10 @@ Timing is informational and machine-dependent; it is not a regression threshold.
 
 | Metric | Result |
 | --- | ---: |
-| totalMs | 1.062 ms |
-| meanCaseMs | 0.118 ms |
-| p50CaseMs | 0.044 ms |
-| p95CaseMs | 0.553 ms |
+| totalMs | 1.982 ms |
+| meanCaseMs | 0.22 ms |
+| p50CaseMs | 0.046 ms |
+| p95CaseMs | 0.676 ms |
 
 ## Cases
 

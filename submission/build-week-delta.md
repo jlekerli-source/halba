@@ -15,6 +15,9 @@ Before product changes, the full working tree and Git metadata were preserved in
 - Deterministic quote, receipt, freshness, and citation guards.
 - Supported, unsupported, stale, contradicted, and uncertain adjudication.
 - Exact source inspection and persistent human approve/reject/resolve gates.
+- A Slack-style local agent workspace with project channels, typed run events, proof-driven attention, and a channel-to-Proof-Mode handoff.
+- A reproducible public-safe Codex-run importer that rebuilds the checked-in workspace from the bounded completion report, sources, receipts, and adjudication.
+- Request-more-proof handling that keeps the gate open, plus portable decision timestamps.
 - A new responsive evidence-examiner interface and public screenshots.
 - A regression eval corpus with exact gold-source grounding, replay timing, report artifacts, and release gates.
 - A synthetic public demo bundle and recorded-response mode.
@@ -28,4 +31,4 @@ Before product changes, the full working tree and Git metadata were preserved in
 - The checked-in structured-inference fixture is a recording and is labeled in the product; it is not evidence of a live API call.
 - The checked-in submission evidence uses an explicitly labeled structured-inference replay. Optional live Responses API execution is a separate path and no replay metric is presented as live-model evidence.
 - Review decisions live in one browser profile; there is no hosted identity or team sync.
-- The public release imports the documented bundle format. Additional adapters are future work.
+- The public release includes one bounded Codex proof-run adapter. Additional raw run formats and CI adapters remain future work.

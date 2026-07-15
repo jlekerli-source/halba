@@ -10,6 +10,8 @@ Halba assigns GPT-5.6 Sol/max the semantic task that deterministic code cannot h
 
 Evidence:
 
+- `src/domain/workspace.js` and `src/importers/codex-proof.js` — validated typed agent threads plus a deterministic public-safe Codex-run import.
+- `scripts/check-codex-import.mjs` — proves the checked-in channel thread is reproduced from the same inspectable proof packet.
 - `src/proof/openai.js` — Responses API request, max reasoning, strict schema, storage disabled, refusal and timeout handling.
 - `src/proof/prompt.js` and `src/proof/schema.js` — bounded evidence prompt and structured contract.
 - `src/proof/engine.js` — citation validation and deterministic verdict precedence.
@@ -24,11 +26,14 @@ Honest boundary: the public credential-free demo uses a visibly labeled structur
 
 Judge question: Is this a complete, coherent product experience rather than a technical proof of concept?
 
-Proof Mode stages one decision from start to finish: review a bounded packet, understand the verdict distribution, open the exact source, see the model/guard boundary, and close the human gate. Desktop keeps claim, verdict, and evidence visible together. Mobile switches among Summary, Claims, and Source instead of compressing three desktop columns.
+Halba stages one decision from start to finish: enter an agent channel, read the typed run, open its proof handoff, understand the verdict distribution, inspect exact source, see the model/guard boundary, and close or explicitly keep open the human gate. Desktop keeps workspace context, claim, verdict, and evidence legible. Mobile uses a real 390-pixel layout without horizontal page overflow.
 
 Evidence:
 
 - [Live demo](https://jlekerli-source.github.io/halba/)
+- `artifacts/screenshots/workspace-desktop.png` — channel, agent thread, proof-driven attention, and handoff.
+- `artifacts/screenshots/workspace-mobile.png` — intentional 390-pixel channel layout.
+- `artifacts/screenshots/workspace-proof-desktop.png` — workspace handoff opened to an exact contradictory receipt.
 - `artifacts/screenshots/onboarding-desktop.png` — first-use hierarchy.
 - `artifacts/screenshots/proof-diff-desktop.png` — claim-to-source trace.
 - `artifacts/screenshots/review-resolved-desktop.png` — completed human-review state.
@@ -40,16 +45,16 @@ Evidence:
 
 Judge question: Does Halba solve a credible problem for a specific audience?
 
-The audience is teams using coding agents who currently reconstruct “done” by manually opening reports, diffs, logs, receipts, and source files. Halba turns that review burden into a bounded proof packet and a short queue containing only unsupported, stale, contradictory, or uncertain claims. It does not ask the model to approve itself.
+The audience is teams using coding agents who currently reconstruct “done” across chat, reports, diffs, logs, receipts, and source files. Halba gives those runs a Slack-like operational home, then turns completion claims into a short queue containing only unsupported, stale, contradictory, or uncertain work. It does not ask the model to approve itself.
 
 Evidence:
 
 - The public packet includes an actual Build Week patch, test receipt, model execution receipt, privacy receipt, and completion report.
 - The six-claim demo reduces the run to four review gates while preserving two verified claims.
 - Every gate opens to a stable source range and content hash.
-- Browser-local decisions demonstrate the human control loop without requiring hosted identity or uploading source data.
+- Browser-local decisions update channel attention without requiring hosted identity or uploading source data; requesting more proof leaves the gate open.
 
-Honest boundary: the current release imports the documented proof-bundle format. Additional agent and CI adapters are future work.
+Honest boundary: the current release imports one public-safe Codex proof-run format. Additional raw agent and CI formats are future work.
 
 ## Quality of the idea
 
@@ -67,13 +72,14 @@ Evidence:
 
 ## Fast judge path
 
-1. Open the [live demo](https://jlekerli-source.github.io/halba/) and select **Review the public run**.
-2. Confirm the execution is labeled **Recorded replay · gpt-5.6-sol**.
+1. Open the [live demo](https://jlekerli-source.github.io/halba/) and inspect the Codex run in `#halba-build-week`.
+2. Open its **Proof Mode** handoff and confirm the execution is labeled **Recorded replay · gpt-5.6-sol**.
 3. Open the contradictory live-GPT claim and compare it with `receipts/model-run.json`.
-4. Switch to **Verified** and open the stale-clock claim to see the actual Build Week diff.
-5. Reject or resolve a gate and confirm the local decision count changes.
-6. Download the review record and confirm the human decision, exact citations, hashes, and guard outcomes are portable.
-7. Read `artifacts/evals/latest.md` for the compact corpus results and stated limitations.
+4. Request more proof and return to the channel; the gate remains open.
+5. Approve, reject, or resolve a gate and return; the attention count decreases.
+6. Download the review record and confirm the decision timestamp, exact citations, hashes, and guard outcomes are portable.
+7. Run `npm run import:codex-demo && npm run check:codex-import` to reproduce the agent thread.
+8. Read `artifacts/evals/latest.md` for the compact corpus results and stated limitations.
 
 ## Submission reconciliation
 

@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { mergeAgentUpdates } from "./domain/agent-updates.js";
 import { formatImportRunDelta, formatImportRunDeltaDetails, importRunDelta } from "./domain/feed.js";
+import { loadWorkspace } from "./domain/workspace.js";
 import { loadProofBundle, publicBundleSummary } from "./proof/bundle.js";
 import { runProof } from "./proof/run.js";
 
@@ -240,6 +241,11 @@ async function proofBundleResponse() {
   return { status: 200, body: publicBundleSummary(bundle) };
 }
 
+async function workspaceResponse() {
+  const bundle = await loadProofBundle();
+  return { status: 200, body: await loadWorkspace(undefined, { proofBundleId: bundle.id }) };
+}
+
 async function proofSourceResponse(searchParams) {
   const sourcePath = searchParams.get("path") || "";
   const bundle = await loadProofBundle();
@@ -345,6 +351,17 @@ const server = http.createServer(async (req, res) => {
     const { status, body } = await roadmapResponse();
     res.writeHead(status, { "content-type": types[".json"] });
     res.end(JSON.stringify(body));
+    return;
+  }
+  if (url.pathname === "/api/workspace" && req.method === "GET") {
+    try {
+      const { status, body } = await workspaceResponse();
+      res.writeHead(status, { "content-type": types[".json"] });
+      res.end(JSON.stringify(body));
+    } catch (error) {
+      res.writeHead(500, { "content-type": types[".json"] });
+      res.end(JSON.stringify(errorBody(error)));
+    }
     return;
   }
   if (url.pathname === "/api/proof/bundle" && req.method === "GET") {

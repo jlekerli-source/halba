@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f5ee">
-    <meta name="description" content="Halba turns AI-agent claims and source files into a human-reviewable proof graph.">
-    <title>Halba — Proof Mode</title>
+    <meta name="description" content="Halba is a local-first agent workspace where completion claims open into exact-source proof and human review.">
+    <title>Halba — Agent Workspace</title>
     <link rel="icon" href="halba-icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -15,14 +15,14 @@
         <img src="halba-icon.svg" alt="" aria-hidden="true">
         <span>
           <strong>Halba</strong>
-          <small>Proof Mode</small>
+          <small>Agent workspace</small>
         </span>
       </a>
 
-      <ol class="process" aria-label="Proof Mode workflow">
-        <li data-process-step="run"><span>1</span>Run</li>
-        <li data-process-step="adjudicate"><span>2</span>Adjudicate</li>
-        <li data-process-step="review"><span>3</span>Review</li>
+      <ol class="process" aria-label="Halba workflow">
+        <li data-process-step="workspace"><span>1</span>Workspace</li>
+        <li data-process-step="thread"><span>2</span>Agent thread</li>
+        <li data-process-step="proof"><span>3</span>Proof</li>
       </ol>
 
       <div class="topbar-actions">
@@ -46,6 +46,8 @@
         <p>Indexing the public proof bundle…</p>
       </section>
     </main>
+
+    <input id="workspace-file" type="file" accept="application/json,.json" hidden>
 
     <nav id="mobile-tabs" class="mobile-tabs" aria-label="Proof Mode views" hidden>
       <button type="button" data-mobile-view="summary" aria-pressed="true">Summary</button>

@@ -4,22 +4,27 @@ Halba is a local-first proof boundary between an agent's completion report and a
 
 ```mermaid
 flowchart LR
-  A["Proof bundle<br/>claims + local sources + receipts"] --> B["Bounded loader<br/>paths, size, hashes, line map"]
+  W["Workspace + channel<br/>typed agent run thread"] --> A["Proof bundle<br/>claims + local sources + receipts"]
+  A --> B["Bounded loader<br/>paths, size, hashes, line map"]
   B --> C["GPT-5.6 Sol<br/>structured inference candidate"]
   B --> D["Deterministic guards<br/>receipts, freshness, exact quotes"]
   C --> E["Adjudicator"]
   D --> E
   E --> F["Proof Mode<br/>verdict + exact source + reasoning boundary"]
-  F --> G["Human gate<br/>approve, reject, resolve"]
+  F --> G["Human gate<br/>approve, reject, resolve, request proof"]
 ```
 
 ## Runtime shape
 
 - `src/server.js` is a dependency-free Node.js HTTP server. It serves the static interface and a small proof API.
+- `src/domain/workspace.js` validates bounded workspace, channel, agent, thread, and typed-event records before they reach the interface.
+- `src/importers/codex-proof.js` converts the public-safe Codex completion packet and adjudication into that workspace contract. `npm run import:codex-demo` reproduces the checked-in fixture.
 - `src/proof/bundle.js` loads one bounded bundle, resolves only declared relative files, rejects symlinks and traversal, records line maps, and hashes source bytes.
 - `src/proof/openai.js` calls the Responses API from the server. The request selects `gpt-5.6-sol`, max reasoning effort, strict Structured Outputs, and `store: false`.
 - `src/proof/engine.js` validates model citations and applies deterministic guards. A model conclusion cannot overrule a failed receipt, missing citation, stale source, or exact-quote mismatch.
-- `public/` is a small browser application. Review decisions stay in browser local storage; no account or hosted database is required.
+- `public/` is a small browser application. It supports attention, channel, and agent scopes; run search and filtering; selected-run inspection; and bounded browser-local workspace import. UI state and review decisions stay in browser local storage; imported workspaces stay in the current session. No account or hosted database is required.
+- `public/workspace-import.js` revalidates imported workspaces at the browser boundary instead of trusting file contents. `public/workspace-state.js` keeps review-gate transitions explicit: requesting proof leaves a gate open, while approve, reject, and resolve close it.
+- The workspace shell presents four distinct runs across three channels and three agents, then routes only the proof-ready run into the existing Proof Mode workflow. Other runs expose their own receipts without borrowing proof. The shell does not create a second proof engine or trust path.
 - `scripts/build-pages.mjs` creates a read-only static deployment from the already validated public bundle and recorded proof. It preserves the same source hashes, line maps, verdicts, and review UI while omitting the server-only live endpoint.
 
 ## Verdict precedence
@@ -36,6 +41,7 @@ This order is intentional. A fresh model citation cannot soften a deterministic 
 
 ## API
 
+- `GET /api/workspace` returns the validated local workspace, its channels and agents, and the typed run collection.
 - `GET /api/proof/bundle` returns public metadata for the active proof bundle.
 - `POST /api/proof/run` runs `recorded` or `live` inference, then deterministic adjudication.
 - `GET /api/proof/source` returns an exact declared source range and its content hash.
@@ -46,4 +52,4 @@ The GitHub Pages artifact is a deployment adapter for the recorded public demo, 
 
 ## Trust boundary
 
-Model output is untrusted structured input. Halba validates its schema, source membership, line bounds, and quoted text before the result enters the review queue. Prompt-like text inside evidence remains evidence; it is never treated as an instruction. The user's final review decision is separate from the model and guard results.
+Model output and imported workspace JSON are untrusted structured input. Halba validates model schema, source membership, line bounds, quoted text, workspace references, counts, timestamp ordering, and proof linkage before data enters the review queue. Prompt-like text inside evidence remains evidence; it is never treated as an instruction. The user's final review decision is separate from the model and guard results.

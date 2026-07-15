@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "name": "halba-agent-workspace-boundaries-v1",
+  "thresholds": {
+    "outcomeAccuracy": 1,
+    "maxUnsafeAcceptanceRate": 0,
+    "maxFalseRejectionRate": 0
+  },
+  "cases": [
+    {
+      "id": "valid-public-codex-run",
+      "description": "Accept the checked-in public-safe Codex workspace fixture.",
+      "expected": "accepted"
+    },
+    {
+      "id": "unknown-channel",
+      "description": "Reject a thread routed to a channel outside the workspace.",
+      "mutation": { "path": "threads.0.channelId", "value": "private-channel" },
+      "expected": "rejected",
+      "expectedMessage": "unknown channel"
+    },
+    {
+      "id": "unknown-agent",
+      "description": "Reject a thread attributed to an agent outside the workspace.",
+      "mutation": { "path": "threads.0.agentId", "value": "unknown-agent" },
+      "expected": "rejected",
+      "expectedMessage": "unknown agent"
+    },
+    {
+      "id": "unknown-event-type",
+      "description": "Reject chat-like or otherwise untyped agent activity.",
+      "mutation": { "path": "threads.0.events.0.type", "value": "chat_message" },
+      "expected": "rejected",
+      "expectedMessage": "unknown type"
+    },
+    {
+      "id": "duplicate-event-id",
+      "description": "Reject ambiguous evidence timelines with duplicate event identifiers.",
+      "mutation": { "path": "threads.0.events.1.id", "valueFrom": "threads.0.events.0.id" },
+      "expected": "rejected",
+      "expectedMessage": "event ids must be unique"
+    },
+    {
+      "id": "event-outside-thread",
+      "description": "Reject events whose timestamps fall outside the bounded run.",
+      "mutation": { "path": "threads.0.events.0.at", "value": "2026-07-12T23:00:00.000Z" },
+      "expected": "rejected",
+      "expectedMessage": "outside its thread"
+    },
+    {
+      "id": "wrong-proof-bundle",
+      "description": "Reject a run that points at a different proof bundle than the loaded evidence.",
+      "mutation": { "path": "threads.0.proofBundleId", "value": "unverified-bundle" },
+      "expected": "rejected",
+      "expectedMessage": "wrong proof bundle"
+    },
+    {
+      "id": "review-gate-mismatch",
+      "description": "Reject attention counts that do not match their concrete review claims.",
+      "mutation": { "path": "threads.0.reviewGateCount", "value": 3 },
+      "expected": "rejected",
+      "expectedMessage": "review claims must match"
+    },
+    {
+      "id": "unsafe-id",
+      "description": "Reject identifiers that are unsafe to route through URLs or DOM selectors.",
+      "mutation": { "path": "threads.0.id", "value": "../../private-run" },
+      "expected": "rejected",
+      "expectedMessage": "ids must be safe slugs"
+    },
+    {
+      "id": "inverted-time-boundary",
+      "description": "Reject runs that claim to complete before they started.",
+      "mutation": { "path": "threads.0.completedAt", "value": "2026-07-12T23:40:00.000Z" },
+      "expected": "rejected",
+      "expectedMessage": "ends before it starts"
+    }
+  ]
+}

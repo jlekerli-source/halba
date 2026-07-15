@@ -7,6 +7,8 @@ Halba evaluates the proof workflow as two separate systems:
 
 The split matters. A model can be useful without being allowed to silently verify itself.
 
+The agent workspace has a separate boundary corpus. It verifies that local imports cannot smuggle unknown channels, agents, event types, duplicate or out-of-range events, unsafe ids, inconsistent review counts, inverted timestamps, or mismatched proof bundles into the interface.
+
 ## Public replay corpus
 
 Run:
@@ -35,7 +37,17 @@ The versioned corpus covers:
 - malformed structured model output;
 - deterministic replay stability.
 
+The workspace corpus covers:
+
+- a valid public-safe Codex workspace;
+- unknown channel, agent, and event references;
+- duplicate and out-of-thread event ids;
+- wrong proof-bundle linkage and review-gate drift;
+- unsafe identifiers and inverted time boundaries.
+
 Regression thresholds are 100% for verdict accuracy, normal citation validity, gold-source grounding precision and recall, unsupported recall, contradiction recall, review-gate recall, and degraded-input behavior, with a 0% tolerated final-verdict false-positive rate on this compact golden corpus.
+
+The workspace boundary gate requires 0% unsafe acceptance and 0% false rejection on its compact corpus. Browser-state regressions also prove that requesting more proof does not close or advance the active gate, while approve, reject, and resolve do.
 
 The report also records total, mean, p50, and p95 deterministic replay time. These figures are machine-dependent and informational rather than thresholded. Gold-source grounding evaluates the checked-in replay contract; it does not stand in for live-model citation quality.
 

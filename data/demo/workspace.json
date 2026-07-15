@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "id": "build-week",
+    "name": "Build Week"
+  },
+  "channels": [
+    {
+      "id": "halba-build-week",
+      "name": "halba-build-week",
+      "topic": "Agent runs, product changes, and completion claims for the Build Week release."
+    },
+    {
+      "id": "release-readiness",
+      "name": "release-readiness",
+      "topic": "Sanitization, package reconstruction, and deploy checks."
+    },
+    {
+      "id": "agent-adapters",
+      "name": "agent-adapters",
+      "topic": "Bounded imports that translate agent output into typed evidence events."
+    }
+  ],
+  "agents": [
+    {
+      "id": "codex",
+      "name": "Codex",
+      "role": "coding agent",
+      "initial": "C"
+    },
+    {
+      "id": "proof-guard",
+      "name": "Proof Guard",
+      "role": "deterministic verifier",
+      "initial": "G"
+    },
+    {
+      "id": "release-bot",
+      "name": "Release Bot",
+      "role": "release verifier",
+      "initial": "R"
+    }
+  ],
+  "threads": [
+    {
+      "id": "halba-build-week-demo-run",
+      "channelId": "halba-build-week",
+      "agentId": "codex",
+      "title": "Halba Build Week proof review",
+      "goal": "Turn agent completion reports into reviewable proof",
+      "summary": "Codex handed off a bounded completion report with 6 claims. Halba routed 4 to human review instead of treating “done” as authority.",
+      "status": "needs_review",
+      "proofState": "ready",
+      "startedAt": "2026-07-12T23:42:00.000Z",
+      "updatedAt": "2026-07-13T00:00:00.000Z",
+      "completedAt": "2026-07-13T00:00:00.000Z",
+      "proofBundleId": "halba-build-week-demo",
+      "claimCount": 6,
+      "reviewGateCount": 4,
+      "reviewClaimIds": [
+        "deployed",
+        "live-gpt",
+        "privacy-current",
+        "judge-ready"
+      ],
+      "verdictCounts": {
+        "supported": 2,
+        "unsupported": 1,
+        "contradictory": 1,
+        "stale": 1,
+        "uncertain": 1
+      },
+      "events": [
+        {
+          "id": "source-boundary",
+          "type": "note",
+          "at": "2026-07-12T23:45:00.000Z",
+          "title": "Indexed the bounded source packet",
+          "detail": "6 sources · 2.4 KB · SHA-256 indexed"
+        },
+        {
+          "id": "source-change",
+          "type": "file_changed",
+          "at": "2026-07-12T23:50:00.000Z",
+          "title": "Attached Actual stale-clock patch",
+          "detail": "diffs/stale-review-clock.patch · exact bytes available in Proof Mode"
+        },
+        {
+          "id": "proof-checks",
+          "type": "check_completed",
+          "at": "2026-07-12T23:55:00.000Z",
+          "title": "Captured deterministic receipts",
+          "detail": "3 receipts · guard inputs preserved"
+        },
+        {
+          "id": "completion-claims",
+          "type": "claim_made",
+          "at": "2026-07-13T00:00:00.000Z",
+          "title": "Handed off 6 completion claims",
+          "detail": "4 require human judgment"
+        }
+      ]
+    },
+    {
+      "id": "workspace-responsive-qa",
+      "channelId": "halba-build-week",
+      "agentId": "proof-guard",
+      "title": "Workspace responsive QA",
+      "goal": "Prove the agent workspace at desktop and mobile widths",
+      "summary": "Proof Guard checked the real workspace render at 1440 and 390 CSS pixels, verified zero horizontal overflow, and preserved accepted screenshots.",
+      "status": "completed",
+      "proofState": "not_required",
+      "startedAt": "2026-07-13T07:40:00.000Z",
+      "updatedAt": "2026-07-13T08:05:00.000Z",
+      "completedAt": "2026-07-13T08:05:00.000Z",
+      "proofBundleId": null,
+      "claimCount": 0,
+      "reviewGateCount": 0,
+      "reviewClaimIds": [],
+      "verdictCounts": {
+        "supported": 0,
+        "unsupported": 0,
+        "contradictory": 0,
+        "stale": 0,
+        "uncertain": 0
+      },
+      "events": [
+        {
+          "id": "viewport-loaded",
+          "type": "run_started",
+          "at": "2026-07-13T07:40:00.000Z",
+          "title": "Loaded the public workspace",
+          "detail": "Node demo · clean browser state"
+        },
+        {
+          "id": "desktop-checked",
+          "type": "check_completed",
+          "at": "2026-07-13T07:48:20.000Z",
+          "title": "Checked desktop hierarchy",
+          "detail": "1440 × 1000 · workspace, thread, inspector"
+        },
+        {
+          "id": "mobile-checked",
+          "type": "check_completed",
+          "at": "2026-07-13T07:56:40.000Z",
+          "title": "Checked the real mobile viewport",
+          "detail": "390 CSS px · zero horizontal overflow"
+        },
+        {
+          "id": "screenshots-captured",
+          "type": "run_completed",
+          "at": "2026-07-13T08:05:00.000Z",
+          "title": "Preserved accepted renders",
+          "detail": "desktop, mobile, and exact-source proof"
+        }
+      ]
+    },
+    {
+      "id": "sanitized-release-rebuild",
+      "channelId": "release-readiness",
+      "agentId": "release-bot",
+      "title": "Sanitized release reconstruction",
+      "goal": "Rebuild the public package from the explicit allowlist",
+      "summary": "Release Bot reconstructed the public tree, reran checks, smoke tests, and evals inside the package and extracted archive, then wrote a SHA-256 evidence record.",
+      "status": "completed",
+      "proofState": "not_required",
+      "startedAt": "2026-07-13T10:12:00.000Z",
+      "updatedAt": "2026-07-13T10:39:00.000Z",
+      "completedAt": "2026-07-13T10:39:00.000Z",
+      "proofBundleId": null,
+      "claimCount": 0,
+      "reviewGateCount": 0,
+      "reviewClaimIds": [],
+      "verdictCounts": {
+        "supported": 0,
+        "unsupported": 0,
+        "contradictory": 0,
+        "stale": 0,
+        "uncertain": 0
+      },
+      "events": [
+        {
+          "id": "allowlist-loaded",
+          "type": "note",
+          "at": "2026-07-13T10:12:00.000Z",
+          "title": "Loaded the public allowlist",
+          "detail": "private paths remain excluded"
+        },
+        {
+          "id": "package-rebuilt",
+          "type": "file_changed",
+          "at": "2026-07-13T10:21:00.000Z",
+          "title": "Reconstructed the clean package",
+          "detail": "allowlisted files only"
+        },
+        {
+          "id": "release-suites",
+          "type": "check_completed",
+          "at": "2026-07-13T10:30:00.000Z",
+          "title": "Ran package and archive suites",
+          "detail": "check · smoke · eval"
+        },
+        {
+          "id": "release-hashed",
+          "type": "run_completed",
+          "at": "2026-07-13T10:39:00.000Z",
+          "title": "Wrote release evidence",
+          "detail": "archive SHA-256 recorded"
+        }
+      ]
+    },
+    {
+      "id": "codex-proof-adapter",
+      "channelId": "agent-adapters",
+      "agentId": "codex",
+      "title": "Codex proof-run adapter",
+      "goal": "Import a bounded public-safe Codex proof run reproducibly",
+      "summary": "Codex translated the public completion packet into typed source, file, check, and claim events. The checked-in workspace is reproduced byte-for-byte by the adapter check.",
+      "status": "completed",
+      "proofState": "not_required",
+      "startedAt": "2026-07-13T13:18:00.000Z",
+      "updatedAt": "2026-07-13T13:34:00.000Z",
+      "completedAt": "2026-07-13T13:34:00.000Z",
+      "proofBundleId": null,
+      "claimCount": 0,
+      "reviewGateCount": 0,
+      "reviewClaimIds": [],
+      "verdictCounts": {
+        "supported": 0,
+        "unsupported": 0,
+        "contradictory": 0,
+        "stale": 0,
+        "uncertain": 0
+      },
+      "events": [
+        {
+          "id": "adapter-input",
+          "type": "note",
+          "at": "2026-07-13T13:18:00.000Z",
+          "title": "Read bounded proof metadata",
+          "detail": "raw private transcripts are out of scope"
+        },
+        {
+          "id": "adapter-events",
+          "type": "file_changed",
+          "at": "2026-07-13T13:23:20.000Z",
+          "title": "Mapped four typed events",
+          "detail": "source · diff · receipt · claims"
+        },
+        {
+          "id": "adapter-contract",
+          "type": "check_completed",
+          "at": "2026-07-13T13:28:40.000Z",
+          "title": "Validated workspace contract",
+          "detail": "safe ids, references, timestamps, and gates"
+        },
+        {
+          "id": "adapter-replay",
+          "type": "run_completed",
+          "at": "2026-07-13T13:34:00.000Z",
+          "title": "Confirmed deterministic replay",
+          "detail": "checked-in fixture matches generated output"
+        }
+      ]
+    }
+  ]
+}

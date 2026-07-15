@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { loadProofBundle, publicBundleSummary } from "../src/proof/bundle.js";
 import { runProof } from "../src/proof/run.js";
+import { loadWorkspace } from "../src/domain/workspace.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const defaultPagesRoot = path.join(root, "dist", "pages");
@@ -13,7 +14,7 @@ export async function buildPages(outputRoot = defaultPagesRoot) {
   await rm(outputRoot, { recursive: true, force: true });
   await mkdir(outputRoot, { recursive: true });
 
-  for (const file of ["app.js", "halba-icon.svg", "styles.css"]) {
+  for (const file of ["app.js", "halba-icon.svg", "styles.css", "workspace-import.js", "workspace-state.js"]) {
     await copyFile(path.join(publicRoot, file), path.join(outputRoot, file));
   }
 
@@ -30,6 +31,7 @@ export async function buildPages(outputRoot = defaultPagesRoot) {
   await writeFile(path.join(outputRoot, ".nojekyll"), "", "utf8");
 
   const bundle = await loadProofBundle();
+  const workspace = await loadWorkspace(undefined, { proofBundleId: bundle.id });
   const proof = await runProof({ mode: "recorded" });
   const sources = Object.fromEntries(bundle.sources.map((source) => [source.path, {
     path: source.path,
@@ -42,6 +44,7 @@ export async function buildPages(outputRoot = defaultPagesRoot) {
   const staticDemo = {
     schemaVersion: 1,
     generatedBy: "npm run build:pages",
+    workspace,
     bundle: publicBundleSummary(bundle),
     proof,
     sources

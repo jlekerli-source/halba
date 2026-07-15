@@ -18,10 +18,10 @@
     "deterministicReplay": true
   },
   "timing": {
-    "totalMs": 1.062,
-    "meanCaseMs": 0.118,
-    "p50CaseMs": 0.044,
-    "p95CaseMs": 0.553
+    "totalMs": 1.982,
+    "meanCaseMs": 0.22,
+    "p50CaseMs": 0.046,
+    "p95CaseMs": 0.676
   },
   "thresholds": [
     {
@@ -100,7 +100,7 @@
       "group": "normal",
       "description": "Recorded run covers supported, unsupported, contradictory, stale, and uncertain findings.",
       "passed": true,
-      "durationMs": 0.553,
+      "durationMs": 0.567,
       "checks": [
         {
           "label": "adjudication completed",
@@ -207,7 +207,7 @@
       "group": "degraded",
       "description": "A fabricated quote cannot support an otherwise supported claim.",
       "passed": true,
-      "durationMs": 0.221,
+      "durationMs": 0.676,
       "checks": [
         {
           "label": "adjudication completed",
@@ -234,7 +234,7 @@
       "group": "degraded",
       "description": "A citation to a source outside the bundle is rejected.",
       "passed": true,
-      "durationMs": 0.072,
+      "durationMs": 0.082,
       "checks": [
         {
           "label": "adjudication completed",
@@ -261,7 +261,7 @@
       "group": "normal",
       "description": "Model support cannot override an expired proof window.",
       "passed": true,
-      "durationMs": 0.032,
+      "durationMs": 0.041,
       "checks": [
         {
           "label": "adjudication completed",
@@ -288,7 +288,7 @@
       "group": "normal",
       "description": "A deterministic zero-exit receipt can confirm a claim the model marked uncertain.",
       "passed": true,
-      "durationMs": 0.044,
+      "durationMs": 0.033,
       "checks": [
         {
           "label": "adjudication completed",
@@ -315,7 +315,7 @@
       "group": "degraded",
       "description": "A non-zero command receipt contradicts a passing-check claim.",
       "passed": true,
-      "durationMs": 0.035,
+      "durationMs": 0.478,
       "checks": [
         {
           "label": "adjudication completed",
@@ -336,7 +336,7 @@
       "group": "normal",
       "description": "Proof exactly seven days old remains inside a seven-day window.",
       "passed": true,
-      "durationMs": 0.026,
+      "durationMs": 0.034,
       "checks": [
         {
           "label": "adjudication completed",
@@ -357,7 +357,7 @@
       "group": "degraded",
       "description": "Instructions embedded in evidence do not change deterministic verdicts.",
       "passed": true,
-      "durationMs": 0.023,
+      "durationMs": 0.025,
       "checks": [
         {
           "label": "adjudication completed",
@@ -384,7 +384,7 @@
       "group": "degraded",
       "description": "Missing required structured-output fields stop adjudication.",
       "passed": true,
-      "durationMs": 0.056,
+      "durationMs": 0.046,
       "checks": [
         {
           "label": "error invalid_proof_output",

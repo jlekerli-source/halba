@@ -18,7 +18,7 @@ try {
   const css = await fetch(`${origin}/styles.css`).then((response) => response.text());
   const app = await fetch(`${origin}/app.js`).then((response) => response.text());
   for (const marker of [
-    "Halba — Proof Mode",
+    "Halba — Agent Workspace",
     'id="status-region"',
     'data-run-mode="live"',
     'data-run-mode="recorded"',
@@ -26,6 +26,7 @@ try {
     'data-mobile-view="summary"'
   ]) assert.ok(html.includes(marker), `missing Proof Mode shell marker ${marker}`);
   assert.ok(css.includes(".proof-shell"));
+  assert.ok(css.includes(".workspace-shell"));
   assert.ok(css.includes('body[data-mobile-view="source"]'));
   assert.ok(css.includes("prefers-reduced-motion: reduce"));
   assert.ok(!css.includes("transition: all"));
@@ -34,7 +35,13 @@ try {
   assert.ok(app.includes('document.documentElement.dataset.staticDemo === "true"'));
   assert.ok(app.includes("Agent says “done.”"));
   assert.ok(app.includes("Halba asks for proof."));
+  assert.ok(app.includes("Open Proof Mode"));
+  assert.ok(app.includes('data-decision="more-proof"'));
+  assert.ok(app.includes("Decision time:"));
   assert.ok(app.includes("halba:proof-decisions:v1"));
+  assert.ok(app.includes("halba:workspace-ui:v1"));
+  assert.ok(app.includes("validateImportedWorkspace"));
+  assert.ok(app.includes('data-workspace-filter="'));
   assert.ok(app.includes("function escapeHtml"));
 
   const bundleResponse = await fetch(`${origin}/api/proof/bundle`);
@@ -44,6 +51,15 @@ try {
   assert.equal(bundle.sourceCount, 6);
   assert.ok(bundle.sources.some((source) => source.kind === "diff" && source.path === "diffs/stale-review-clock.patch"));
   assert.ok(bundle.sources.every((source) => source.sha256.length === 64));
+
+  const workspaceResponse = await fetch(`${origin}/api/workspace`);
+  const workspace = await workspaceResponse.json();
+  assert.equal(workspaceResponse.status, 200);
+  assert.equal(workspace.channels[0].id, "halba-build-week");
+  assert.equal(workspace.threads[0].proofBundleId, bundle.id);
+  assert.equal(workspace.threads[0].events.length, 4);
+  assert.equal(workspace.channels.length, 3);
+  assert.equal(workspace.threads.length, 4);
 
   const proofResponse = await postJson("/api/proof/run", { mode: "recorded" });
   const proof = await proofResponse.json();
@@ -75,10 +91,11 @@ try {
   const wrongType = await fetch(`${origin}/api/proof/run`, { method: "POST", body: "{}" });
   assert.equal(wrongType.status, 415);
 
-  console.log("check passed: Proof Mode API serves bundle, replay, exact source, and guarded errors");
+  console.log("check passed: agent workspace routes a typed run into Proof Mode, exact source, and guarded errors");
 } finally {
+  const exited = server.exitCode === null ? new Promise((resolve) => server.once("exit", resolve)) : Promise.resolve();
   server.kill();
-  await new Promise((resolve) => server.once("exit", resolve));
+  await exited;
 }
 
 async function waitForServer() {

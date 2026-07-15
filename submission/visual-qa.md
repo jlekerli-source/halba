@@ -35,6 +35,14 @@ The earlier 78-second film was rejected as too static. Its replacement is a 58-s
 
 The completed review previously ended with a clipboard-only receipt. The summary pane now gives the portable review record first visual priority, followed by the existing copy and rerun actions. The native download carries every verdict, model boundary, exact source range and SHA-256, deterministic guard, and browser-local human decision. The rendered desktop control was inspected after animation settlement; its icon, 40-pixel target, contrast, wrapping, and dark-pane spacing match the existing action system.
 
+### Round 5 — agent workspace and real mobile layout
+
+The first viewport was rebuilt as a local agent workspace: attention and channels on the left, a typed Codex run in the center, and the selected run/evidence manifest on the right. The completion handoff opens the unchanged Proof Mode authority path. The workspace is driven by a validated fixture reproducible from the public-safe Codex proof packet, not presentation-only markup.
+
+The first 390 × 844 capture appeared to clip the thread. Browser metrics proved the command-line renderer had clamped layout to 500 pixels and then cropped the bitmap. Chrome device emulation was used for the accepted capture; it reported `innerWidth=390`, `scrollWidth=390`, and the thread body ending at 374 pixels. A separate real defect in the compact top action was fixed by retaining its icon and hiding the long label below 820 pixels. Desktop and mobile were recaptured after reload and animation settlement.
+
+The interaction pass proved workspace → Proof Mode → contradictory receipt, **Request proof** preserving four open gates, approval reducing the channel to three, and the Markdown export containing both the approved decision and its timestamp.
+
 ## Result
 
 - The onboarding question and primary recorded-demo action are legible in the first viewport.
@@ -56,3 +64,6 @@ The completed review previously ended with a clipboard-only receipt. The summary
 - `artifacts/screenshots/review-resolved-desktop.png`
 - `artifacts/screenshots/live-unavailable-desktop.png`
 - `artifacts/screenshots/proof-mobile-source.png`
+- `artifacts/screenshots/workspace-desktop.png`
+- `artifacts/screenshots/workspace-mobile.png`
+- `artifacts/screenshots/workspace-proof-desktop.png`

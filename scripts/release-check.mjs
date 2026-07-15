@@ -36,9 +36,9 @@ for (const item of manifest.exclude) {
 }
 
 const suites = [
-  ["check", "node scripts/check.mjs && node scripts/check-stale.mjs && node scripts/check-feed-sort.mjs && node scripts/check-review-export.mjs && node scripts/check-source-preview-copy.mjs && node scripts/check-sample-feed.mjs && node scripts/check-view-state.mjs && node scripts/check-proof-bundle.mjs && node scripts/check-proof-engine.mjs && node scripts/check-openai-adapter.mjs && node scripts/check-pages.mjs && node scripts/check-public-manifest.mjs && node scripts/audit-public.mjs"],
-  ["smoke", "node scripts/smoke-sample.mjs && node scripts/smoke-proof.mjs"],
-  ["eval", "node scripts/eval.mjs"],
+  ["check", "npm run check"],
+  ["smoke", "npm run smoke"],
+  ["eval", "npm run eval"],
 ];
 
 const startedAt = new Date().toISOString();
