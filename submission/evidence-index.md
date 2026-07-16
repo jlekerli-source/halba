@@ -7,7 +7,7 @@
 - Submission film: [https://youtu.be/5wuC21fJVdo](https://youtu.be/5wuC21fJVdo)
 - Downloadable film mirror: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [https://github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
-- Deploy proof: [GitHub Actions run 29269751495](https://github.com/jlekerli-source/halba/actions/runs/29269751495)
+- Deploy proof: [GitHub Actions run 29517016623](https://github.com/jlekerli-source/halba/actions/runs/29517016623)
 - `scripts/build-pages.mjs` and `.github/workflows/pages.yml` — public-safe static build and deployment path.
 - [`judging-matrix.md`](judging-matrix.md) — official criterion-to-evidence map and fast judge path.
 - [`devpost-submission.md`](devpost-submission.md) — final form values and the observed submission confirmation.
@@ -26,6 +26,9 @@
 - `artifacts/screenshots/review-resolved-desktop.png` — zero-open-review completion state.
 - `artifacts/screenshots/live-unavailable-desktop.png` — explicit, recoverable optional-live error state.
 - `artifacts/screenshots/proof-mobile-source.png` — exact-source mobile view.
+- `artifacts/screenshots/workspace-desktop.jpg` — project channel, typed Codex run, proof-driven attention, and Proof Mode handoff.
+- `artifacts/screenshots/workspace-proof-desktop.jpg` — the same run opened to the exact contradictory receipt.
+- `artifacts/screenshots/workspace-mobile.jpg` — intentional mobile workspace composition.
 - [`visual-qa.md`](visual-qa.md) — rendered-state critique and recapture record.
 - `data/demo/` — synthetic public proof bundle and labeled recording.
 - `data/demo/diffs/stale-review-clock.patch` — public-safe diff derived from the immutable pre-event baseline and current implementation.
@@ -35,6 +38,7 @@
 - `evals/corpus.json` — regression inputs and expected outcomes.
 - `artifacts/evals/latest.json` — machine-readable metrics.
 - `artifacts/evals/latest.md` — human-readable report.
+- `artifacts/evals/workspace-latest.json` and `artifacts/evals/workspace-latest.md` — ten workspace-boundary cases, including invalid references, event types, proof links, ids, and timestamps.
 - `docs/evals.md` — metric definitions and limitations.
 
 ## Release proof
@@ -51,11 +55,11 @@ The command produces:
 - `dist/halba-public.tar.gz` — release candidate;
 - `dist/release-evidence.json` — archive hash, file count, and suite results.
 
-The release gate runs `check`, `smoke`, and `eval` inside the reconstructed tree, extracts the archive, and runs the same suites again from the extracted copy. It does not publish or deploy anything.
+The release gate runs `check`, `smoke`, and `eval` inside the reconstructed tree, extracts the archive, and runs the same suites again from the extracted copy. The July 16 candidate contains 131 allowlisted files; `dist/release-evidence.json` records the exact archive SHA-256 for each generated candidate. It does not publish or deploy anything.
 
 The Dockerfile was also built from `dist/halba-public`. The resulting container reached `healthy`, served the UI and six-source bundle, and returned the six-claim recorded proof with four review gates.
 
-The redesigned public Pages app was exercised through replay and a browser-local human rejection with zero console errors; the open-gate count moved from four to three and the decision persisted in local storage. The submission-ready MP4 SHA-256 is `3ea02dadd67a4eb7ba80034cb8b3ab79dd2a76844b4015e7e43e94fae9de021d`; deployment verification must match that digest before submission. The local rendered-state suite separately covers the exact stale-clock diff, four decisions, zero open gates, and mobile source view.
+The redesigned public Pages app was exercised through replay and a browser-local human rejection with zero console errors; the open-gate count moved from four to three and the decision persisted in local storage. The workspace build was then verified live after GitHub Actions run 29517016623. The submission-ready MP4 SHA-256 is `3ea02dadd67a4eb7ba80034cb8b3ab79dd2a76844b4015e7e43e94fae9de021d`. That film proves the earlier Proof Mode workflow, not the later workspace expansion; the live app and three current screenshots are the authoritative workspace proof. The local rendered-state suite separately covers the exact stale-clock diff, four decisions, zero open gates, and mobile source view.
 
 ## Disclosure
 

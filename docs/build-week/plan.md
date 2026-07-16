@@ -1,6 +1,6 @@
 # Halba Build Week execution plan
 
-Status: sanitized source and public demo deployed; official submission requirements reconciled and the compliant film is being published
+Status: sanitized workspace product, public demo, and Devpost submission are deployed and verified; only the explicitly paused film-alignment decision remains open
 
 Thesis: Halba is a local-first evidence control plane for AI-assisted work. It turns agent runs, diffs, receipts, and source files into a traceable evidence graph, detects unsupported or stale claims, and shows what actually requires human review.
 
@@ -20,14 +20,14 @@ The acceptance checklists below preserve the original implementation contract. T
 | 6. API and review lifecycle | Complete | Bundle, run, and exact-source endpoints; guarded errors; browser-local approve/reject/resolve decisions. |
 | 7. Proof Mode UI | Complete | Real Chrome desktop/mobile screenshots; loading, replay, live-unavailable, empty queue, source, and human-decision states rendered. Normal demo path has zero console errors or warnings. |
 | 8. Evals | Complete for replay | Nine of nine cases pass, including degraded inputs and deterministic replay. Exact gold-source grounding precision and recall are 100%; replay latency is reported separately from unmeasured optional live-model latency, usage, cost, and accuracy. |
-| 9. Reproducible package | Complete | `release:check` reconstructs 113 allowlisted files, reruns check, smoke, and eval, hashes the archive, extracts it, and runs the suites again from the extracted copy. The final Docker image built from that exact tree and passed its health, UI, bundle, recorded-proof, and embedded-video hash checks. |
-| 10. Submission package | Official overview requirements reconciled; external upload/form execution remains | Public screenshots, Devpost copy, 90-second live script, reproducible 58-second captioned film, 3:2 gallery thumbnail, video-host metadata, architecture, disclosure, attribution, deployment guide, evidence index, and form checklist are present. The film is public-host compliant, under three minutes, and audibly explains both Codex and GPT-5.6. Developer Tools is the selected track. The signed-in YouTube upload and Devpost form submission remain. |
+| 9. Reproducible package | Complete | `release:check` reconstructs 131 allowlisted files, reruns check, smoke, and eval, hashes the archive into `dist/release-evidence.json`, extracts it, and runs the suites again from the extracted copy. The final Docker image built from the sanitized tree and passed its health, UI, bundle, recorded-proof, and embedded-video hash checks. |
+| 10. Submission package | Complete except film alignment | The Developer Tools submission is live with the workspace story, new tagline, three captioned workspace screenshots, public demo/source links, existing YouTube film, and creator contribution. The film remains the pre-workspace Proof Mode narrative because video work was explicitly paused; it is not cited as workspace proof. |
 
-Remaining gates:
+Remaining gate:
 
-- Upload the accepted film to public YouTube, provide the Build Week Codex task ID in the required `/feedback` field, select Developer Tools, and submit before July 21 at 5:00 PM PT.
-- The event overview is live, but the dedicated rules page still shows the placeholder notice. Recheck it before the final terms acceptance.
-- A live Responses API run is optional development evidence, not a release gate. The recorded path remains explicit and the live path continues to fail closed when it is not configured.
+- Decide whether the existing 58-second Proof Mode film is accepted as the final video or reopen video work so the film can show the Slack-style agent workspace. Everything else in the submission is live and synchronized.
+
+A live Responses API run remains optional development evidence, not a release gate. The recorded path is explicit and the live path continues to fail closed when it is not configured.
 
 ## Event baseline and delta policy
 
@@ -378,7 +378,10 @@ Halba is complete for this Build Week objective only when all of the following a
 - [ ] Submission: demo script, screenshots, Devpost copy, architecture explanation, verified inspiration credit, pre-existing-work disclosure, Build Week delta, and evidence index are ready.
 - [ ] Reproducibility: a clean extracted release candidate can run the public demo and mandatory checks from the documented commands.
 - [ ] Honesty: no build, screenshot, replay, mock, or planned deployment is described as stronger evidence than it is.
-- [ ] External gate: public remote creation, push, deployment, video upload, and submission remain undone unless separately authorized.
+- [x] External gate: the audited public remote, push, Pages deployment, YouTube upload, and Devpost submission were completed under explicit authorization; the private baseline remains local.
+- [ ] Film alignment: accept the existing Proof Mode film as final or reopen video work to show the shipped agent workspace.
+
+Current audit, July 16, 2026: the public remote, push, Pages deployment, YouTube upload, Devpost submission, workspace refresh, gallery, and contribution credit are complete under explicit authorization. All mandatory checks and the extracted release gate pass. The only open definition-of-done item is cross-surface film alignment, which remains paused by explicit product direction.
 
 ## Explicitly parked
 

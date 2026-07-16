@@ -39,7 +39,7 @@ Evidence:
 - `artifacts/screenshots/review-resolved-desktop.png` — completed human-review state.
 - `artifacts/screenshots/proof-mobile-source.png` — intentional mobile source view.
 - `submission/visual-qa.md` — two rendered critique rounds and rejected recaptures.
-- Film: 00:00–00:58 presents the complete product story with captions and eight distinct visual beats.
+- Film: 00:00–00:58 presents the earlier Proof Mode story with captions and eight distinct visual beats. The current workspace expansion is proven by the live demo and three workspace screenshots; the film is not cited as workspace evidence.
 
 ## Potential impact
 
