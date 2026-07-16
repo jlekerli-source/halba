@@ -6,7 +6,7 @@ Halba
 
 ## Tagline
 
-The evidence control plane that checks whether an AI agent's “done” can pass human review.
+The local-first agent workspace where “done” comes with proof.
 
 ## Links
 
@@ -84,3 +84,7 @@ The useful boundary is not “AI versus rules.” GPT-5.6 is excellent at turnin
 ## Built with
 
 OpenAI Responses API, GPT-5.6 Sol, Codex, Node.js, HTML, CSS, JavaScript, local JSON, Docker, GitHub Pages, Playwright-based browser verification, and Remotion for the submission film.
+
+## Contribution
+
+I designed and built Halba’s local-first agent workspace and Proof Mode: the Codex-run importer, exact-source adjudication, deterministic guards, evals, responsive UI, privacy hardening, packaging, and deployment—with Codex as my implementation partner.
