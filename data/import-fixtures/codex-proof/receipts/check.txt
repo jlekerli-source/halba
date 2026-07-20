@@ -1,0 +1,3 @@
+command: npm run check:workspace-import
+exit: 0
+result: shared contract and evidence invalidation checks passed

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "id": "second-lab",
+    "name": "Second Lab"
+  },
+  "channel": {
+    "id": "operations",
+    "name": "operations",
+    "topic": "Independent operator receipts."
+  },
+  "agent": {
+    "id": "runner-two",
+    "name": "Runner Two",
+    "role": "independent source",
+    "initial": "R"
+  },
+  "run": {
+    "id": "independent-run",
+    "workspaceId": "second-lab",
+    "channelId": "operations",
+    "agentId": "runner-two",
+    "title": "Independent release verification",
+    "goal": "Prove that a second operator workspace remains isolated",
+    "summary": "A separate workspace imported a bounded failed verification receipt without access to Operator Lab proof.",
+    "status": "failed",
+    "proofState": "not_required",
+    "startedAt": "2026-07-18T07:00:00.000Z",
+    "updatedAt": "2026-07-18T07:04:00.000Z",
+    "completedAt": "2026-07-18T07:04:00.000Z",
+    "events": [
+      {
+        "id": "second-start",
+        "type": "run_started",
+        "at": "2026-07-18T07:00:00.000Z",
+        "title": "Started independent verification",
+        "detail": "Second Lab bounded receipt"
+      },
+      {
+        "id": "second-check",
+        "type": "check_completed",
+        "at": "2026-07-18T07:03:00.000Z",
+        "title": "Verification failed",
+        "detail": "exit 1 · no source body retained"
+      },
+      {
+        "id": "second-end",
+        "type": "run_completed",
+        "at": "2026-07-18T07:04:00.000Z",
+        "title": "Closed failed independent run",
+        "detail": "No proof bundle was attached"
+      }
+    ]
+  },
+  "warnings": []
+}

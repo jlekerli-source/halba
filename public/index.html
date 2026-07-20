@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <header class="topbar">
       <a class="brand" href="./" aria-label="Halba home">
         <img src="halba-icon.svg" alt="" aria-hidden="true">
@@ -40,12 +41,12 @@
 
     <div id="status-region" class="status-region" aria-live="polite"></div>
 
-    <main id="app" class="app" aria-busy="true">
+    <div id="app" class="app" aria-busy="true">
       <section class="boot-state" aria-label="Loading Halba">
         <span class="boot-mark" aria-hidden="true"></span>
         <p>Indexing the public proof bundle…</p>
       </section>
-    </main>
+    </div>
 
     <input id="workspace-file" type="file" accept="application/json,.json" hidden>
 

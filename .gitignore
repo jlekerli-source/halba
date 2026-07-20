@@ -3,6 +3,7 @@ node_modules/
 dist/
 coverage/
 .playwright-cli/
+.halba/
 *.log
 
 # Local credentials

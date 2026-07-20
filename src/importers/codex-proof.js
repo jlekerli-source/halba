@@ -1,4 +1,5 @@
 import { validateWorkspace } from "../domain/workspace.js";
+import { evidenceIdentity } from "../../public/shared/review-contract.js";
 
 function slug(value) {
   return String(value || "agent")
@@ -70,8 +71,14 @@ export function workspaceFromCodexProof(bundle, proof) {
     completedAt: definition.generatedAt,
     proofBundleId: definition.id,
     claimCount: proof.findings.length,
+    claimIds: proof.findings.map((finding) => finding.claimId),
     reviewGateCount: proof.reviewRequiredCount,
     reviewClaimIds: proof.findings.filter((finding) => finding.reviewRequired).map((finding) => finding.claimId),
+    reviewEvidence: Object.fromEntries(
+      proof.findings
+        .filter((finding) => finding.reviewRequired)
+        .map((finding) => [finding.claimId, evidenceIdentity(finding)])
+    ),
     verdictCounts: proof.counts,
     events
   };
@@ -161,8 +168,10 @@ function operationalThread({ id, channelId, agentId, title, goal, summary, start
     completedAt,
     proofBundleId: null,
     claimCount: 0,
+    claimIds: [],
     reviewGateCount: 0,
     reviewClaimIds: [],
+    reviewEvidence: {},
     verdictCounts: { supported: 0, unsupported: 0, contradictory: 0, stale: 0, uncertain: 0 },
     events: events.map(([eventId, type, eventTitle, detail], index) => ({
       id: eventId,

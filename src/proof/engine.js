@@ -21,19 +21,22 @@ export function adjudicateProof(bundle, modelRun) {
       ...guardVerdicts,
       ...(invalidCitations.length ? ["unsupported"] : [])
     ]);
-    const verdict = deterministicVerdict || claim.assessment;
+    const verdict = deterministicVerdict || "uncertain";
+    const verdictAuthority = deterministicVerdict ? "deterministic" : "fail-closed";
     const modelDisagreement = Boolean(deterministicVerdict && deterministicVerdict !== claim.assessment);
     const reviewRequired = claim.human_review || verdict !== "supported" || modelDisagreement;
     const issues = [
       ...invalidCitations.map((citation) => citation.issue),
       ...guardResults.filter((result) => !result.passed).map((result) => result.explanation),
-      ...(modelDisagreement ? [`Model assessed ${claim.assessment}; deterministic guards resolved ${verdict}.`] : [])
+      ...(modelDisagreement ? [`Model assessed ${claim.assessment}; deterministic guards resolved ${verdict}.`] : []),
+      ...(!deterministicVerdict ? [`No deterministic guard resolved this claim; model assessment ${claim.assessment} remains non-authoritative.`] : [])
     ];
 
     return {
       claimId: claim.claim_id,
       claim: claim.claim,
       verdict,
+      verdictAuthority,
       modelAssessment: claim.assessment,
       confidence: claim.confidence,
       reasoningBoundary: claim.reasoning_boundary,

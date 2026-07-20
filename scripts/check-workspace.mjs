@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import { loadWorkspace, validateWorkspace } from "../src/domain/workspace.js";
 import { runProof } from "../src/proof/run.js";
+import { evidenceIdentity } from "../public/shared/review-contract.js";
 
 const proof = await runProof({ mode: "recorded" });
 const workspace = await loadWorkspace(undefined, { proofBundleId: proof.bundle.id });
@@ -11,6 +12,10 @@ assert.equal(thread.claimCount, proof.findings.length);
 assert.equal(thread.reviewGateCount, proof.reviewRequiredCount);
 assert.equal(thread.verdictCounts.supported, proof.counts.supported);
 assert.equal(thread.verdictCounts.contradictory, proof.counts.contradictory);
+assert.deepEqual(
+  thread.reviewEvidence,
+  Object.fromEntries(proof.findings.filter((finding) => finding.reviewRequired).map((finding) => [finding.claimId, evidenceIdentity(finding)]))
+);
 assert.equal(workspace.channels.length, 3);
 assert.equal(workspace.agents.length, 3);
 assert.equal(workspace.threads.length, 4);

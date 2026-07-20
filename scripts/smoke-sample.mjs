@@ -6,7 +6,7 @@ const port = 4278;
 const origin = `http://127.0.0.1:${port}`;
 const sampleProjectIds = ["sample-research", "sample-build"];
 const server = spawn(process.execPath, ["src/server.js"], {
-  env: { ...process.env, HALBA_FEED: "sample", PORT: String(port) },
+  env: { ...process.env, HALBA_ENABLE_LEGACY_FEED: "1", HALBA_FEED: "sample", PORT: String(port) },
   stdio: ["ignore", "pipe", "pipe"]
 });
 const stderr = [];

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "routing": {
+    "workspace": {
+      "id": "operator-lab",
+      "name": "Operator Lab"
+    },
+    "channel": {
+      "id": "release-checks",
+      "name": "release-checks",
+      "topic": "Bounded CI verification receipts."
+    },
+    "agent": {
+      "id": "ci-runner",
+      "name": "CI Runner",
+      "role": "verification source",
+      "initial": "C"
+    }
+  },
+  "source": {
+    "provider": "generic-ci",
+    "workflow": "release-check",
+    "externalRunId": "ci-98123-attempt-2",
+    "revision": 2,
+    "commitSha": "0123456789abcdef0123456789abcdef01234567"
+  },
+  "run": {
+    "id": "ci-release-check-v2",
+    "title": "Release verification",
+    "goal": "Verify the bounded release candidate with structured checks.",
+    "startedAt": "2026-07-18T08:00:00.000Z",
+    "updatedAt": "2026-07-18T08:04:00.000Z"
+  },
+  "checks": [
+    {
+      "id": "privacy",
+      "status": "passed",
+      "at": "2026-07-18T08:03:00.000Z",
+      "exitCode": 0,
+      "receiptSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "id": "package",
+      "status": "failed",
+      "at": "2026-07-18T08:02:00.000Z",
+      "exitCode": 1,
+      "receiptSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "workspace": { "id": "operator-lab", "name": "Operator Lab" },
+  "channel": { "id": "releases", "name": "releases", "topic": "Bounded release packets and independently verified artifacts." },
+  "agent": { "id": "release-verifier", "name": "Release Verifier", "role": "release evidence source", "initial": "R" },
+  "run": {
+    "id": "halba-public-safe-release",
+    "workspaceId": "operator-lab",
+    "channelId": "releases",
+    "agentId": "release-verifier",
+    "title": "Halba public-safe release",
+    "goal": "Verify the explicitly declared release packet",
+    "summary": "Awaiting bounded release-manifest inspection.",
+    "status": "running",
+    "proofState": "not_required",
+    "startedAt": "2026-07-18T09:00:00.000Z",
+    "updatedAt": "2026-07-18T09:04:00.000Z",
+    "completedAt": null,
+    "events": [
+      { "id": "release-placeholder", "type": "note", "at": "2026-07-18T09:00:00.000Z", "title": "Awaiting release inspection", "detail": "The release adapter replaces this operator routing placeholder." }
+    ]
+  },
+  "warnings": []
+}

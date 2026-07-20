@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "codex-contract-check-proof",
+  "title": "Canonical contract checkpoint",
+  "generatedAt": "2026-07-18T08:00:05.000Z",
+  "evaluationDate": "2026-07-18",
+  "agent": "Codex",
+  "reportPath": "sources/report.md",
+  "sources": [
+    { "path": "sources/report.md", "label": "Bounded Codex completion report", "kind": "report" },
+    { "path": "sources/contract.md", "label": "Canonical contract receipt", "kind": "source" },
+    { "path": "receipts/check.txt", "label": "Focused check receipt", "kind": "receipt" }
+  ],
+  "guards": [
+    {
+      "claimId": "shared-validator",
+      "type": "source_contains",
+      "path": "sources/contract.md",
+      "needle": "canonical browser-safe validator",
+      "passVerdict": "supported",
+      "failVerdict": "unsupported"
+    },
+    {
+      "claimId": "focused-checks",
+      "type": "receipt_exit",
+      "path": "receipts/check.txt",
+      "expectedExit": 0,
+      "passVerdict": "supported",
+      "failVerdict": "contradictory"
+    }
+  ]
+}

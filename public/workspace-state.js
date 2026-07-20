@@ -1,6 +1,6 @@
-export function decisionClosesGate(decision) {
-  return ["approved", "rejected", "resolved"].includes(decision?.status);
-}
+export { decisionClosesGate } from "./shared/review-contract.js";
+
+import { decisionClosesGate } from "./shared/review-contract.js";
 
 export function shouldAdvanceReviewSelection(status) {
   return decisionClosesGate({ status });

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "baseline": "halba-v1-pre-trust-operations",
+  "capturedAt": "2026-07-18T01:00:07.000Z",
+  "source": {
+    "method": "git archive HEAD",
+    "commit": "d4a6417c1a562490787e5482191210043e32d71c",
+    "tree": "4500c92e87ab5630d563344c10bb6c9c4b176372",
+    "temporaryDirectory": "isolated-and-discardable",
+    "worktreeChangesIncluded": false
+  },
+  "runtime": {
+    "node": "v22.23.0",
+    "declaredMinimumNode": ">=20"
+  },
+  "commands": [
+    {
+      "command": "npm run check",
+      "exitCode": 0,
+      "summary": "Legacy source, proof, workspace, Pages, package-manifest, and privacy checks passed."
+    },
+    {
+      "command": "npm run smoke",
+      "exitCode": 0,
+      "summary": "Legacy sample server and Proof Mode HTTP smoke checks passed."
+    },
+    {
+      "command": "npm run eval",
+      "exitCode": 0,
+      "summary": "Nine proof cases and ten workspace-boundary cases passed."
+    }
+  ],
+  "checkedInEval": {
+    "proofReplayDigest": "d93e5aebe74e7e997c62c1c97cbebddb8195a8a562d22c7b77cb11911281f2b9",
+    "proofCases": 9,
+    "proofVerdictAccuracy": 1,
+    "proofGroundingPrecision": 1,
+    "proofGroundingRecall": 1,
+    "proofFalsePositiveRate": 0,
+    "workspaceCases": 10,
+    "workspaceOutcomeAccuracy": 1,
+    "workspaceUnsafeAcceptanceRate": 0,
+    "workspaceFalseRejectionRate": 0
+  },
+  "capabilityBoundary": {
+    "durableSQLiteState": false,
+    "incrementalAdapterContract": false,
+    "evidencePolicyV2": false,
+    "explicitClaimLineage": false,
+    "crossWorkspaceTrustInbox": false,
+    "changedSinceCheckpoint": false,
+    "hashLinkedLedger": false,
+    "portableTrustPack": false,
+    "bounded2000RunBrowserProof": false,
+    "humanTrustInboxComprehensionMeasurement": false
+  },
+  "notes": [
+    "The baseline was reconstructed from the exact committed tree, not the dirty v2 worktree.",
+    "Runtime timings are intentionally omitted because the baseline identity and pass/fail behavior are the durable comparison boundary.",
+    "Live GPT evaluation was not requested and remains outside this deterministic baseline."
+  ]
+}

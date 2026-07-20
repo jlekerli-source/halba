@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "corpusVersion": 1,
+  "evaluatedAt": "2026-08-01T12:00:00.000Z",
+  "workspaces": 3,
+  "runs": 120,
+  "expectedAttention": 11,
+  "actualAttention": 11,
+  "precision": 1,
+  "recall": 1,
+  "falsePositive": [],
+  "missed": [],
+  "topIssue": "claim:alpha:alpha-contradiction",
+  "topIssueCorrect": true,
+  "replayStable": true,
+  "latencyMs": {
+    "iterations": 200,
+    "p50": 1.010832999999991,
+    "p95": 1.8548330000000064,
+    "max": 3.835833000000001
+  },
+  "humanIdentificationStatus": "not_run",
+  "humanIdentificationSeconds": null,
+  "humanIdentificationSessionId": null,
+  "humanIdentificationRecordDigest": null,
+  "humanIdentificationNote": "Rendered browser mechanics pass; the under-60-second comprehension gate still requires an uninterrupted human-timed session."
+}

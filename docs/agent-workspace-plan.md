@@ -1,6 +1,10 @@
 # Halba Agent Workspace Plan
 
-Status: active product direction, July 15, 2026
+Status: active product direction, revised July 18, 2026
+
+Checkpoint update: the shared workspace and review contracts are canonical across Node, browser import, and Pages. Durable SQLite state, generic Codex and independent manifest ingestion, bundle-scoped sources, evidence-scoped decisions, history-aware stale claims, multi-workspace switching, import health, abrupt-restart recovery, and weekly evidence export are implemented. The older proof-feed API is opt-in compatibility only; hosted sync, chat features, and agent command execution remain excluded.
+
+Trust Operations update, July 18: store schema v3 preserves immutable proof revisions, content-addressed source bytes, canonical run projections, append-only histories, a transaction-coupled hash ledger, private relocated backups, and portable unsigned trust packs. Evidence-policy v2 validates explicit stable claim lineage, criticality, deterministic guard requirements, dependencies, freshness, and decision expiry. Codex, CI, and release inputs share one zero-write preview and atomic commit protocol with adversarial conformance. The cross-workspace evaluator and Trust Inbox expose inspectable `why now` reasons, bounded filters, checkpoints, deterministic rank, exact Proof Mode targets, exact degraded receipts, and recent decision transitions. The exact committed v1 tree is frozen separately from the v2 benchmark. Independent completion audits reopened and then closed model-only authority, immutable lineage ingestion, operator detail, all-adapter replay parity, transaction rollback and crash lifecycle, multi-workspace trust-pack lifecycle, public binary approval, and broader keyboard/accessibility gates. Check, smoke, eval, Trust Inbox browser, 2,000-run browser, clean-package reconstruction, and extracted-archive verification pass. Only a real uninterrupted human-timed under-60-second comprehension record remains active; automation is structurally unable to satisfy it.
 
 ## Product thesis
 

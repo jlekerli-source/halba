@@ -10,9 +10,9 @@
     "falseRejectionRate": 0
   },
   "timing": {
-    "totalMs": 0.553,
-    "meanCaseMs": 0.055,
-    "p95CaseMs": 0.299
+    "totalMs": 1.11,
+    "meanCaseMs": 0.111,
+    "p95CaseMs": 0.697
   },
   "thresholds": [
     {
@@ -45,7 +45,7 @@
       "actual": "accepted",
       "passed": true,
       "error": null,
-      "durationMs": 0.299
+      "durationMs": 0.697
     },
     {
       "id": "unknown-channel",
@@ -54,7 +54,7 @@
       "actual": "rejected",
       "passed": true,
       "error": "invalid workspace: thread halba-build-week-demo-run references an unknown channel",
-      "durationMs": 0.06
+      "durationMs": 0.049
     },
     {
       "id": "unknown-agent",
@@ -63,7 +63,7 @@
       "actual": "rejected",
       "passed": true,
       "error": "invalid workspace: thread halba-build-week-demo-run references an unknown agent",
-      "durationMs": 0.012
+      "durationMs": 0.014
     },
     {
       "id": "unknown-event-type",
@@ -72,7 +72,7 @@
       "actual": "rejected",
       "passed": true,
       "error": "invalid workspace: event source-boundary has an unknown type",
-      "durationMs": 0.023
+      "durationMs": 0.067
     },
     {
       "id": "duplicate-event-id",
@@ -81,7 +81,7 @@
       "actual": "rejected",
       "passed": true,
       "error": "invalid workspace: thread halba-build-week-demo-run event ids must be unique",
-      "durationMs": 0.096
+      "durationMs": 0.118
     },
     {
       "id": "event-outside-thread",
@@ -90,7 +90,7 @@
       "actual": "rejected",
       "passed": true,
       "error": "invalid workspace: event source-boundary is outside its thread",
-      "durationMs": 0.017
+      "durationMs": 0.031
     },
     {
       "id": "wrong-proof-bundle",
@@ -99,7 +99,7 @@
       "actual": "rejected",
       "passed": true,
       "error": "invalid workspace: thread halba-build-week-demo-run references the wrong proof bundle",
-      "durationMs": 0.01
+      "durationMs": 0.058
     },
     {
       "id": "review-gate-mismatch",
@@ -108,7 +108,7 @@
       "actual": "rejected",
       "passed": true,
       "error": "invalid workspace: thread halba-build-week-demo-run review claims must match its gate count",
-      "durationMs": 0.01
+      "durationMs": 0.044
     },
     {
       "id": "unsafe-id",
@@ -117,7 +117,7 @@
       "actual": "rejected",
       "passed": true,
       "error": "invalid workspace: thread ids must be safe slugs",
-      "durationMs": 0.006
+      "durationMs": 0.01
     },
     {
       "id": "inverted-time-boundary",
@@ -126,7 +126,7 @@
       "actual": "rejected",
       "passed": true,
       "error": "invalid workspace: thread halba-build-week-demo-run ends before it starts",
-      "durationMs": 0.02
+      "durationMs": 0.022
     }
   ]
 }

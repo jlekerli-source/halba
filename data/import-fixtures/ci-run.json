@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "workspace": { "id": "operator-lab", "name": "Operator Lab" },
+  "channel": { "id": "ci", "name": "ci", "topic": "Independent continuous-integration receipts." },
+  "agent": { "id": "ci-runner", "name": "CI Runner", "role": "verification agent", "initial": "I" },
+  "run": {
+    "id": "ci-release-check",
+    "workspaceId": "operator-lab",
+    "channelId": "ci",
+    "agentId": "ci-runner",
+    "title": "Release verification",
+    "goal": "Run the clean-package verification suite",
+    "summary": "The independent CI source reported a failed package verification receipt without claiming Proof Mode authority.",
+    "status": "failed",
+    "proofState": "not_required",
+    "startedAt": "2026-07-18T09:00:00.000Z",
+    "updatedAt": "2026-07-18T09:04:00.000Z",
+    "completedAt": "2026-07-18T09:04:00.000Z",
+    "events": [
+      { "id": "ci-start", "type": "run_started", "at": "2026-07-18T09:00:00.000Z", "title": "Started clean-package verification", "detail": "Public allowlist workspace" },
+      { "id": "ci-check", "type": "check_completed", "at": "2026-07-18T09:03:00.000Z", "title": "Verification command failed", "detail": "exit 1 · receipt preserved without command output" },
+      { "id": "ci-end", "type": "run_completed", "at": "2026-07-18T09:04:00.000Z", "title": "Closed failed CI run", "detail": "No completion claim entered Proof Mode" }
+    ]
+  },
+  "warnings": []
+}

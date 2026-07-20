@@ -4,6 +4,7 @@ import { createReadStream } from "node:fs";
 import {
   chmod,
   copyFile,
+  access,
   lstat,
   mkdir,
   readdir,
@@ -40,11 +41,17 @@ const suites = [
   ["smoke", "npm run smoke"],
   ["eval", "npm run eval"],
 ];
+const chrome = process.env.CHROME_BIN || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const browserAvailable = await access(chrome).then(() => true, () => false);
 
 const startedAt = new Date().toISOString();
 for (const [name, command] of suites) {
   console.log(`\n[release] ${name}`);
   await run(command, packageRoot);
+}
+if (browserAvailable) {
+  console.log("\n[release] browser");
+  await run("npm run release:browser", packageRoot);
 }
 
 await run(`tar -czf ${shellQuote(archivePath)} -C ${shellQuote(distRoot)} halba-public`, root);
@@ -56,6 +63,10 @@ console.log("\n[release] extracted archive verification");
 for (const [name, command] of suites) {
   console.log(`[archive] ${name}`);
   await run(command, extractedRoot);
+}
+if (browserAvailable) {
+  console.log("[archive] browser");
+  await run("npm run release:browser", extractedRoot);
 }
 
 const packageFileCount = await countFiles(packageRoot);
@@ -74,6 +85,9 @@ const evidence = {
   includeCount: manifest.include.length,
   excludedPathCount: manifest.exclude.length,
   suites: suites.map(([name]) => ({ name, status: "passed" })),
+  browser: browserAvailable
+    ? { status: "passed", reconstructedPackage: true, extractedArchive: true, chrome }
+    : { status: "not_run_chrome_unavailable", reconstructedPackage: false, extractedArchive: false, chrome },
   archiveVerification: "extracted_and_suites_passed",
   liveOpenAIEval: "not_run_without_explicit_credentials",
   publication: "not_performed",

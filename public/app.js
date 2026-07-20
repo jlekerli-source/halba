@@ -1,13 +1,30 @@
 import { validateImportedWorkspace } from "./workspace-import.js";
 import { decisionClosesGate, shouldAdvanceReviewSelection } from "./workspace-state.js";
+import {
+  createReviewDecision,
+  evidenceIdentity,
+  reviewDecisionKey,
+  reviewDecisionMatches
+} from "./shared/review-contract.js";
+import { filterTrustItems, trustInboxFilters, trustInboxSummary, trustPrimaryReason, trustReasonLabel, validateTrustOperationsReport } from "./trust-inbox.js";
 
-const decisionStorageKey = "halba:proof-decisions:v1";
+const decisionStorageKey = "halba:proof-decisions:v2";
 const workspaceUiStorageKey = "halba:workspace-ui:v1";
+const activeWorkspaceStorageKey = "halba:active-workspace:v1";
+const trustCheckpointStorageKey = "halba:trust-checkpoint:v1";
+const workspaceRunRenderLimit = 100;
 
 const state = {
   phase: "boot",
   bundle: null,
   workspace: null,
+  workspaces: [],
+  importReceipts: [],
+  importReceipt: null,
+  recentDecisions: null,
+  operatorPanelStatus: "idle",
+  operatorPanelError: null,
+  claimHistory: null,
   proof: null,
   error: null,
   activeRunMode: null,
@@ -16,6 +33,7 @@ const state = {
   source: null,
   sourceStatus: "idle",
   sourceError: null,
+  reviewError: null,
   filter: "review",
   mobileView: "summary",
   decisions: readDecisions(),
@@ -25,7 +43,14 @@ const state = {
   workspaceFilter: "all",
   workspaceQuery: "",
   workspaceNotice: null,
-  workspaceImported: false
+  workspaceImported: false,
+  durableState: false,
+  trustOperations: null,
+  trustStatus: "idle",
+  trustError: null,
+  trustFilter: "all",
+  trustCheckpointAt: readTrustCheckpoint(),
+  announcement: ""
 };
 
 let sourceRequest = 0;
@@ -43,9 +68,24 @@ initialize();
 async function initialize() {
   render();
   try {
-    [state.bundle, state.workspace] = await Promise.all([requestBundle(), requestWorkspace()]);
-    hydrateWorkspaceUi();
-    state.phase = "ready";
+    const runtime = await requestRuntime();
+    state.durableState = runtime.durableState;
+    if (state.durableState) {
+      state.workspaces = await requestWorkspaces();
+      const savedWorkspaceId = readActiveWorkspace();
+      const route = readRoute();
+      const requestedWorkspaceId = route.workspaceId || savedWorkspaceId;
+      const workspaceId = state.workspaces.some((workspace) => workspace.id === requestedWorkspaceId) ? requestedWorkspaceId : state.workspaces[0]?.id;
+      if (!workspaceId) throw new Error("No durable workspace has been imported yet.");
+      await loadWorkspaceState(await requestWorkspace(workspaceId));
+      persistActiveWorkspace(workspaceId);
+      await refreshTrustOperations();
+      state.phase = "ready";
+      await applyInitialRoute(route);
+    } else {
+      await loadWorkspaceState(await requestWorkspace());
+      state.phase = "ready";
+    }
   } catch (error) {
     state.phase = "error";
     state.error = {
@@ -54,6 +94,33 @@ async function initialize() {
     };
   }
   render();
+}
+
+async function loadWorkspaceState(workspace, { resetUi = false } = {}) {
+  state.workspace = workspace;
+  state.bundle = null;
+  state.proof = null;
+  state.activeProofThreadId = null;
+  state.claimHistory = null;
+  state.importReceipts = [];
+  state.importReceipt = null;
+  state.recentDecisions = null;
+  state.operatorPanelStatus = "idle";
+  state.operatorPanelError = null;
+  if (state.durableState) {
+    state.decisions = {};
+    [state.claimHistory, state.importReceipts] = await Promise.all([
+      requestClaimHistory(workspace.workspace.id),
+      requestImportReceipts(workspace.workspace.id),
+      hydrateDurableDecisions()
+    ]);
+  }
+  hydrateWorkspaceUi({ reset: resetUi });
+  const selectedThread = workspace.threads.find((thread) => thread.id === state.selectedThreadId);
+  const proofThread = selectedThread?.proofState === "ready" && selectedThread.proofBundleId
+    ? selectedThread
+    : workspace.threads.find((thread) => thread.proofState === "ready" && thread.proofBundleId);
+  state.bundle = proofThread ? await requestBundle(proofThread.proofBundleId) : null;
 }
 
 function render() {
@@ -75,9 +142,10 @@ function updateHeader() {
 
   const execution = state.proof?.execution;
   executionBadge.className = `execution-badge${execution ? ` mode-${execution.mode}` : ""}`;
+  const executionLabel = { recorded: "Recorded replay", imported: "Imported adjudication", live: "Live response" }[execution?.mode];
   executionBadge.textContent = execution
-    ? `${execution.mode === "recorded" ? "Recorded replay" : "Live response"} · ${execution.model}`
-    : "Public demo";
+    ? `${executionLabel || execution.mode} · ${execution.model}`
+    : state.durableState ? "Durable local state" : "Public demo";
 
   for (const step of document.querySelectorAll("[data-process-step]")) {
     const name = step.dataset.processStep;
@@ -100,7 +168,7 @@ function updateHeader() {
 
   statusRegion.textContent = state.phase === "loading"
     ? `${state.activeRunMode === "live" ? "Running live GPT-5.6 Sol" : "Replaying recorded GPT-5.6 Sol output"} and validating citations.`
-    : "";
+    : state.announcement;
 }
 
 function renderBoot() {
@@ -114,22 +182,32 @@ function renderBoot() {
 
 function renderOnboarding() {
   const workspace = state.workspace.workspace;
-  const threads = visibleWorkspaceThreads();
-  const thread = selectedWorkspaceThread(threads);
+  const visibleThreads = visibleWorkspaceThreads();
+  const threads = visibleThreads.slice(0, workspaceRunRenderLimit);
+  const thread = selectedWorkspaceThread(visibleThreads);
   const scope = workspaceScopeDetails();
-  const openReviewCount = workspaceTotalAttention();
+  const operatorView = state.durableState && ["trust", "receipt", "decisions"].includes(state.workspaceScope.kind);
+  const trustView = operatorView && state.workspaceScope.kind === "trust";
+  const trustSummary = trustInboxSummary(state.trustOperations);
+  const attentionCount = workspaceTotalAttention();
+  const openReviewCount = workspaceOpenReviewCount();
+  const latestReceipt = state.importReceipts[0];
+  const importIssueCount = state.importReceipts.filter((receipt) => receipt.status === "degraded" || receipt.warnings.length > 0).length;
   return `
     <section class="workspace-shell">
       <aside class="workspace-rail" aria-label="${escapeHtml(workspace.name)} workspace">
         <div class="workspace-switcher">
           <span class="workspace-mark">${escapeHtml(initials(workspace.name))}</span>
-          <div><strong>${escapeHtml(workspace.name)}</strong><small>${state.workspaceImported ? "Imported browser session" : "Public-safe local sample"}</small></div>
+          <div><strong>${escapeHtml(workspace.name)}</strong><small>${state.workspaceImported ? "Imported browser session" : state.durableState ? "Durable local workspace" : "Public-safe local sample"}</small>${state.durableState && state.workspaces.length > 1 ? `<label class="workspace-select"><span class="sr-only">Active workspace</span><select data-workspace-select>${state.workspaces.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === workspace.id ? " selected" : ""}>${escapeHtml(item.name)}</option>`).join("")}</select></label>` : ""}</div>
           <span class="local-dot">Local</span>
         </div>
 
         <nav class="workspace-nav" aria-label="Workspace navigation">
           <p>Attention</p>
+          ${state.durableState ? workspaceNavButton({ kind: "trust", id: "inbox", iconName: trustSummary.attention ? "guard" : "check", label: "Trust Inbox", count: trustSummary.attention, meta: `Across ${trustSummary.workspaceCount} workspaces`, alert: trustSummary.attention > 0 }) : ""}
+          ${state.durableState ? workspaceNavButton({ kind: "decisions", id: "recent", iconName: "trace", label: "Recent decisions", meta: "Current state + history" }) : ""}
           ${workspaceNavButton({ kind: "attention", id: "review", iconName: openReviewCount ? "alert" : "check", label: openReviewCount ? "Needs review" : "Review complete", count: openReviewCount, alert: openReviewCount > 0 })}
+          ${workspaceNavButton({ kind: "attention", id: "stale", iconName: workspaceStaleCount() ? "clock" : "check", label: "Stale claims", count: workspaceStaleCount(), alert: workspaceStaleCount() > 0 })}
           <p>Channels</p>
           ${state.workspace.channels.map((channel) => workspaceNavButton({ kind: "channel", id: channel.id, hash: true, label: channel.name, count: state.workspace.threads.filter((item) => item.channelId === channel.id).length })).join("")}
           <p>Agents</p>
@@ -141,17 +219,20 @@ function renderOnboarding() {
           <p><strong>Source stays local</strong><span>Agent claims are not proof.</span></p>
         </div>
         <button class="workspace-import" type="button" data-import-workspace>${icon("download")}<span><strong>Import workspace JSON</strong><small>Validated in this browser only</small></span></button>
+        ${state.durableState && !state.workspaceImported ? `<button class="workspace-import" type="button" data-refresh-workspace>${icon("pulse")}<span><strong>Refresh local state</strong><small>${latestReceipt ? `${importIssueCount ? `${importIssueCount} degraded ${pluralize(importIssueCount, "receipt")} · ` : ""}latest ${escapeHtml(latestReceipt.adapter)} · ${escapeHtml(latestReceipt.status)}` : "No import receipt"}</small></span></button>` : ""}
+        ${state.durableState && !state.workspaceImported ? `<a class="workspace-import" href="/api/weekly-review?${new URLSearchParams({ workspaceId: workspace.id, format: "markdown" })}" download="halba-${escapeHtml(workspace.id)}-weekly-review.md">${icon("download")}<span><strong>Export weekly review</strong><small>Runs, gates, stale proof, decisions</small></span></a>` : ""}
       </aside>
 
-      <main class="channel-thread">
+      <main id="main-content" class="channel-thread" tabindex="-1">
         ${state.workspaceNotice ? `<div class="workspace-notice notice-${escapeHtml(state.workspaceNotice.tone)}" role="status">${icon(state.workspaceNotice.tone === "error" ? "alert" : "check")}<span>${escapeHtml(state.workspaceNotice.message)}</span><button type="button" data-dismiss-notice aria-label="Dismiss">×</button></div>` : ""}
+        ${operatorView ? state.workspaceScope.kind === "receipt" ? renderImportReceipt() : state.workspaceScope.kind === "decisions" ? renderRecentDecisions() : renderTrustInbox() : `
         <header class="channel-head">
           <div>
             <p class="eyebrow">${escapeHtml(scope.eyebrow)}</p>
             <h1>${scope.kind === "channel" ? "<span>#</span>" : ""}${escapeHtml(scope.title)}</h1>
             <p>${escapeHtml(scope.description)}</p>
           </div>
-          <span class="channel-status${openReviewCount ? "" : " is-complete"}"><i></i>${openReviewCount ? `${openReviewCount} decisions needed` : "Review complete"}</span>
+          <span class="channel-status${attentionCount ? "" : " is-complete"}"><i></i>${attentionCount ? `${attentionCount} ${pluralize(attentionCount, "item")} ${attentionCount === 1 ? "needs" : "need"} attention` : "Review complete"}</span>
         </header>
 
         <section class="workspace-toolbar" aria-label="Run controls">
@@ -163,15 +244,18 @@ function renderOnboarding() {
           </div>
         </section>
 
+        ${visibleThreads.length > workspaceRunRenderLimit ? `<p class="workspace-limit" role="status">Showing the newest ${workspaceRunRenderLimit} of ${visibleThreads.length} matching runs. Search or filter to narrow the local index.</p>` : ""}
+
         ${threads.length ? `
           <div class="run-index" role="list" aria-label="Runs in this view">
             ${threads.map(renderRunIndexItem).join("")}
           </div>
           ${renderSelectedThread(thread)}
         ` : renderEmptyWorkspace()}
+        `}
       </main>
 
-      ${renderRunInspector(thread)}
+      ${operatorView ? trustView ? renderTrustSummary() : renderOperatorBoundary() : renderRunInspector(thread)}
     </section>
   `;
 }
@@ -191,11 +275,11 @@ function renderRunIndexItem(thread) {
   const openCount = workspaceAttentionCount(thread);
   const selected = thread.id === state.selectedThreadId;
   return `
-    <button class="run-index-item status-${escapeHtml(thread.status)}${selected ? " is-selected" : ""}" type="button" data-thread-id="${escapeHtml(thread.id)}" aria-pressed="${selected}" role="listitem">
+    <div class="run-index-entry" role="listitem"><button class="run-index-item status-${escapeHtml(thread.status)}${selected ? " is-selected" : ""}" type="button" data-thread-id="${escapeHtml(thread.id)}" aria-pressed="${selected}">
       <span class="agent-presence">${escapeHtml(agent.initial)}</span>
       <span class="run-index-copy"><strong>${escapeHtml(thread.title)}</strong><small>${escapeHtml(agent.name)} · ${formatRelativeDate(thread.updatedAt)}</small></span>
       <span class="run-index-status">${openCount ? `${openCount} open` : threadStatusLabel(thread.status)}</span>
-    </button>
+    </button></div>
   `;
 }
 
@@ -216,6 +300,7 @@ function renderSelectedThread(thread) {
         <ol class="run-timeline" aria-label="Agent run events">
           ${thread.events.map((event) => `<li class="${eventNeedsReview(event.type) ? "is-review" : "is-complete"}">${icon(eventIcon(event.type))}<div><strong>${escapeHtml(event.title)}</strong><span>${escapeHtml(event.detail)}</span></div><time datetime="${escapeHtml(event.at)}">${formatTime(event.at)}</time></li>`).join("")}
         </ol>
+        ${renderThreadHistoryWarning(thread)}
         ${renderThreadHandoff(thread)}
       </div>
     </article>
@@ -243,6 +328,13 @@ function renderThreadHandoff(thread) {
   `;
 }
 
+function renderThreadHistoryWarning(thread) {
+  const staleClaims = threadStaleClaims(thread);
+  if (!staleClaims.length) return "";
+  const reasons = [...new Set(staleClaims.flatMap((claim) => claim.reasons))];
+  return `<section class="history-warning" role="status">${icon("clock")}<div><p class="eyebrow">History check</p><h2>${staleClaims.length} ${pluralize(staleClaims.length, "claim")} need fresh proof</h2><p>${escapeHtml(reasons[0] || "A newer run or the proof-age policy made this evidence stale.")}</p></div></section>`;
+}
+
 function renderRunInspector(thread) {
   const agent = workspaceAgent(thread.agentId);
   const channel = state.workspace.channels.find((item) => item.id === thread.channelId);
@@ -266,13 +358,192 @@ function renderRunInspector(thread) {
         <button class="button button-primary" type="button" data-run-mode="recorded" data-proof-thread="${escapeHtml(thread.id)}">${icon("trace", "button-icon")}Open recorded proof</button>
         <button class="button button-secondary" type="button" data-run-mode="live" data-proof-thread="${escapeHtml(thread.id)}">${icon("pulse", "button-icon")}Run live locally</button>
       ` : `<section class="inspector-events"><h3>Run receipt</h3>${thread.events.map((event) => `<div>${icon(eventIcon(event.type))}<span><strong>${escapeHtml(event.title)}</strong><small>${formatTime(event.at)}</small></span></div>`).join("")}</section>`}
-      <p class="mode-disclosure">${state.workspaceImported ? "Imported data stays in this browser session and is never uploaded." : "The public sample is synthetic and bounded. Only the selected proof-ready run can open the checked-in evidence packet."}</p>
+      <p class="mode-disclosure">${state.workspaceImported ? "Imported data stays in this browser session and is never uploaded." : state.durableState ? "Review decisions are evidence-scoped and persisted in local Halba state." : "The public sample is synthetic and bounded. Only the selected proof-ready run can open the checked-in evidence packet."}</p>
     </aside>
   `;
 }
 
 function renderEmptyWorkspace() {
   return `<section class="workspace-empty"><span>${icon("search")}</span><h2>No runs match this view.</h2><p>Clear the search or choose a different status, channel, or agent.</p><button class="text-action" type="button" data-clear-workspace-filters>Clear filters</button></section>`;
+}
+
+function renderTrustInbox() {
+  if (state.trustStatus === "loading" && !state.trustOperations) {
+    return `<section class="trust-empty" aria-label="Loading Trust Inbox"><span class="boot-mark" aria-hidden="true"></span><h1>Loading Trust Inbox…</h1><p>Evaluating deterministic evidence across local workspaces.</p></section>`;
+  }
+  if (state.trustStatus === "error") {
+    return `<section class="trust-empty is-error" role="alert">${icon("alert")}<h1>Trust Inbox is unavailable.</h1><p>${escapeHtml(state.trustError || "The cross-workspace trust read model could not be loaded.")}</p><button class="button button-secondary" type="button" data-refresh-trust>Try again</button></section>`;
+  }
+  const report = state.trustOperations;
+  const summary = trustInboxSummary(report);
+  const items = filterTrustItems(report?.items, state.trustFilter);
+  const page = report?.page;
+  return `
+    <header class="trust-head">
+      <div><p class="eyebrow">Cross-workspace trust operations</p><h1>Trust Inbox</h1><p>Deterministically ranked evidence changes, failed guards, expired decisions, and degraded imports. Human decisions can acknowledge risk; they cannot rewrite evidence.</p></div>
+      <div class="trust-head-score"><strong>${summary.attention}</strong><span>need attention</span><small>${summary.newCount} subject ${pluralize(summary.newCount, "change")} since checkpoint</small></div>
+    </header>
+    <section class="trust-toolbar" aria-label="Filter Trust Inbox">
+      ${trustInboxFilters.map((filter) => `<button type="button" data-trust-filter="${filter}" aria-pressed="${state.trustFilter === filter}">${escapeHtml(trustFilterLabel(filter))}</button>`).join("")}
+    </section>
+    ${page?.truncated ? `<p class="trust-limit" role="status">Showing the highest-priority ${page.returned} of ${page.totalItems} matching items. Narrow the server query before treating this as a complete export.</p>` : ""}
+    ${items.length ? `<ol class="trust-list" aria-label="Ranked trust attention">
+      ${items.map((item, index) => renderTrustItem(item, index)).join("")}
+    </ol>` : `<section class="trust-empty">${icon("check")}<h2>No items match this view.</h2><p>The filter is clear at ${formatTimestamp(report.evaluatedAt)}. This does not certify workspaces outside the loaded local state.</p></section>`}
+  `;
+}
+
+function renderTrustItem(item, index) {
+  const primary = trustPrimaryReason(item);
+  const workspaceName = state.workspaces.find((workspace) => workspace.id === item.workspaceId)?.name || item.workspaceId;
+  const routedItem = readRoute().view === "trust" && readRoute().item === item.id;
+  const subject = item.stableKey || item.evidence?.adapter || item.threadId || item.id;
+  const headingId = `trust-item-heading-${index + 1}`;
+  return `<li>
+    <article class="trust-item criticality-${escapeHtml(item.criticality)}${item.subjectUpdatedSinceCheckpoint ? " is-new" : ""}${routedItem ? " is-routed" : ""}" data-trust-item="${escapeHtml(item.id)}" aria-labelledby="${headingId}">
+      <div class="trust-rank" aria-label="Priority rank ${index + 1}"><span>${String(index + 1).padStart(2, "0")}</span><strong>${item.priority.score}</strong></div>
+      <div class="trust-item-copy">
+        <div class="trust-item-meta"><span class="criticality-pill">${escapeHtml(item.criticality)}</span>${item.subjectUpdatedSinceCheckpoint ? '<span class="new-pill">Subject changed</span>' : ""}<span>${escapeHtml(workspaceName)}</span></div>
+        <h2 id="${headingId}">${escapeHtml(subject)}</h2>
+        <p class="trust-why"><strong>${escapeHtml(trustReasonLabel(primary.code))}</strong><span>${escapeHtml(primary.explanation)}</span></p>
+        <div class="trust-reasons" aria-label="All deterministic reasons">${item.reasons.map((reason) => `<span>${escapeHtml(trustReasonLabel(reason.code))}</span>`).join("")}</div>
+        <details class="trust-trace"><summary>Inspect priority trace</summary><ul>${item.priority.components.map((component) => `<li><span>${escapeHtml(trustReasonLabel(component.code))}</span><strong>+${component.value}</strong><small>${escapeHtml(component.authority)}</small></li>`).join("")}</ul></details>
+      </div>
+      <a class="trust-open" data-trust-link href="${escapeHtml(trustItemHref(item))}" aria-label="${escapeHtml(trustActionLabel(item))}: ${escapeHtml(subject)}"${routedItem ? ' aria-current="true"' : ""}><span>${escapeHtml(trustActionLabel(item))}</span>${icon("arrow")}</a>
+    </article>
+  </li>`;
+}
+
+function renderTrustSummary() {
+  const report = state.trustOperations;
+  const summary = trustInboxSummary(report);
+  const counts = report?.counts?.byCriticality || {};
+  return `<aside class="run-inspector trust-summary" aria-label="Trust Inbox summary">
+    <div class="run-inspector-head"><p class="eyebrow">Evaluation boundary</p><span class="mode-pill mode-local">Deterministic</span></div>
+    <h2>${summary.workspaceCount} local ${pluralize(summary.workspaceCount, "workspace")}</h2>
+    <p class="run-goal">Rank comes from declared claim criticality, deterministic run/import defaults, and inspectable evidence-policy reasons. Model prose has zero authority.</p>
+    <dl class="trust-criticality">
+      ${["critical", "high", "medium", "low"].map((value) => `<div><dt>${value}</dt><dd>${counts[value] || 0}</dd></div>`).join("")}
+    </dl>
+    <section class="trust-checkpoint">
+      <h3>Review checkpoint</h3>
+      <p>${state.trustCheckpointAt ? `Subjects updated after ${escapeHtml(formatTimestamp(state.trustCheckpointAt))} are marked changed.` : "No checkpoint is set; every loaded subject is marked changed."}</p>
+      <button class="button button-secondary" type="button" data-mark-trust-reviewed>Mark current inbox reviewed</button>
+    </section>
+    <p class="mode-disclosure">Evaluated ${report ? escapeHtml(formatTimestamp(report.evaluatedAt)) : "not available"}. “Subject changed” is a timestamp fact, not proof that the attention condition first emerged after the checkpoint.</p>
+  </aside>`;
+}
+
+function trustReturnHref() {
+  const route = readRoute();
+  const parameters = new URLSearchParams({ view: "trust" });
+  if (route.item) parameters.set("item", route.item);
+  if (route.at) parameters.set("at", route.at);
+  return `?${parameters}`;
+}
+
+function renderImportReceipt() {
+  if (state.operatorPanelStatus === "loading") return `<section class="trust-empty" aria-label="Loading import receipt"><span class="boot-mark" aria-hidden="true"></span><h1>Loading exact import receipt…</h1></section>`;
+  if (state.operatorPanelError || !state.importReceipt) return `<section class="trust-empty is-error" role="alert">${icon("alert")}<h1>Import receipt is unavailable.</h1><p>${escapeHtml(state.operatorPanelError || "The exact routed receipt could not be loaded.")}</p><a class="button button-secondary" href="${escapeHtml(trustReturnHref())}">Back to Trust Inbox</a></section>`;
+  const receipt = state.importReceipt;
+  const counts = receipt.counts || {};
+  const warnings = Array.isArray(receipt.warnings) ? receipt.warnings : [];
+  return `
+    <header class="trust-head receipt-head">
+      <div><a class="workspace-back" href="${escapeHtml(trustReturnHref())}">${icon("arrow")}Back to Trust Inbox</a><p class="eyebrow">Exact local import receipt</p><h1>${escapeHtml(receipt.adapter)}</h1><p>This is the receipt named by the ranked import item, not a substitute from the same workspace or adapter.</p></div>
+      <div class="trust-head-score receipt-status status-${escapeHtml(receipt.status)}"><strong>${escapeHtml(receipt.status)}</strong><span>import status</span><small>${warnings.length} ${pluralize(warnings.length, "warning")}</small></div>
+    </header>
+    <article class="operator-panel receipt-panel" data-import-receipt="${escapeHtml(receipt.id)}">
+      <section>
+        <h2>Receipt identity</h2>
+        <dl class="operator-fields">
+          <div><dt>Receipt ID</dt><dd><code>${escapeHtml(receipt.id)}</code></dd></div>
+          <div><dt>Adapter</dt><dd>${escapeHtml(receipt.adapter)}</dd></div>
+          <div><dt>Source reference</dt><dd>${escapeHtml(shortPath(receipt.sourceRef))}</dd></div>
+          <div><dt>Source digest</dt><dd><code class="digest-value">${escapeHtml(receipt.sourceDigest)}</code></dd></div>
+          <div><dt>Source observed</dt><dd>${escapeHtml(formatTimestamp(receipt.importedAt))}</dd></div>
+          <div><dt>Committed locally</dt><dd>${receipt.recordedAt ? escapeHtml(formatTimestamp(receipt.recordedAt)) : "Not recorded by this store version"}</dd></div>
+        </dl>
+      </section>
+      <section>
+        <h2>Imported counts</h2>
+        <dl class="receipt-counts">
+          ${["channels", "agents", "runs", "proofSources", "reviewGates"].map((key) => `<div><dt>${escapeHtml(countLabel(key))}</dt><dd>${Number.isInteger(counts[key]) ? counts[key] : 0}</dd></div>`).join("")}
+        </dl>
+      </section>
+      <section class="receipt-warnings">
+        <h2>Warnings</h2>
+        ${warnings.length ? `<ul>${warnings.map((warning) => `<li>${icon("alert")}<span>${escapeHtml(warning)}</span></li>`).join("")}</ul>` : `<p class="operator-clear">${icon("check")}This receipt recorded no import warnings.</p>`}
+      </section>
+    </article>`;
+}
+
+function countLabel(key) {
+  return { channels: "Channels", agents: "Agents", runs: "Runs", proofSources: "Proof sources", reviewGates: "Review gates" }[key] || key;
+}
+
+function renderRecentDecisions() {
+  if (state.operatorPanelStatus === "loading") return `<section class="trust-empty" aria-label="Loading recent decisions"><span class="boot-mark" aria-hidden="true"></span><h1>Loading recent decisions…</h1></section>`;
+  if (state.operatorPanelError) return `<section class="trust-empty is-error" role="alert">${icon("alert")}<h1>Recent decisions are unavailable.</h1><p>${escapeHtml(state.operatorPanelError)}</p></section>`;
+  const report = state.recentDecisions;
+  const items = report?.items || [];
+  return `
+    <header class="trust-head decisions-head">
+      <div><p class="eyebrow">Cross-workspace operator record</p><h1>Recent decisions</h1><p>Current decision projections are shown with their append-only transition history. Human decisions remain evidence-scoped and never change source evidence.</p></div>
+      <div class="trust-head-score"><strong>${items.length}</strong><span>recent transitions</span><small>${report?.page?.truncated ? `${report.page.totalItems} total · bounded view` : "bounded to 30"}</small></div>
+    </header>
+    ${items.length ? `<ol class="decision-history" aria-label="Recent review decision transitions">${items.map(renderDecisionEvent).join("")}</ol>` : `<section class="trust-empty">${icon("check")}<h2>No durable review decisions yet.</h2><p>Decisions will appear here after an operator responds to an evidence-scoped review gate.</p></section>`}`;
+}
+
+function renderDecisionEvent(event) {
+  const parameters = new URLSearchParams({ view: "run", workspaceId: event.workspaceId, threadId: event.threadId });
+  return `<li><article class="decision-event${event.current ? " is-current" : ""}" data-recent-decision="${escapeHtml(event.eventId)}">
+    <div class="decision-event-status"><span class="mode-pill ${event.current ? "mode-local" : ""}">${event.current ? "Current" : "History"}</span><strong>${escapeHtml(event.action === "deleted" ? "cleared" : event.status)}</strong></div>
+    <div class="decision-event-copy"><p class="eyebrow">${escapeHtml(event.workspaceName || event.workspaceId)} · ${escapeHtml(event.threadId)}</p><h2>${escapeHtml(event.claimId)}</h2><p>${event.note ? escapeHtml(event.note) : "No operator note supplied."}</p><small>Decision ${escapeHtml(formatTimestamp(event.updatedAt))} · recorded ${escapeHtml(formatTimestamp(event.recordedAt))} · ${escapeHtml(event.origin || "operator")}</small></div>
+    <a class="trust-open" href="?${parameters}" aria-label="Open run for ${escapeHtml(event.claimId)}"><span>Open run</span>${icon("arrow")}</a>
+  </article></li>`;
+}
+
+function renderOperatorBoundary() {
+  const receiptView = state.workspaceScope.kind === "receipt";
+  return `<aside class="run-inspector trust-summary operator-boundary" aria-label="${receiptView ? "Import receipt" : "Decision history"} boundary">
+    <div class="run-inspector-head"><p class="eyebrow">Privacy boundary</p><span class="mode-pill mode-local">Local only</span></div>
+    <h2>${receiptView ? "Receipt metadata, not raw session content" : "Operator transitions, not rewritten evidence"}</h2>
+    <p class="run-goal">${receiptView ? "Source references are disclosed as basenames. Exact declared proof bytes, when present, remain private in content-addressed local SQLite." : "The current projection supports fast review; the append-only events preserve the transition sequence for inspection."}</p>
+    <p class="mode-disclosure">${receiptView ? "Run adapters do not store raw transcripts, command text, arguments, output, environment values, or absolute paths." : "This view is bounded and includes transition history for decisions that still have a current projection. Cleared-only histories remain in the trust ledger and exports."}</p>
+  </aside>`;
+}
+
+function trustFilterLabel(filter) {
+  return { all: "All", new: "Subject changed", critical: "Critical", contradiction: "Contradictions", expired: "Expired or stale", imports: "Imports" }[filter] || filter;
+}
+
+function trustActionLabel(item) {
+  if (item.kind === "claim") return item.target.bundleId && item.target.evidenceIdentity ? "Review exact claim" : "Open claim run";
+  if (item.kind === "run") return "Open run";
+  if (item.kind === "import") return "Inspect receipt";
+  return "Open workspace";
+}
+
+function trustItemHref(item) {
+  const target = item.target;
+  const parameters = new URLSearchParams({ workspaceId: target.workspaceId, from: "trust", item: item.id });
+  const route = readRoute();
+  if (route.at) parameters.set("at", route.at);
+  if (item.kind === "claim" && target.bundleId && target.evidenceIdentity) {
+    parameters.set("view", "proof");
+    parameters.set("threadId", target.threadId);
+    parameters.set("claimId", target.claimId);
+  } else if (item.kind === "run" || item.kind === "claim") {
+    parameters.set("view", "run");
+    parameters.set("threadId", target.threadId);
+  } else if (item.kind === "import" && target.receiptId) {
+    parameters.set("view", "receipt");
+    parameters.set("receiptId", target.receiptId);
+  } else {
+    parameters.set("view", "run");
+  }
+  return `?${parameters}`;
 }
 
 function hydrateWorkspaceUi({ reset = false } = {}) {
@@ -284,7 +555,9 @@ function hydrateWorkspaceUi({ reset = false } = {}) {
   const scopeIsValid = (
     (saved.scopeKind === "channel" && state.workspace.channels.some((channel) => channel.id === saved.scopeId))
     || (saved.scopeKind === "agent" && state.workspace.agents.some((agent) => agent.id === saved.scopeId))
-    || (saved.scopeKind === "attention" && saved.scopeId === "review")
+    || (saved.scopeKind === "attention" && ["review", "stale"].includes(saved.scopeId))
+    || (state.durableState && saved.scopeKind === "trust" && saved.scopeId === "inbox")
+    || (state.durableState && saved.scopeKind === "decisions" && saved.scopeId === "recent")
   );
   state.workspaceScope = scopeIsValid
     ? { kind: saved.scopeKind, id: saved.scopeId }
@@ -300,7 +573,8 @@ function visibleWorkspaceThreads() {
     .filter((thread) => {
       if (state.workspaceScope.kind === "channel") return thread.channelId === state.workspaceScope.id;
       if (state.workspaceScope.kind === "agent") return thread.agentId === state.workspaceScope.id;
-      return workspaceAttentionCount(thread) > 0;
+      if (state.workspaceScope.id === "stale") return threadStaleClaims(thread).length > 0;
+      return workspaceOpenReviewClaimIds(thread).length > 0;
     })
     .filter((thread) => {
       if (state.workspaceFilter === "review") return workspaceAttentionCount(thread) > 0;
@@ -328,6 +602,7 @@ function ensureVisibleThread() {
 
 function workspaceScopeDetails() {
   if (state.workspaceScope.kind === "attention") {
+    if (state.workspaceScope.id === "stale") return { kind: "attention", eyebrow: "History-aware proof queue", title: "Stale claims", description: "Previously supported claims whose evidence aged out or was followed by a newer run in the same agent channel." };
     return { kind: "attention", eyebrow: "Human review queue", title: "Needs review", description: "Completion claims that deterministic evidence cannot safely close on its own." };
   }
   if (state.workspaceScope.kind === "agent") {
@@ -344,6 +619,14 @@ function workspaceAgent(agentId) {
 
 function workspaceTotalAttention() {
   return state.workspace.threads.reduce((sum, thread) => sum + workspaceAttentionCount(thread), 0);
+}
+
+function workspaceOpenReviewCount() {
+  return state.workspace.threads.reduce((sum, thread) => sum + workspaceOpenReviewClaimIds(thread).length, 0);
+}
+
+function workspaceStaleCount() {
+  return state.claimHistory?.counts?.stale || 0;
 }
 
 function threadProofAvailable(thread) {
@@ -369,6 +652,128 @@ function readWorkspaceUi() {
   } catch {
     return {};
   }
+}
+
+function readActiveWorkspace() {
+  try {
+    return localStorage.getItem(activeWorkspaceStorageKey) || "";
+  } catch {
+    return "";
+  }
+}
+
+function readTrustCheckpoint() {
+  try {
+    const value = localStorage.getItem(trustCheckpointStorageKey) || "";
+    return Number.isFinite(Date.parse(value)) ? new Date(value).toISOString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistTrustCheckpoint(value) {
+  try {
+    if (value) localStorage.setItem(trustCheckpointStorageKey, value);
+    else localStorage.removeItem(trustCheckpointStorageKey);
+  } catch {}
+}
+
+function readRoute() {
+  const parameters = new URLSearchParams(window.location.search);
+  const bounded = (name) => String(parameters.get(name) || "").slice(0, 500);
+  return {
+    view: bounded("view"),
+    workspaceId: bounded("workspaceId"),
+    threadId: bounded("threadId"),
+    claimId: bounded("claimId"),
+    receiptId: bounded("receiptId"),
+    evidenceIdentity: bounded("evidenceIdentity"),
+    at: bounded("at"),
+    from: bounded("from"),
+    item: bounded("item")
+  };
+}
+
+async function applyInitialRoute(route) {
+  if (!state.durableState) return;
+  if (route.view === "trust") {
+    state.workspaceScope = { kind: "trust", id: "inbox" };
+    persistWorkspaceUi();
+    render();
+    focusRoutedTrustItem(route.item);
+    return;
+  }
+  if (route.view === "receipt") {
+    state.workspaceScope = { kind: "receipt", id: route.receiptId };
+    state.operatorPanelStatus = "loading";
+    render();
+    const routedItem = state.trustOperations?.items.find((item) => item.id === route.item);
+    const target = routedItem?.target;
+    if (!route.receiptId || routedItem?.kind !== "import" || target.workspaceId !== state.workspace.workspace.id || target.receiptId !== route.receiptId) {
+      throw new Error("The routed import receipt is no longer present in the current Trust Inbox.");
+    }
+    try {
+      state.importReceipt = await requestImportReceipt(route.workspaceId, route.receiptId);
+      state.operatorPanelStatus = "ready";
+    } catch (error) {
+      state.operatorPanelStatus = "error";
+      state.operatorPanelError = error.message || "The exact import receipt could not be loaded.";
+    }
+    return;
+  }
+  if (route.view === "decisions") {
+    state.workspaceScope = { kind: "decisions", id: "recent" };
+    state.operatorPanelStatus = "loading";
+    render();
+    try {
+      state.recentDecisions = await requestRecentDecisions();
+      state.operatorPanelStatus = "ready";
+    } catch (error) {
+      state.operatorPanelStatus = "error";
+      state.operatorPanelError = error.message || "Recent decisions could not be loaded.";
+    }
+    persistWorkspaceUi();
+    return;
+  }
+  if (!["run", "proof"].includes(route.view) || !route.threadId) return;
+  const thread = state.workspace.threads.find((item) => item.id === route.threadId);
+  if (!thread) throw new Error("The routed Trust Inbox run is no longer available.");
+  state.selectedThreadId = thread.id;
+  state.workspaceScope = { kind: "channel", id: thread.channelId };
+  state.workspaceFilter = "all";
+  state.workspaceQuery = "";
+  if (thread.proofState === "ready" && thread.proofBundleId !== state.bundle?.id) state.bundle = await requestBundle(thread.proofBundleId);
+  persistWorkspaceUi();
+  if (route.view === "run") return;
+  const routedItem = state.trustOperations?.items.find((item) => item.id === route.item);
+  const target = routedItem?.target;
+  if (!route.claimId || routedItem?.kind !== "claim" || target.workspaceId !== state.workspace.workspace.id || target.threadId !== thread.id || target.claimId !== route.claimId || !target.evidenceIdentity) {
+    throw new Error("The routed proof target is no longer present in the current Trust Inbox.");
+  }
+  await runProof("recorded", thread.id);
+  const finding = state.proof?.findings.find((item) => item.claimId === route.claimId);
+  if (!finding || evidenceIdentity(finding) !== target.evidenceIdentity) {
+    state.phase = "error";
+    state.error = { code: "trust_target_changed", message: "The evidence behind this Trust Inbox link changed. Return to the inbox and open the current item before deciding." };
+    return;
+  }
+  await selectClaim(route.claimId);
+}
+
+function focusRoutedTrustItem(itemId) {
+  if (!itemId) return;
+  requestAnimationFrame(() => {
+    const target = [...document.querySelectorAll("[data-trust-item]")].find((element) => element.dataset.trustItem === itemId);
+    const focusTarget = target?.querySelector("[data-trust-link]") || document.querySelector("[data-trust-link]") || document.querySelector("[data-mark-trust-reviewed]");
+    focusTarget?.focus();
+    (target || focusTarget)?.scrollIntoView({ block: "center" });
+  });
+}
+
+function persistActiveWorkspace(workspaceId) {
+  try {
+    localStorage.setItem(activeWorkspaceStorageKey, workspaceId);
+  } catch {}
 }
 
 function persistWorkspaceUi() {
@@ -406,7 +811,7 @@ function renderLoading() {
 function renderError() {
   const liveUnavailable = state.error?.code === "live_unavailable";
   return `
-    <section class="error-state">
+    <section class="error-state" role="alert">
       <span class="error-code">${escapeHtml(state.error?.code || "proof_error")}</span>
       <h1>${liveUnavailable ? "Live GPT is not configured on this machine." : "Proof Mode could not complete this run."}</h1>
       <p>${escapeHtml(state.error?.message || "The proof-analysis request failed.")}</p>
@@ -440,17 +845,24 @@ function renderSummaryPane() {
   const proof = state.proof;
   const proofThread = state.workspace.threads.find((thread) => thread.id === state.activeProofThreadId) || proofReadyThread();
   const channel = state.workspace.channels.find((item) => item.id === proofThread.channelId);
-  const decisions = Object.values(state.decisions).filter((decision) => decisionClosesGate(decision) && proof.findings.some((finding) => finding.claimId === decision.claimId));
-  const openReviewCount = proof.findings.filter((finding) => finding.reviewRequired && !decisionClosesGate(state.decisions[finding.claimId])).length;
+  const decisions = proof.findings.map(currentDecision).filter((decision) => decisionClosesGate(decision));
+  const openReviewCount = proof.findings.filter((finding) => finding.reviewRequired && !decisionClosesGate(currentDecision(finding))).length;
+  const staleHistoryClaims = threadStaleClaims(proofThread);
   const reviewRecordUrl = `data:text/markdown;charset=utf-8,${encodeURIComponent(proofReceipt())}`;
+  const route = readRoute();
+  const trustBackParameters = new URLSearchParams({ view: "trust", item: route.item });
+  if (route.at) trustBackParameters.set("at", route.at);
+  const backAction = route.from === "trust"
+    ? `<a class="workspace-back" href="?${trustBackParameters}">${icon("arrow")}Back to Trust Inbox</a>`
+    : `<button class="workspace-back" type="button" data-reset>${icon("arrow")}Back to #${escapeHtml(channel.name)}</button>`;
   return `
-    <button class="workspace-back" type="button" data-reset>${icon("arrow")}Back to #${escapeHtml(channel.name)}</button>
+    ${backAction}
     <div class="pane-head">
       <div>
         <p class="eyebrow">Proof result</p>
         <h2>${escapeHtml(proof.bundle.title)}</h2>
       </div>
-      <span class="mode-pill mode-${escapeHtml(proof.execution.mode)}">${proof.execution.mode === "recorded" ? "Recorded" : "Live"}</span>
+      <span class="mode-pill mode-${escapeHtml(proof.execution.mode)}">${{ recorded: "Recorded", imported: "Imported", live: "Live" }[proof.execution.mode] || escapeHtml(proof.execution.mode)}</span>
     </div>
 
     <section class="review-total">
@@ -458,6 +870,7 @@ function renderSummaryPane() {
       <strong>${openReviewCount}</strong>
       <small>${proof.counts.supported} verified · ${decisions.length} decided</small>
     </section>
+    ${staleHistoryClaims.length ? `<section class="history-warning compact" role="status">${icon("clock")}<div><p class="eyebrow">Fresh proof required</p><h3>${staleHistoryClaims.length} previously supported ${pluralize(staleHistoryClaims.length, "claim")} aged out</h3><p>${escapeHtml(staleHistoryClaims[0].reasons[0])}</p></div></section>` : ""}
 
     <div class="verdict-grid">
       ${verdictMetric("supported", proof.counts.supported)}
@@ -489,7 +902,9 @@ function renderSummaryPane() {
 
     <p class="mode-disclosure">${proof.execution.mode === "recorded"
       ? "This is a checked-in structured-inference replay. It proves the workflow and guards, not a live or credentialed API call."
-      : "This result came from the Responses API. Deterministic guards still own the final verdict."}</p>
+      : proof.execution.mode === "imported"
+        ? "This adjudication was imported with its evidence packet. Exact hashes and deterministic guards remain authoritative."
+        : "This result came from the Responses API. Deterministic guards still own the final verdict."}</p>
   `;
 }
 
@@ -517,7 +932,7 @@ function renderClaimsPane() {
 
 function renderClaimCard(finding, index) {
   const selected = finding.claimId === state.selectedClaimId;
-  const decision = state.decisions[finding.claimId];
+  const decision = currentDecision(finding);
   const validCitations = finding.citations.filter((citation) => citation.valid);
   return `
     <button
@@ -553,7 +968,7 @@ function renderTracePane(finding) {
     `;
   }
 
-  const decision = state.decisions[finding.claimId];
+  const decision = currentDecision(finding);
   const validCitations = finding.citations.filter((citation) => citation.valid);
   return `
     <div class="trace-head">
@@ -596,7 +1011,7 @@ function renderTracePane(finding) {
       `).join("") : '<p class="guard-none">No deterministic guard can settle this subjective claim.</p>'}
     </section>
 
-    <section class="human-gate">
+    ${finding.reviewRequired ? `<section class="human-gate">
       <div class="human-gate-head">
         <div>
           <p class="eyebrow">Human gate</p>
@@ -605,7 +1020,7 @@ function renderTracePane(finding) {
         ${decision ? `<button class="text-action" type="button" data-clear-decision="${escapeHtml(finding.claimId)}">Clear</button>` : ""}
       </div>
       <label>
-        <span>Review note <small>optional, stored only in this browser</small></span>
+        <span>Review note <small>${state.durableState ? "optional, stored in local Halba state" : "optional, stored only in this browser"}</small></span>
         <textarea id="review-note" rows="2" placeholder="Why does this claim pass or fail review?">${escapeHtml(decision?.note || "")}</textarea>
       </label>
       <div class="decision-actions">
@@ -614,7 +1029,8 @@ function renderTracePane(finding) {
         <button type="button" class="decision-button resolve" data-decision="resolved" data-claim="${escapeHtml(finding.claimId)}">Resolve</button>
         <button type="button" class="decision-button more-proof" data-decision="more-proof" data-claim="${escapeHtml(finding.claimId)}">Request proof</button>
       </div>
-    </section>
+      ${state.reviewError ? `<p class="review-error" role="alert">${escapeHtml(state.reviewError)}</p>` : ""}
+    </section>` : ""}
   `;
 }
 
@@ -747,8 +1163,8 @@ function filteredFindings() {
   if (!state.proof) return [];
   if (state.filter === "all") return state.proof.findings;
   if (state.filter === "supported") return state.proof.findings.filter((finding) => finding.verdict === "supported");
-  if (state.filter === "decided") return state.proof.findings.filter((finding) => state.decisions[finding.claimId]);
-  return state.proof.findings.filter((finding) => finding.reviewRequired && !decisionClosesGate(state.decisions[finding.claimId]));
+  if (state.filter === "decided") return state.proof.findings.filter((finding) => currentDecision(finding));
+  return state.proof.findings.filter((finding) => finding.reviewRequired && !decisionClosesGate(currentDecision(finding)));
 }
 
 function selectedFinding() {
@@ -757,7 +1173,19 @@ function selectedFinding() {
 
 async function runProof(mode, threadId) {
   if (state.phase === "loading") return;
-  const thread = proofReadyThread(threadId);
+  const requested = state.workspace.threads.find((thread) => thread.id === threadId)
+    || state.workspace.threads.find((thread) => thread.id === state.selectedThreadId)
+    || state.workspace.threads.find((thread) => thread.proofState === "ready" && thread.proofBundleId);
+  if (requested?.proofState === "ready" && requested.proofBundleId !== state.bundle?.id) {
+    try {
+      state.bundle = await requestBundle(requested.proofBundleId);
+    } catch (error) {
+      state.workspaceNotice = { tone: "error", message: error.message };
+      render();
+      return;
+    }
+  }
+  const thread = proofReadyThread(requested?.id);
   if (!thread) {
     state.workspaceNotice = { tone: "error", message: "No loaded run references the current proof bundle." };
     state.phase = "ready";
@@ -775,7 +1203,7 @@ async function runProof(mode, threadId) {
   render();
 
   try {
-    const body = await requestProof(mode);
+    const body = await requestProof(mode, thread.proofBundleId);
     state.proof = body;
     state.phase = "proof";
     state.filter = "review";
@@ -824,7 +1252,7 @@ async function loadSelectedSource() {
   state.sourceError = null;
   render();
   try {
-    const body = await requestSource(citation);
+    const body = await requestSource(citation, state.proof?.bundle?.id || state.bundle?.id);
     if (requestId !== sourceRequest) return;
     state.source = body;
     state.sourceStatus = "ready";
@@ -837,21 +1265,93 @@ async function loadSelectedSource() {
   render();
 }
 
-async function requestBundle() {
+async function requestRuntime() {
+  if (staticDemoMode) return { durableState: false };
+  const response = await fetch("/api/runtime");
+  if (!response.ok) return { durableState: false };
+  return response.json();
+}
+
+async function requestClaimHistory(workspaceId) {
+  const query = new URLSearchParams({ workspaceId });
+  const response = await fetch(`/api/claim-history?${query}`);
+  if (!response.ok) throw new Error("Claim history could not be loaded.");
+  return response.json();
+}
+
+async function requestWorkspaces() {
+  const response = await fetch("/api/workspaces");
+  if (!response.ok) throw new Error("Durable workspaces could not be loaded.");
+  return response.json();
+}
+
+async function requestTrustOperations() {
+  const query = new URLSearchParams({ limit: "50" });
+  const route = readRoute();
+  if (route.at) query.set("at", route.at);
+  if (state.trustCheckpointAt) query.set("checkpointAt", state.trustCheckpointAt);
+  const response = await fetch(`/api/trust-operations?${query}`);
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.message || "Trust Operations could not be loaded.");
+  return validateTrustOperationsReport(body);
+}
+
+async function refreshTrustOperations() {
+  if (!state.durableState) return;
+  state.trustStatus = "loading";
+  state.trustError = null;
+  try {
+    state.trustOperations = await requestTrustOperations();
+    state.trustStatus = "ready";
+    const summary = trustInboxSummary(state.trustOperations);
+    state.announcement = `Trust Inbox loaded with ${summary.attention} ranked ${pluralize(summary.attention, "item")} across ${summary.workspaceCount} ${pluralize(summary.workspaceCount, "workspace")}.`;
+  } catch (error) {
+    state.trustStatus = "error";
+    state.trustError = error.message || "Trust Operations could not be loaded.";
+    state.announcement = state.trustError;
+  }
+}
+
+async function requestImportReceipts(workspaceId) {
+  const query = new URLSearchParams({ workspaceId });
+  const response = await fetch(`/api/import-receipts?${query}`);
+  if (!response.ok) throw new Error("Import health could not be loaded.");
+  return response.json();
+}
+
+async function requestImportReceipt(workspaceId, receiptId) {
+  const query = new URLSearchParams({ workspaceId, receiptId });
+  const response = await fetch(`/api/import-receipt?${query}`);
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.message || "The exact import receipt could not be loaded.");
+  return body;
+}
+
+async function requestRecentDecisions() {
+  const response = await fetch("/api/recent-decisions?limit=30");
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.message || "Recent decisions could not be loaded.");
+  if (body?.schemaVersion !== 1 || !body.page || !Array.isArray(body.items)) throw new Error("Recent decisions returned a malformed response.");
+  return body;
+}
+
+async function requestBundle(bundleId) {
   if (staticDemoMode) return (await loadStaticDemo()).bundle;
-  const response = await fetch("/api/proof/bundle");
+  const query = bundleId ? `?${new URLSearchParams({ bundleId })}` : "";
+  const response = await fetch(`/api/proof/bundle${query}`);
   if (!response.ok) throw new Error("The public proof bundle could not be loaded.");
   return response.json();
 }
 
-async function requestWorkspace() {
+async function requestWorkspace(workspaceId) {
   if (staticDemoMode) return (await loadStaticDemo()).workspace;
-  const response = await fetch("/api/workspace");
+  const query = workspaceId ? `?${new URLSearchParams({ workspaceId })}` : "";
+  const response = await fetch(`/api/workspace${query}`);
   if (!response.ok) throw new Error("The public agent workspace could not be loaded.");
   return response.json();
 }
 
-async function requestProof(mode) {
+async function requestProof(mode, bundleId) {
   if (staticDemoMode) {
     if (mode === "live") {
       const error = new Error("The public Pages demo intentionally serves the labeled replay. Run the Node server to use the optional live Responses API path.");
@@ -864,7 +1364,7 @@ async function requestProof(mode) {
   const response = await fetch("/api/proof/run", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ mode })
+    body: JSON.stringify({ mode, bundleId })
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -875,7 +1375,7 @@ async function requestProof(mode) {
   return body;
 }
 
-async function requestSource(citation) {
+async function requestSource(citation, bundleId) {
   if (staticDemoMode) {
     const source = (await loadStaticDemo()).sources[citation.path];
     if (!source) throw new Error("Proof source not found.");
@@ -895,6 +1395,7 @@ async function requestSource(citation) {
   }
 
   const query = new URLSearchParams({
+    ...(bundleId ? { bundleId } : {}),
     path: citation.path,
     startLine: String(citation.startLine),
     endLine: String(citation.endLine)
@@ -919,25 +1420,85 @@ async function loadStaticDemo() {
   return staticDemoRequest;
 }
 
-function saveDecision(claimId, status) {
+async function saveDecision(claimId, status) {
+  const finding = state.proof?.findings.find((item) => item.claimId === claimId);
+  if (!finding) return;
   const note = document.querySelector("#review-note")?.value.trim() || "";
-  state.decisions[claimId] = {
-    claimId,
-    status,
-    note,
-    updatedAt: new Date().toISOString()
-  };
-  persistDecisions();
+  const scope = reviewScope(claimId);
+  const key = reviewDecisionKey(scope);
+  const decision = createReviewDecision({ ...scope, finding, status, note });
+  state.reviewError = null;
+  if (state.durableState) {
+    const response = await fetch("/api/review-decision", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(decision)
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      state.reviewError = body.message || "The review decision could not be persisted.";
+      render();
+      return;
+    }
+    state.decisions[key] = body;
+    await refreshTrustOperations();
+    try {
+      state.recentDecisions = await requestRecentDecisions();
+    } catch {
+      state.recentDecisions = null;
+    }
+  } else {
+    state.decisions[key] = decision;
+    persistDecisions();
+  }
   const next = filteredFindings().find((finding) => finding.claimId !== claimId);
   if (state.filter === "review" && shouldAdvanceReviewSelection(status) && next) state.selectedClaimId = next.claimId;
   render();
   loadSelectedSource();
 }
 
-function clearDecision(claimId) {
-  delete state.decisions[claimId];
-  persistDecisions();
+async function clearDecision(claimId) {
+  const scope = reviewScope(claimId);
+  state.reviewError = null;
+  if (state.durableState) {
+    const response = await fetch("/api/review-decision", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(scope)
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      state.reviewError = body.message || "The review decision could not be cleared.";
+      render();
+      return;
+    }
+  }
+  delete state.decisions[reviewDecisionKey(scope)];
+  if (!state.durableState) persistDecisions();
+  else {
+    await refreshTrustOperations();
+    try {
+      state.recentDecisions = await requestRecentDecisions();
+    } catch {
+      state.recentDecisions = null;
+    }
+  }
   render();
+}
+
+async function hydrateDurableDecisions() {
+  const proofThreads = state.workspace.threads.filter((thread) => thread.proofState === "ready" && thread.proofBundleId);
+  const responses = await Promise.all(proofThreads.map(async (thread) => {
+    const query = new URLSearchParams({
+      workspaceId: state.workspace.workspace.id,
+      threadId: thread.id,
+      bundleId: thread.proofBundleId
+    });
+    const response = await fetch(`/api/review-decisions?${query}`);
+    if (!response.ok) throw new Error("Stored review decisions could not be loaded.");
+    return response.json();
+  }));
+  for (const decision of responses.flat()) state.decisions[reviewDecisionKey(decision)] = decision;
 }
 
 function readDecisions() {
@@ -970,8 +1531,8 @@ async function copyText(button, text) {
 
 function proofReceipt() {
   const proof = state.proof;
-  const responseCount = proof.findings.filter((finding) => state.decisions[finding.claimId]).length;
-  const closedCount = proof.findings.filter((finding) => decisionClosesGate(state.decisions[finding.claimId])).length;
+  const responseCount = proof.findings.filter((finding) => currentDecision(finding)).length;
+  const closedCount = proof.findings.filter((finding) => decisionClosesGate(currentDecision(finding))).length;
   return [
     "# Halba Proof Mode review record",
     "",
@@ -985,7 +1546,7 @@ function proofReceipt() {
     "## Claims",
     "",
     ...proof.findings.flatMap((finding) => {
-      const decision = state.decisions[finding.claimId];
+      const decision = currentDecision(finding);
       const citations = finding.citations.filter((citation) => citation.valid);
       return [
         `### ${finding.claimId}`,
@@ -1012,6 +1573,19 @@ function proofReceipt() {
   ].join("\n");
 }
 
+function activateSkipNavigation(event) {
+  event.preventDefault();
+  const target = document.querySelector(event.currentTarget.getAttribute("href"));
+  target?.focus();
+  target?.scrollIntoView({ block: "start" });
+}
+
+const skipNavigation = document.querySelector(".skip-link");
+skipNavigation?.addEventListener("click", activateSkipNavigation);
+skipNavigation?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") activateSkipNavigation(event);
+});
+
 document.addEventListener("click", async (event) => {
   const runButton = event.target.closest("[data-run-mode]");
   if (runButton) {
@@ -1024,15 +1598,66 @@ document.addEventListener("click", async (event) => {
     state.workspaceScope = { kind: scopeButton.dataset.workspaceScope, id: scopeButton.dataset.workspaceScopeId };
     state.workspaceFilter = state.workspaceScope.kind === "attention" ? "review" : "all";
     state.workspaceQuery = "";
-    ensureVisibleThread();
+    if (!["trust", "decisions"].includes(state.workspaceScope.kind)) ensureVisibleThread();
     persistWorkspaceUi();
+    if (state.workspaceScope.kind === "trust") {
+      const parameters = new URLSearchParams({ view: "trust" });
+      if (readRoute().at) parameters.set("at", readRoute().at);
+      window.history.pushState(null, "", `?${parameters}`);
+    }
+    else if (state.workspaceScope.kind === "decisions") {
+      window.history.pushState(null, "", "?view=decisions");
+      state.operatorPanelStatus = "loading";
+      state.operatorPanelError = null;
+      render();
+      try {
+        state.recentDecisions = await requestRecentDecisions();
+        state.operatorPanelStatus = "ready";
+      } catch (error) {
+        state.operatorPanelStatus = "error";
+        state.operatorPanelError = error.message || "Recent decisions could not be loaded.";
+      }
+    }
+    else if (new URLSearchParams(window.location.search).has("view")) window.history.pushState(null, "", window.location.pathname);
     render();
+    return;
+  }
+
+  const trustFilterButton = event.target.closest("[data-trust-filter]");
+  if (trustFilterButton) {
+    state.trustFilter = trustInboxFilters.includes(trustFilterButton.dataset.trustFilter) ? trustFilterButton.dataset.trustFilter : "all";
+    render();
+    document.querySelector(`[data-trust-filter="${state.trustFilter}"]`)?.focus();
+    return;
+  }
+
+  if (event.target.closest("[data-refresh-trust]")) {
+    await refreshTrustOperations();
+    render();
+    return;
+  }
+
+  if (event.target.closest("[data-mark-trust-reviewed]")) {
+    state.trustCheckpointAt = state.trustOperations?.evaluatedAt || new Date().toISOString();
+    persistTrustCheckpoint(state.trustCheckpointAt);
+    await refreshTrustOperations();
+    state.announcement = `Trust review checkpoint saved at ${formatTimestamp(state.trustCheckpointAt)}.`;
+    render();
+    document.querySelector("[data-mark-trust-reviewed]")?.focus();
     return;
   }
 
   const threadButton = event.target.closest("[data-thread-id]");
   if (threadButton) {
     state.selectedThreadId = threadButton.dataset.threadId;
+    const thread = state.workspace.threads.find((item) => item.id === state.selectedThreadId);
+    if (thread?.proofState === "ready" && thread.proofBundleId !== state.bundle?.id) {
+      try {
+        state.bundle = await requestBundle(thread.proofBundleId);
+      } catch (error) {
+        state.workspaceNotice = { tone: "error", message: error.message };
+      }
+    }
     persistWorkspaceUi();
     render();
     return;
@@ -1050,6 +1675,11 @@ document.addEventListener("click", async (event) => {
   const importButton = event.target.closest("[data-import-workspace]");
   if (importButton) {
     document.querySelector("#workspace-file")?.click();
+    return;
+  }
+
+  if (event.target.closest("[data-refresh-workspace]")) {
+    await switchDurableWorkspace(state.workspace.workspace.id, { resetUi: false, message: "Refreshed local runs, import health, proof history, and decisions." });
     return;
   }
 
@@ -1110,13 +1740,13 @@ document.addEventListener("click", async (event) => {
 
   const decisionButton = event.target.closest("[data-decision]");
   if (decisionButton) {
-    saveDecision(decisionButton.dataset.claim, decisionButton.dataset.decision);
+    await saveDecision(decisionButton.dataset.claim, decisionButton.dataset.decision);
     return;
   }
 
   const clearDecisionButton = event.target.closest("[data-clear-decision]");
   if (clearDecisionButton) {
-    clearDecision(clearDecisionButton.dataset.clearDecision);
+    await clearDecision(clearDecisionButton.dataset.clearDecision);
     return;
   }
 
@@ -1139,6 +1769,31 @@ document.addEventListener("click", async (event) => {
   }
 });
 
+document.addEventListener("change", async (event) => {
+  const select = event.target.closest("[data-workspace-select]");
+  if (!select) return;
+  await switchDurableWorkspace(select.value, { resetUi: true });
+});
+
+async function switchDurableWorkspace(workspaceId, { resetUi, message = null }) {
+  if (!state.durableState || state.phase === "loading") return;
+  state.phase = "boot";
+  state.workspaceImported = false;
+  render();
+  try {
+    state.workspaces = await requestWorkspaces();
+    await loadWorkspaceState(await requestWorkspace(workspaceId), { resetUi });
+    persistActiveWorkspace(workspaceId);
+    await refreshTrustOperations();
+    state.workspaceNotice = message ? { tone: "success", message } : null;
+    state.phase = "ready";
+  } catch (error) {
+    state.phase = "error";
+    state.error = { code: "workspace_refresh_failed", message: error.message || "The durable workspace could not be refreshed." };
+  }
+  render();
+}
+
 document.addEventListener("input", (event) => {
   const search = event.target.closest("[data-workspace-search]");
   if (!search) return;
@@ -1150,6 +1805,23 @@ document.addEventListener("input", (event) => {
   replacement?.focus();
   replacement?.setSelectionRange(state.workspaceQuery.length, state.workspaceQuery.length);
 });
+
+document.addEventListener("keydown", (event) => {
+  if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+  const current = event.target.closest("[data-trust-link]");
+  if (!current) return;
+  const links = [...document.querySelectorAll("[data-trust-link]")];
+  const index = links.indexOf(current);
+  if (index < 0) return;
+  event.preventDefault();
+  const nextIndex = event.key === "Home" ? 0
+    : event.key === "End" ? links.length - 1
+      : event.key === "ArrowDown" ? Math.min(links.length - 1, index + 1)
+        : Math.max(0, index - 1);
+  links[nextIndex]?.focus();
+});
+
+window.addEventListener("popstate", () => window.location.reload());
 
 document.querySelector("#workspace-file")?.addEventListener("change", async (event) => {
   const file = event.target.files?.[0];
@@ -1241,7 +1913,45 @@ function decisionLabel(status) {
 }
 
 function workspaceAttentionCount(thread) {
-  return thread.reviewClaimIds.filter((claimId) => !decisionClosesGate(state.decisions[claimId])).length;
+  return new Set([
+    ...workspaceOpenReviewClaimIds(thread),
+    ...threadStaleClaims(thread).map((claim) => claim.claimId)
+  ]).size;
+}
+
+function workspaceOpenReviewClaimIds(thread) {
+  return thread.reviewClaimIds.filter((claimId) => !decisionClosesGate(threadDecision(thread, claimId)));
+}
+
+function threadStaleClaims(thread) {
+  return state.claimHistory?.claims?.filter((claim) => claim.threadId === thread.id && claim.state === "stale") || [];
+}
+
+function reviewScope(claimId, threadId = state.activeProofThreadId) {
+  const thread = state.workspace.threads.find((item) => item.id === threadId);
+  return {
+    workspaceId: state.workspace.workspace.id,
+    threadId: thread?.id || threadId,
+    bundleId: thread?.proofBundleId || state.proof?.bundle?.id || state.bundle?.id,
+    claimId
+  };
+}
+
+function currentDecision(finding) {
+  if (!finding || !state.activeProofThreadId) return null;
+  const scope = reviewScope(finding.claimId);
+  const decision = state.decisions[reviewDecisionKey(scope)];
+  return reviewDecisionMatches(decision, scope, evidenceIdentity(finding)) ? decision : null;
+}
+
+function threadDecision(thread, claimId) {
+  const scope = reviewScope(claimId, thread.id);
+  const decision = state.decisions[reviewDecisionKey(scope)];
+  const activeFinding = thread.id === state.activeProofThreadId
+    ? state.proof?.findings.find((finding) => finding.claimId === claimId)
+    : null;
+  const expectedEvidence = activeFinding ? evidenceIdentity(activeFinding) : thread.reviewEvidence?.[claimId];
+  return expectedEvidence && reviewDecisionMatches(decision, scope, expectedEvidence) ? decision : null;
 }
 
 function initials(value) {

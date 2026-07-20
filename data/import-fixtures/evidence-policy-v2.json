@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 2,
+  "policy": {
+    "id": "operator-default",
+    "version": 1,
+    "defaultFreshnessDays": 30,
+    "defaultDecisionTtlDays": 30,
+    "requireHumanDecisionFor": [
+      "high",
+      "critical"
+    ]
+  },
+  "bindings": [
+    {
+      "id": "operator-contract-safety",
+      "stableKey": "contract:universal-safety",
+      "threadId": "codex-contract-check",
+      "claimId": "universally-safe",
+      "class": "contract",
+      "criticality": "critical",
+      "requiredGuards": [],
+      "dependsOn": [],
+      "supersedes": []
+    }
+  ]
+}

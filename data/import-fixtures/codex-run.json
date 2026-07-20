@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "sourceSessionId": "019f0000-0000-7000-8000-000000000001",
+  "workspace": { "id": "operator-lab", "name": "Operator Lab" },
+  "channel": { "id": "agent-runs", "name": "agent-runs", "topic": "Bounded local agent runs and their proof handoffs." },
+  "agent": { "id": "codex", "name": "Codex", "role": "coding agent", "initial": "C" },
+  "run": {
+    "id": "codex-contract-check",
+    "workspaceId": "operator-lab",
+    "channelId": "agent-runs",
+    "agentId": "codex",
+    "title": "Canonical contract checkpoint",
+    "goal": "Unify workspace validation and evidence-scoped decisions",
+    "summary": "Codex produced a bounded completion packet; raw transcript and command bodies remain outside Halba state.",
+    "status": "completed",
+    "proofState": "collecting",
+    "startedAt": "2026-07-18T08:00:00.000Z",
+    "updatedAt": "2026-07-18T08:00:05.000Z",
+    "completedAt": "2026-07-18T08:00:05.000Z",
+    "events": [
+      { "id": "manifest-placeholder", "type": "note", "at": "2026-07-18T08:00:00.000Z", "title": "Awaiting Codex source inspection", "detail": "The Codex adapter replaces this placeholder with aggregate metadata." }
+    ]
+  },
+  "warnings": []
+}

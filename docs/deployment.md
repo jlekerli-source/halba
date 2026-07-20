@@ -1,6 +1,6 @@
 # Deployment and demo readiness
 
-Halba has no runtime dependencies and can be demonstrated locally or from any host that can run Node.js 20+.
+Halba has no package dependencies and can be demonstrated locally or from any host that can run Node.js 22.5+. The v1 durable local core uses the built-in `node:sqlite` module.
 
 ## Public GitHub Pages demo
 
@@ -11,7 +11,7 @@ npm run check
 npm run build:pages
 ```
 
-The checked-in GitHub Actions workflow publishes only `dist/pages`. The build copies the browser modules explicitly, injects a static-demo marker, and generates `static-demo.json` from the validated public bundle; it does not copy the working tree or private local adapters. The optional live button fails closed on Pages and points operators to the Node server path.
+The checked-in GitHub Actions workflow publishes only `dist/pages`. The build copies the browser modules explicitly, injects a static-demo marker, and generates `static-demo.json` from the validated public bundle; it does not copy the working tree or private local adapters. The optional live button fails closed on Pages and points operators to the Node server path. Trust Inbox remains a durable, loopback-first surface and is not fetched or presented as empty/healthy by the static Pages demo.
 
 The Pages artifact also serves the captioned demo film at `/demo/halba-demo.mp4`, with its poster at `/demo/halba-demo-still.png`.
 

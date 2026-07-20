@@ -17,7 +17,7 @@ Halba is not a general-purpose chatbot or human Slack clone. Channels organize a
 - 58-second film: [jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
 
-Requirements: Node.js 20 or newer. Halba has no package dependencies.
+Requirements: Node.js 22.5 or newer. Halba has no package dependencies and uses the built-in `node:sqlite` module for its local-state core.
 
 ```bash
 npm run check
@@ -45,6 +45,45 @@ npm run check:codex-import
 
 The importer does not scrape private transcripts. It uses the same public-safe packet that judges can inspect, validates the normalized workspace, and produces `data/demo/workspace.json` deterministically.
 
+## Durable local state
+
+The local state core stores validated workspaces, typed runs, immutable proof revisions, content-addressed source bytes, bounded receipt projections, append-only import and decision history, and evidence-scoped current decisions in SQLite:
+
+```bash
+npm run state -- init
+npm run state -- status
+npm run state -- backup backups/halba.sqlite
+HALBA_STATE_FILE=.halba/halba.sqlite npm start
+npm run review:weekly -- --state .halba/halba.sqlite --output reviews/weekly.md
+```
+
+The server enables durable mode only when `HALBA_STATE_FILE` is set. In that mode the browser loads canonical workspaces and bundle-specific adjudications from SQLite, verifies exact source hashes before rendering, and persists evidence-scoped review decisions across restarts. Imported source bytes are verified and copied into the SQLite backup boundary, so exact-source inspection survives relocation without the original source root. The server binds to `127.0.0.1` by default and refuses non-loopback binding without explicit remote-access configuration. Without durable mode, the public-safe recorded demo remains the default. The database is ignored by Git and excluded from public artifacts. Restore refuses to overwrite an existing state file unless explicitly requested. See [`docs/local-state.md`](docs/local-state.md).
+
+## Import real agent runs
+
+Import a bounded Codex rollout without storing transcript bodies or command text:
+
+```bash
+npm run import:run -- \
+  --adapter codex \
+  --manifest path/to/codex-run.json \
+  --source path/to/rollout.jsonl \
+  --bundle path/to/bundle.json \
+  --proof-output path/to/proof-output.json \
+  --dry-run \
+  --state .halba/halba.sqlite
+```
+
+The preview prints a zero-write JSON plan and full plan digest. Remove `--dry-run` to commit, or pass that digest back with `--expect-plan-digest` to require the inspected plan to remain identical. The bounded `ci` and `release` adapters derive authority from structured checks; release packets additionally require an explicit artifact `--root`. The older `manifest` adapter remains compatibility-only routing evidence. All adapters normalize into the same workspace/run contract and use one transactional commit boundary. See [`docs/run-import.md`](docs/run-import.md).
+
+Durable mode analyzes claim history without rewriting prior adjudications: newer same-agent/channel claim identities supersede older packets, and supported proof becomes an attention item after its configured age window or when a newer run advances past it. The workspace exposes that queue and can download a weekly Markdown evidence review covering runs, failures, open gates, stale claims, human decisions, and import digests.
+
+Evidence-policy v2 is an optional, backward-compatible workspace contract for operator- or adapter-declared stable claim keys, explicit supersession, criticality, required deterministic guards, dependencies, freshness, and decision expiry. The durable Trust Inbox evaluates all local workspaces into one ranked attention model, explains every `why now` reason and score component, filters common risk classes, saves a local review checkpoint, and routes claims into exact Proof Mode or degraded imports into their exact receipt. A bounded **Recent decisions** view shows current evidence-scoped projections beside append-only transitions across workspaces. The browser preserves server rank and revalidates the current evidence identity before allowing the routed review. Model text and free-form run content cannot create lineage, authority, or approval.
+
+Multiple imported workspaces remain selectable and isolated in the browser. **Refresh local state** reloads runs, receipt health, claim history, proof metadata, and decisions. Halba does not run a background filesystem watcher: bounded explicit import plus refresh is fast, auditable, and sufficient until measured operator latency proves otherwise.
+
+Schema-v3 local state appends every successful import and decision transition to a canonical SHA-256 hash chain in the same transaction. `npm run trust:pack -- export ...` creates a private, independently verifiable workspace pack containing its histories and exact proof bytes plus the complete ledger witness; `verify` checks it without SQLite. These are unsigned local integrity receipts, not identity or authorship signatures. See [`docs/local-state.md`](docs/local-state.md#portable-trust-packs).
+
 ## What Proof Mode does
 
 1. Loads one bounded local proof bundle containing claims, source files, and receipts.
@@ -53,7 +92,7 @@ The importer does not scrape private transcripts. It uses the same public-safe p
 4. Applies authoritative receipt, freshness, JSON-field, and required-citation guards.
 5. Assigns `supported`, `unsupported`, `stale`, `contradicted`, or `uncertain`.
 6. Opens every verdict to the exact source, content hash, model reasoning boundary, and guard trace.
-7. Records a human approve, reject, or resolve decision locally in the browser.
+7. Records a human approve, reject, resolve, or request-proof decision in local SQLite state when durable mode is enabled; the static Pages adapter uses browser storage.
 8. Lets a reviewer request more proof without falsely closing the gate.
 9. Downloads a portable Markdown review record with verdicts, exact source ranges and hashes, guards, human decisions, and decision timestamps.
 
@@ -85,14 +124,26 @@ See [`docs/openai.md`](docs/openai.md) for the inference boundary.
 npm run eval
 ```
 
-The public regression suite contains two corpora:
+The public regression suite contains three corpora:
 
 - nine proof cases covering all five verdicts, citation fabrication, unknown sources, model/guard disagreement, failed receipts, the exact stale boundary, prompt-like evidence, malformed output, false positives, and deterministic replay;
-- ten workspace boundary cases covering valid import, unknown channels, agents and event types, duplicate events, out-of-bounds events, wrong proof linkage, review-count drift, unsafe ids, and inverted timestamps.
+- ten workspace boundary cases covering valid import, unknown channels, agents and event types, duplicate events, out-of-bounds events, wrong proof linkage, review-count drift, unsafe ids, and inverted timestamps;
+- a synthetic Trust Operations corpus covering three workspaces and 120 runs, with gold attention labels for contradictions, unsupported and uncertain proof, expired decisions, required guards, changed evidence, dependency impact, degraded imports, failed runs, and freshness expiry.
 
-The checked-in reports currently pass 9/9 proof cases and 10/10 workspace cases. The compact proof corpus reports 100% expected-verdict accuracy, 100% exact gold-source grounding precision and recall, and 0% final-verdict false positives. The workspace corpus reports 0% unsafe acceptance and 0% false rejection. These results validate the checked-in adjudication, grounding, and routing contracts—not live-model quality. Optional live-model latency, usage, cost, and accuracy are not claimed by the replay reports.
+The checked-in reports currently pass 9/9 proof cases and 10/10 workspace cases. The compact proof corpus reports 100% expected-verdict accuracy, 100% exact gold-source grounding precision and recall, and 0% final-verdict false positives. The workspace corpus reports 0% unsafe acceptance and 0% false rejection. The Trust Operations corpus requires at least 90% attention precision, complete gold recall, deterministic replay, correct highest-risk ordering, and evaluation p95 below 100 ms. Isolated Chromium proves the rendered order, keyboard route, accessibility tree, responsive layout, and bounded 2,000-run behavior; the human under-60-second comprehension gate remains explicitly unmeasured until a timed participant session is recorded. These results validate deterministic contracts and browser mechanics—not live-model quality or human comprehension time. Optional live-model latency, usage, cost, and accuracy are not claimed by the replay reports.
 
-Read [`artifacts/evals/latest.md`](artifacts/evals/latest.md), [`artifacts/evals/workspace-latest.md`](artifacts/evals/workspace-latest.md), and [`docs/evals.md`](docs/evals.md).
+The exact pre-v2 comparison point is frozen from committed tree `4500c92e` at [`artifacts/evals/trust-operations-v1-baseline.md`](artifacts/evals/trust-operations-v1-baseline.md). It was reconstructed with `git archive`, so none of the uncommitted v2 implementation can leak into the before-state.
+
+Human comprehension is never synthesized by the eval suite. A facilitator can run the non-leading, interactive protocol with a fresh participant:
+
+```bash
+npm run eval:human-trust -- --participant participant-01 --facilitator facilitator-01 --launch-browser
+npm run eval:goal
+```
+
+The timer stops before the rubric is revealed. The integrity-checked result records exact issue selection, deterministic-authority comprehension, required human action, interruption and prompting status, and elapsed time. It is a facilitator attestation—not an identity signature—and failed attempts must be retained rather than replaced.
+
+Read [`artifacts/evals/latest.md`](artifacts/evals/latest.md), [`artifacts/evals/workspace-latest.md`](artifacts/evals/workspace-latest.md), [`artifacts/evals/trust-operations-baseline.md`](artifacts/evals/trust-operations-baseline.md), and [`docs/evals.md`](docs/evals.md).
 
 ## How Codex and GPT-5.6 were used
 
@@ -113,6 +164,7 @@ This command:
 - copies only the explicit public allowlist into `dist/halba-public/`;
 - proves known private paths are absent;
 - reruns checks, HTTP smoke tests, and evals inside that clean tree;
+- runs the real Trust Inbox and 2,000-run Chromium gates in both reconstructed and extracted trees when Chrome is available, and records an explicit `not_run` state otherwise;
 - creates `dist/halba-public.tar.gz` and a SHA-256 evidence record;
 - extracts the archive and reruns the same suites from the extracted copy;
 - performs no push, deployment, upload, or submission.
@@ -129,9 +181,12 @@ Halba intentionally stays small:
 - bounded, read-only source inspection;
 - server-side OpenAI integration;
 - deterministic guards ahead of final verdicts;
-- browser-local human review records.
+- evidence-scoped local SQLite review records, with browser storage only for the static Pages adapter.
 
 See [`docs/architecture.md`](docs/architecture.md) and [`docs/proof-bundle.md`](docs/proof-bundle.md).
+The canonical v1 workspace, proof, review, import, and legacy-compatibility contracts are in [`docs/contracts.md`](docs/contracts.md).
+
+The earlier private proof-feed API is disabled by default. Existing local fixtures can temporarily opt into that compatibility surface with `HALBA_ENABLE_LEGACY_FEED=1`; it is not a second active product path.
 
 ## Privacy model
 

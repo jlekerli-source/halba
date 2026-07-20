@@ -38,7 +38,8 @@ try {
   assert.ok(app.includes("Open Proof Mode"));
   assert.ok(app.includes('data-decision="more-proof"'));
   assert.ok(app.includes("Decision time:"));
-  assert.ok(app.includes("halba:proof-decisions:v1"));
+  assert.ok(app.includes("halba:proof-decisions:v2"));
+  assert.ok(app.includes("reviewDecisionMatches"));
   assert.ok(app.includes("halba:workspace-ui:v1"));
   assert.ok(app.includes("validateImportedWorkspace"));
   assert.ok(app.includes('data-workspace-filter="'));
@@ -79,6 +80,8 @@ try {
 
   assert.equal((await fetch(`${origin}/api/proof/source?path=../bundle.json`)).status, 404);
   assert.equal((await fetch(`${origin}/api/proof/source?path=${encodeURIComponent(citation.path)}&startLine=0&endLine=4`)).status, 400);
+  assert.equal((await fetch(`${origin}/api/feed`)).status, 404, "legacy proof-feed API must be opt-in");
+  assert.equal((await fetch(`${origin}/domain/feed.js`)).status, 404, "legacy proof-feed modules must be opt-in");
 
   const invalidMode = await postJson("/api/proof/run", { mode: "unknown" });
   assert.equal(invalidMode.status, 400);

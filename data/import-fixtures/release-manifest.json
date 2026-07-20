@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "release": {
+    "id": "halba-public-safe",
+    "version": "1.0.0",
+    "revision": 1,
+    "commitSha": "0123456789abcdef0123456789abcdef01234567",
+    "generatedAt": "2026-07-18T09:04:00.000Z"
+  },
+  "artifacts": [
+    {
+      "id": "release-note",
+      "path": "release-artifact.txt",
+      "sha256": "910e566cf0df7f5fc732d00eb6d5b1e9afea213a88d7cb7b6508689ebc8617ba",
+      "byteCount": 29
+    }
+  ],
+  "checks": [
+    {
+      "id": "package-check",
+      "required": true,
+      "status": "passed"
+    },
+    {
+      "id": "optional-live-check",
+      "required": false,
+      "status": "skipped"
+    }
+  ]
+}

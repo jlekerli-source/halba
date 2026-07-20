@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "policy": "Every public binary is content-reviewed, metadata-audited, and pinned by path, byte count, and SHA-256. New or changed binaries fail the release until this explicit approval list is reviewed.",
+  "assets": [
+    { "path": "artifacts/demo/devpost-thumbnail.png", "sha256": "5fe480963f202a1954b5c91c527733dbe5e892ff3477a07a8e827b1dfdc7561b", "bytes": 435256, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/demo/halba-demo-still.png", "sha256": "5087e0ce06993eb6577f45555298db1ca23be78f91058e55d69673b5e1117db8", "bytes": 249409, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/demo/halba-demo.mp4", "sha256": "3ea02dadd67a4eb7ba80034cb8b3ab79dd2a76844b4015e7e43e94fae9de021d", "bytes": 10694148, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/demo/narration.m4a", "sha256": "f0bcd5de60cba9f92c3adc2a35cbdf228d74f0672198bcee14ea4b4d4ba31284", "bytes": 1296988, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/demo/proof-pulse.wav", "sha256": "95e50ff1b6729bf4a2b2384d1f6147da675a38da6dd662708f0cd76e60dc5361", "bytes": 44718, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/demo/sound-bed.wav", "sha256": "031f4619a683d5e1c6780750a5a1154df1216b6e6d1f75443ee644a57669032d", "bytes": 6720078, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/live-unavailable-desktop.png", "sha256": "12dc8bc9fb126fece01a18ddc991b9b2f9d090e294434557237c988b0c28a5b7", "bytes": 95260, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/loading-desktop.png", "sha256": "aa6c038027e4da5b609cff6906ed49c995352049ec0898259fc5907a4fc627e7", "bytes": 131462, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/onboarding-desktop.png", "sha256": "1de60becf0a19ddc3992d75f8048c12568da77cab2f96a5dcb39e427ba4070fb", "bytes": 249874, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/proof-desktop.png", "sha256": "9b168562c073c95d46c4a7cee7da9eb4c7a544d9d8f2ca3fdbe2dc272f4f63ee", "bytes": 251861, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/proof-diff-desktop.png", "sha256": "6a5b368b7867d2e7203fb4388f3e35cf43aef2cfd45d6b329559faac18e13d45", "bytes": 239018, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/proof-mobile-source.png", "sha256": "1bc1f19988eee50a26b995ffaa20032089cd36c4db94224ed0f72fbad1cbdeb2", "bytes": 76446, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/review-resolved-desktop.png", "sha256": "24ee50002b4aedf5b575734d4246c41e351697d3f3904183e2f5f172adfffc1a", "bytes": 206079, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/trust-inbox-desktop.png", "sha256": "f815d88fa572af73888e52f9302dd7ecad793b1ff9941741c94aa925d9280fe6", "bytes": 221509, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/trust-inbox-mobile.png", "sha256": "8f0abab50cbae28fcf48ad6ca183f440a595e68b1b513f350c10d84de1d4123d", "bytes": 67090, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/trust-inbox-proof.png", "sha256": "af7ef282fea00ebcff2e1b03c9209e821fe016dbbc7ad0f5cb9c8a790c445888", "bytes": 227684, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/workspace-desktop.jpg", "sha256": "923a921ad726835d817a59c211cd123961951d94720ab702f1bd665b84b1c9ae", "bytes": 99144, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/workspace-mobile.jpg", "sha256": "e6823aced80c0ef83e32ba36646ece6fbce35210fd056c4b0798c8a7b4e65a82", "bytes": 35052, "review": "content-and-metadata-reviewed" },
+    { "path": "artifacts/screenshots/workspace-proof-desktop.jpg", "sha256": "ededf29d5ef4997cd99bfe6fa2d4e1d3935fa49458d2628b1ad05edbcc38ca56", "bytes": 102918, "review": "content-and-metadata-reviewed" }
+  ]
+}

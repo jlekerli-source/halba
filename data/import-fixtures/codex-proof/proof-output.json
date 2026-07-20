@@ -1,0 +1,65 @@
+{
+  "execution": {
+    "mode": "imported",
+    "model": "codex-bounded-export",
+    "reasoningEffort": "none",
+    "store": false,
+    "recordedAt": "2026-07-18T08:00:05.000Z",
+    "responseId": null,
+    "latencyMs": null,
+    "usage": null
+  },
+  "output": {
+    "run_summary": "The bounded Codex export makes two source-backed claims; deterministic guards confirm both while the raw session transcript stays outside Halba state.",
+    "claims": [
+      {
+        "claim_id": "shared-validator",
+        "claim": "Node and browser imports use the same canonical workspace validator.",
+        "assessment": "supported",
+        "confidence": 0.99,
+        "reasoning_boundary": "The contract receipt names one shared validator; the deterministic source guard remains authoritative.",
+        "citations": [
+          {
+            "path": "sources/contract.md",
+            "start_line": 3,
+            "end_line": 3,
+            "quote": "Node and browser imports use one canonical browser-safe validator."
+          }
+        ],
+        "human_review": false
+      },
+      {
+        "claim_id": "focused-checks",
+        "claim": "The focused contract checks passed.",
+        "assessment": "supported",
+        "confidence": 0.99,
+        "reasoning_boundary": "The bounded receipt records the command and zero exit; it does not claim broader release health.",
+        "citations": [
+          {
+            "path": "receipts/check.txt",
+            "start_line": 1,
+            "end_line": 3,
+            "quote": "command: npm run check:workspace-import\nexit: 0\nresult: shared contract and evidence invalidation checks passed"
+          }
+        ],
+        "human_review": false
+      },
+      {
+        "claim_id": "universally-safe",
+        "claim": "The adapter is unquestionably safe for every private Codex session.",
+        "assessment": "uncertain",
+        "confidence": 0.35,
+        "reasoning_boundary": "The bounded fixture proves transcript-body exclusion for covered record shapes, not every future or private Codex payload.",
+        "citations": [
+          {
+            "path": "sources/contract.md",
+            "start_line": 4,
+            "end_line": 4,
+            "quote": "Review decisions include exact evidence identity and source hashes."
+          }
+        ],
+        "human_review": true
+      }
+    ]
+  }
+}

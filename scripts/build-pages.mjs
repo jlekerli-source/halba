@@ -14,8 +14,13 @@ export async function buildPages(outputRoot = defaultPagesRoot) {
   await rm(outputRoot, { recursive: true, force: true });
   await mkdir(outputRoot, { recursive: true });
 
-  for (const file of ["app.js", "halba-icon.svg", "styles.css", "workspace-import.js", "workspace-state.js"]) {
+  for (const file of ["app.js", "halba-icon.svg", "styles.css", "trust-inbox.js", "workspace-import.js", "workspace-state.js"]) {
     await copyFile(path.join(publicRoot, file), path.join(outputRoot, file));
+  }
+  const sharedRoot = path.join(outputRoot, "shared");
+  await mkdir(sharedRoot, { recursive: true });
+  for (const file of ["review-contract.js", "trust-contract.js", "workspace-contract.js"]) {
+    await copyFile(path.join(publicRoot, "shared", file), path.join(sharedRoot, file));
   }
 
   const demoRoot = path.join(outputRoot, "demo");
