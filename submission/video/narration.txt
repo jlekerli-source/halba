@@ -1,15 +1,17 @@
-Codex built Halba's proof workflow and produced the change report it inspects. Done is still a claim.
+Agents compress hours of work into one confident word: done. Halba treats that as a claim, not a fact.
 
-Halba turns reports, diffs, source files, and run receipts into one bounded evidence packet.
+Trust Inbox turns risky completion claims across local workspaces into one deterministic operations queue.
 
-Run the packet through Proof Mode. GPT-5.6 Sol extracts atomic claims and precise citations.
+In this public-safe benchmark, 120 runs become 11 attention items. Declared criticality and inspectable policy reasons put the critical contradiction first.
 
-Then deterministic guards check the actual bytes. When model confidence meets a contradictory receipt, the receipt wins.
+Open the source-backed packet. When model confidence meets a contradictory machine receipt, the receipt wins. Model prose has zero authority.
 
-Open the real patch, exact line range, and hash together. Halba shows what changed, what is verified, and what is stale or unsupported.
+Inspect the exact lines and hashes together. Halba shows what changed, what is verified, and what is stale, missing, or unsupported.
 
-Only uncertainty reaches the human gate. Approve, reject, or resolve the reasoning boundary locally.
+A human can approve, reject, resolve, or request proof. The decision stays scoped to the exact evidence identity.
 
-The public regression corpus passes nine of nine cases, with exact grounding and zero false positives.
+The deterministic benchmark finds all 11 gold attention items across three workspaces, with precision and recall of one.
 
-Halba. Agent claims in. Traceable proof out.
+Codex accelerated Halba from audit to ship: building Trust Inbox, Proof Mode, and the evaluation corpus. It also produced the release proof and this film. Inside Halba, GPT-5.6 makes testable, cited claims. Deterministic guards remain authoritative.
+
+Halba. Language proposes. Evidence decides. The human remains accountable.

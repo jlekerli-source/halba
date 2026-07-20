@@ -14,7 +14,7 @@ const policy = Object.freeze({
 
 export function buildTrustBenchmark() {
   const alpha = workspaceBuilder("alpha", "Alpha Release");
-  alpha.addClaim({ id: "alpha-contradiction", stableKey: "release:artifact", criticality: "critical", verdict: "contradictory", reviewRequired: true });
+  alpha.addClaim({ id: "alpha-contradiction", stableKey: "release:artifact", criticality: "critical", verdict: "contradictory", reviewRequired: true, claim: "The release artifact is verified and ready to ship." });
   alpha.addClaim({ id: "alpha-healthy", stableKey: "release:checks", criticality: "high", verdict: "supported", reviewRequired: true, decision: { status: "approved", updatedAt: "2026-07-30T12:00:00.000Z" } });
   alpha.addClaim({ id: "alpha-open", stableKey: "release:privacy", criticality: "high", verdict: "supported", reviewRequired: true });
   alpha.addClaim({ id: "alpha-guard", stableKey: "release:receipt", criticality: "medium", verdict: "supported", requiredGuards: ["receipt"], guards: [] });

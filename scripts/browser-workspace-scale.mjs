@@ -16,6 +16,7 @@ const profile = path.join(temporaryRoot, "chrome-profile");
 const port = await availablePort();
 let server;
 let chromeProcess;
+let cdp;
 
 try {
   const store = await openLocalStore(stateFile);
@@ -46,7 +47,7 @@ try {
     "about:blank"
   ], { stdio: ["ignore", "ignore", "pipe"] });
   const browserWebSocket = await waitForDebugger(debugPort, chromeProcess);
-  const cdp = await connectCdp(browserWebSocket);
+  cdp = await connectCdp(browserWebSocket);
   const { targetId } = await cdp.send("Target.createTarget", { url: "about:blank" });
   const { sessionId } = await cdp.send("Target.attachToTarget", { targetId, flatten: true });
   cdp.sessionId = sessionId;
@@ -69,10 +70,26 @@ try {
   await cdp.send("Browser.close", {}, null);
   console.log(`browser check passed: 2,000-run state rendered a bounded 100-run DOM in ${elapsedMs.toFixed(1)}ms`);
 } finally {
-  if (chromeProcess?.exitCode === null) chromeProcess.kill("SIGTERM");
+  cdp?.close();
+  if (chromeProcess?.exitCode === null) {
+    chromeProcess.kill("SIGTERM");
+    await Promise.race([
+      new Promise((resolve) => chromeProcess.once("exit", resolve)),
+      new Promise((resolve) => setTimeout(resolve, 1_000))
+    ]);
+    if (chromeProcess.exitCode === null) {
+      chromeProcess.kill("SIGKILL");
+      await Promise.race([
+        new Promise((resolve) => chromeProcess.once("exit", resolve)),
+        new Promise((resolve) => setTimeout(resolve, 1_000))
+      ]);
+    }
+  }
   if (server?.exitCode === null) server.kill("SIGTERM");
-  await rm(temporaryRoot, { recursive: true, force: true });
+  await rm(temporaryRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 }
+
+process.exit(0);
 
 async function waitForDebugger(debugPort, child) {
   const deadline = Date.now() + 10_000;
@@ -105,6 +122,9 @@ async function connectCdp(url) {
   });
   return {
     sessionId: null,
+    close() {
+      socket.close();
+    },
     send(method, params = {}, sessionOverride = undefined) {
       const id = ++sequence;
       const message = { id, method, params };

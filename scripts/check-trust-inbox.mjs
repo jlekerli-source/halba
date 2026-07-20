@@ -18,6 +18,7 @@ assert.deepEqual(report.items.slice(0, 3).map((item) => item.id), [
 ], "the Monday-morning triage order must remain deterministic");
 assert.equal(trustInboxSummary(report).attention, 11);
 assert.equal(trustInboxSummary(report).workspaceCount, 3);
+assert.equal(report.items[0].claim, "The release artifact is verified and ready to ship.");
 assert.ok(filterTrustItems(report.items, "contradiction").some((item) => item.id === benchmark.expectedTopId));
 assert.ok(filterTrustItems(report.items, "expired").every((item) => item.reasons.some((reason) => ["decision_expired", "freshness_expired", "stale"].includes(reason.code))));
 assert.ok(filterTrustItems(report.items, "imports").every((item) => item.kind === "import"));

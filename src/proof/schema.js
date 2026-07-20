@@ -13,6 +13,8 @@ export const proofVerdicts = new Set([
   "uncertain"
 ]);
 
+export const proofClaimTextMaxLength = 2_000;
+
 export const proofOutputJsonSchema = {
   type: "object",
   additionalProperties: false,
@@ -27,7 +29,7 @@ export const proofOutputJsonSchema = {
         additionalProperties: false,
         properties: {
           claim_id: { type: "string", minLength: 1 },
-          claim: { type: "string", minLength: 1 },
+          claim: { type: "string", minLength: 1, maxLength: proofClaimTextMaxLength },
           assessment: {
             type: "string",
             enum: [...proofAssessments]
@@ -79,6 +81,7 @@ export function assertProofOutput(output) {
     invariant(!ids.has(claim.claim_id), `duplicate proof claim id ${claim.claim_id}`);
     ids.add(claim.claim_id);
     invariant(typeof claim.claim === "string" && claim.claim.trim(), `proof claim ${claim.claim_id} is missing text`);
+    invariant(claim.claim.length <= proofClaimTextMaxLength, `proof claim ${claim.claim_id} text is too long`);
     invariant(proofAssessments.has(claim.assessment), `proof claim ${claim.claim_id} has an invalid assessment`);
     invariant(Number.isFinite(claim.confidence) && claim.confidence >= 0 && claim.confidence <= 1, `proof claim ${claim.claim_id} has invalid confidence`);
     invariant(typeof claim.reasoning_boundary === "string" && claim.reasoning_boundary.trim(), `proof claim ${claim.claim_id} is missing a reasoning boundary`);

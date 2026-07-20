@@ -126,6 +126,7 @@ async function loadWorkspaceState(workspace, { resetUi = false } = {}) {
 function render() {
   document.body.dataset.phase = state.phase;
   document.body.dataset.mobileView = state.mobileView;
+  document.body.dataset.workspaceView = state.phase === "ready" ? state.workspaceScope.kind : "";
   app.setAttribute("aria-busy", String(state.phase === "boot" || state.phase === "loading"));
   updateHeader();
 
@@ -162,8 +163,10 @@ function updateHeader() {
     step.classList.toggle("is-complete", complete);
   }
 
-  for (const tab of document.querySelectorAll("[data-mobile-view]")) {
-    tab.setAttribute("aria-pressed", String(tab.dataset.mobileView === state.mobileView));
+  for (const tab of mobileTabs.querySelectorAll("[data-mobile-view]")) {
+    const selected = tab.dataset.mobileView === state.mobileView;
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
   }
 
   statusRegion.textContent = state.phase === "loading"
@@ -378,11 +381,27 @@ function renderTrustInbox() {
   const summary = trustInboxSummary(report);
   const items = filterTrustItems(report?.items, state.trustFilter);
   const page = report?.page;
+  const judgeItem = items.find((item) => item.kind === "claim" && item.target.bundleId && item.target.evidenceIdentity) || items[0];
+  const judgeSubject = judgeItem?.stableKey || judgeItem?.target?.claimId || "the highest-risk claim";
   return `
     <header class="trust-head">
-      <div><p class="eyebrow">Cross-workspace trust operations</p><h1>Trust Inbox</h1><p>Deterministically ranked evidence changes, failed guards, expired decisions, and degraded imports. Human decisions can acknowledge risk; they cannot rewrite evidence.</p></div>
+      <div><p class="eyebrow">Cross-workspace trust operations</p><h1>Trust Inbox</h1><p>One ranked queue for evidence changes, failed guards, expired decisions, and degraded imports. Human decisions can acknowledge risk; they cannot rewrite evidence.</p></div>
       <div class="trust-head-score"><strong>${summary.attention}</strong><span>need attention</span><small>${summary.newCount} subject ${pluralize(summary.newCount, "change")} since checkpoint</small></div>
     </header>
+    <section class="trust-circuit" aria-labelledby="trust-circuit-heading">
+      <div class="trust-circuit-copy">
+        <p class="eyebrow">60-second judge path</p>
+        <h2 id="trust-circuit-heading">Language proposes. Evidence decides.</h2>
+        <p>Trace one high-risk completion claim through its exact evidence boundary, deterministic authority, and the human gate that remains.</p>
+        ${judgeItem ? `<a class="trust-circuit-action" href="${escapeHtml(trustItemHref(judgeItem))}"><span><small>Start with</small><strong>${escapeHtml(judgeSubject)}</strong></span>${icon("arrow")}</a>` : ""}
+      </div>
+      <ol class="trust-circuit-steps" aria-label="Claim to decision authority loop">
+        ${trustCircuitStep("claim", "Claim", "Model inference", "untrusted")}
+        ${trustCircuitStep("source", "Evidence", "Exact or missing", "bounded")}
+        ${trustCircuitStep("guard", "Guard", "Deterministic", "authority")}
+        ${trustCircuitStep("human", "Human", "Accountable", "decision")}
+      </ol>
+    </section>
     <section class="trust-toolbar" aria-label="Filter Trust Inbox">
       ${trustInboxFilters.map((filter) => `<button type="button" data-trust-filter="${filter}" aria-pressed="${state.trustFilter === filter}">${escapeHtml(trustFilterLabel(filter))}</button>`).join("")}
     </section>
@@ -393,17 +412,21 @@ function renderTrustInbox() {
   `;
 }
 
+function trustCircuitStep(iconName, title, detail, status) {
+  return `<li><span class="trust-circuit-node">${icon(iconName)}</span><span><strong>${title}</strong><small>${detail}</small></span><em>${status}</em></li>`;
+}
+
 function renderTrustItem(item, index) {
   const primary = trustPrimaryReason(item);
   const workspaceName = state.workspaces.find((workspace) => workspace.id === item.workspaceId)?.name || item.workspaceId;
   const routedItem = readRoute().view === "trust" && readRoute().item === item.id;
-  const subject = item.stableKey || item.evidence?.adapter || item.threadId || item.id;
+  const subject = item.claim || item.stableKey || item.evidence?.adapter || item.threadId || item.id;
   const headingId = `trust-item-heading-${index + 1}`;
   return `<li>
     <article class="trust-item criticality-${escapeHtml(item.criticality)}${item.subjectUpdatedSinceCheckpoint ? " is-new" : ""}${routedItem ? " is-routed" : ""}" data-trust-item="${escapeHtml(item.id)}" aria-labelledby="${headingId}">
       <div class="trust-rank" aria-label="Priority rank ${index + 1}"><span>${String(index + 1).padStart(2, "0")}</span><strong>${item.priority.score}</strong></div>
       <div class="trust-item-copy">
-        <div class="trust-item-meta"><span class="criticality-pill">${escapeHtml(item.criticality)}</span>${item.subjectUpdatedSinceCheckpoint ? '<span class="new-pill">Subject changed</span>' : ""}<span>${escapeHtml(workspaceName)}</span></div>
+        <div class="trust-item-meta"><span class="criticality-pill">${escapeHtml(item.criticality)}</span>${item.subjectUpdatedSinceCheckpoint ? '<span class="new-pill">Subject changed</span>' : ""}<span>${escapeHtml(workspaceName)}</span>${item.stableKey ? `<code>${escapeHtml(item.stableKey)}</code>` : ""}</div>
         <h2 id="${headingId}">${escapeHtml(subject)}</h2>
         <p class="trust-why"><strong>${escapeHtml(trustReasonLabel(primary.code))}</strong><span>${escapeHtml(primary.explanation)}</span></p>
         <div class="trust-reasons" aria-label="All deterministic reasons">${item.reasons.map((reason) => `<span>${escapeHtml(trustReasonLabel(reason.code))}</span>`).join("")}</div>
@@ -827,17 +850,17 @@ function renderError() {
 function renderProof() {
   const selected = selectedFinding();
   return `
-    <section class="proof-shell">
-      <aside class="summary-pane proof-pane" data-proof-view="summary">
+    <main id="main-content" class="proof-shell" tabindex="-1">
+      <aside id="proof-panel-summary" class="summary-pane proof-pane" data-proof-view="summary" role="tabpanel" aria-labelledby="proof-tab-summary">
         ${renderSummaryPane()}
       </aside>
-      <section class="claims-pane proof-pane" data-proof-view="claims">
+      <section id="proof-panel-claims" class="claims-pane proof-pane" data-proof-view="claims" role="tabpanel" aria-labelledby="proof-tab-claims">
         ${renderClaimsPane()}
       </section>
-      <aside class="trace-pane proof-pane" data-proof-view="source">
+      <aside id="proof-panel-source" class="trace-pane proof-pane" data-proof-view="source" role="tabpanel" aria-labelledby="proof-tab-source">
         ${renderTracePane(selected)}
       </aside>
-    </section>
+    </main>
   `;
 }
 
@@ -857,6 +880,12 @@ function renderSummaryPane() {
     : `<button class="workspace-back" type="button" data-reset>${icon("arrow")}Back to #${escapeHtml(channel.name)}</button>`;
   return `
     ${backAction}
+    <ol class="proof-circuit-rail" aria-label="Current authority path">
+      <li class="is-complete"><span>${icon("claim")}</span><small>Claim</small></li>
+      <li class="is-complete"><span>${icon("source")}</span><small>Evidence</small></li>
+      <li class="is-complete"><span>${icon("guard")}</span><small>Guard</small></li>
+      <li class="is-current"><span>${icon("human")}</span><small>Human</small></li>
+    </ol>
     <div class="pane-head">
       <div>
         <p class="eyebrow">Proof result</p>
@@ -1750,10 +1779,11 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
-  const mobileButton = event.target.closest("[data-mobile-view]");
+  const mobileButton = event.target.closest("#mobile-tabs [data-mobile-view]");
   if (mobileButton) {
     state.mobileView = mobileButton.dataset.mobileView;
     render();
+    mobileTabs.querySelector(`[data-mobile-view="${state.mobileView}"]`)?.focus();
     return;
   }
 
@@ -1807,6 +1837,22 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
+  const currentTab = event.target.closest("#mobile-tabs [role=\"tab\"]");
+  if (currentTab && ["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+    const tabs = [...mobileTabs.querySelectorAll('[role="tab"]')];
+    const index = tabs.indexOf(currentTab);
+    if (index < 0) return;
+    event.preventDefault();
+    const nextIndex = event.key === "Home" ? 0
+      : event.key === "End" ? tabs.length - 1
+        : event.key === "ArrowRight" ? (index + 1) % tabs.length
+          : (index - 1 + tabs.length) % tabs.length;
+    state.mobileView = tabs[nextIndex].dataset.mobileView;
+    render();
+    mobileTabs.querySelector(`[data-mobile-view="${state.mobileView}"]`)?.focus();
+    return;
+  }
+
   if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
   const current = event.target.closest("[data-trust-link]");
   if (!current) return;

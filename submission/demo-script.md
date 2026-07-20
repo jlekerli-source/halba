@@ -1,48 +1,46 @@
-# 90-second demo script
+# 55-second judge demo script
 
-The rendered submission film is [`../artifacts/demo/halba-demo.mp4`](../artifacts/demo/halba-demo.mp4): 58 seconds, 1280 × 720, 30 fps, H.264 video with aligned AAC narration, an original sound bed, and burned-in captions. Its reproducible source is in [`video/`](video/). This script remains the longer live-demo version.
+The rendered submission film is [`../artifacts/demo/halba-demo.mp4`](../artifacts/demo/halba-demo.mp4): 72 seconds, 1280 × 720, 30 fps, H.264 video with AAC narration, an original sound bed, and burned-in captions. Its reproducible source is in [`video/`](video/). This script is the matching live route.
 
-## 0:00–0:12 — The expensive question
+## 0:00–0:06 — The problem
 
-Show the onboarding screen.
+Show the Trust Inbox hero.
 
-> “An agent says the work is done. Halba asks the question the agent cannot answer for itself: can that claim pass human review?”
+> “Agents compress hours of work into one confident word: done. Halba treats that as a claim, not a fact.”
 
-Point to the bundle summary: six claims, six local sources and receipts, no cloud account.
+## 0:06–0:16 — The ranked queue
 
-## 0:12–0:25 — Run Proof Mode
+Show the 3-workspace, 120-run public-safe benchmark and the first critical item.
 
-Click **Review the public run**.
+> “Deterministic policy found eleven attention items and ranked this contradiction first. Model prose contributes zero authority.”
 
-> “For this reproducible demo, the structured-inference fixture is recorded and labeled. The live button uses GPT-5.6 Sol with max reasoning, strict structured output, and storage disabled.”
+## 0:16–0:27 — Why this is first
 
-## 0:25–0:48 — Triage the claims
+Open **Inspect priority trace** on the top card.
 
-Show the result summary and move through the claim queue.
+> “The rank comes from declared criticality and inspectable policy reasons. The benchmark is synthetic and the top case has no source, so Halba says so instead of inventing proof.”
 
-> “GPT extracts claims and precise citations. Halba then checks the actual bytes. Here the tests are supported; deployment is unsupported; the claimed live GPT run is contradicted by its own receipt; and this privacy claim is stale.”
+## 0:27–0:40 — Exact source-backed proof
 
-## 0:48–1:08 — Open the proof
+Move to the separate public Proof Mode packet. Keep **Example 2 · different claim · source-backed packet** visible while opening the contradictory live-GPT claim and `receipts/model-run.json`.
 
-Select the contradicted live-GPT claim. Point to the exact source range, hash, reasoning boundary, and deterministic receipt guard.
+> “Here the source-backed packet says the run was live. The exact machine receipt says recorded. The deterministic guard overrides the model assessment.”
 
-> “The model explains why it connected the source. The deterministic guard remains authoritative. The user can see the exact lines—not a paraphrase or a confidence badge.”
+## 0:40–0:50 — Human boundary
 
-## 1:08–1:22 — Human gate
+Choose **Request proof** and return to Trust Inbox.
 
-Enter “No successful API receipt” and click **Reject**.
+> “The human can approve, reject, resolve, or request evidence. The decision is scoped to this exact evidence identity and never rewrites the source.”
 
-> “A human closes the loop. Halba records the decision locally and advances to the next review gate.”
+## 0:50–0:55 — Close
 
-## 1:22–1:30 — Close
+Show the Trust Circuit.
 
-Return to the summary.
+> “Language proposes. Evidence decides. The human remains accountable.”
 
-> “Halba is a local-first evidence control plane: agent claims in, traceable proof and focused human review out.”
+## Capture rules
 
-## Capture notes
-
-- Record at 1440 × 900 with browser zoom at 100%.
-- Keep the cursor still while speaking over source evidence.
-- Do not crop the recorded/live disclosure.
-- End on the five-verdict summary and the zero-open-review state.
+- Use the locally seeded durable runtime for Trust Inbox and label the benchmark synthetic.
+- Use the credential-free recorded packet for exact-source proof and keep its **Recorded** disclosure visible.
+- Do not imply GitHub Pages hosts Trust Inbox, that the film proves a live GPT request, or that human comprehension has passed.
+- Keep the cursor still over exact source evidence and end on the complete claim → evidence → guard → human circuit.

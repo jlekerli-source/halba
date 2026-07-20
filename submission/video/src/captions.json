@@ -1,10 +1,13 @@
 [
-  {"text":"Codex built Halba's proof workflow and produced the change report it inspects. Done is still a claim.","startMs":0,"endMs":7000,"timestampMs":null,"confidence":null},
-  {"text":"Halba turns reports, diffs, source files, and run receipts into one bounded evidence packet.","startMs":7000,"endMs":14000,"timestampMs":null,"confidence":null},
-  {"text":"Run the packet through Proof Mode. GPT-5.6 Sol extracts atomic claims and precise citations.","startMs":14000,"endMs":21500,"timestampMs":null,"confidence":null},
-  {"text":"Then deterministic guards check the actual bytes. When model confidence meets a contradictory receipt, the receipt wins.","startMs":21500,"endMs":29500,"timestampMs":null,"confidence":null},
-  {"text":"Open the real patch, exact line range, and hash together. Halba shows what changed, what is verified, and what is stale or unsupported.","startMs":29500,"endMs":39500,"timestampMs":null,"confidence":null},
-  {"text":"Only uncertainty reaches the human gate. Approve, reject, or resolve the reasoning boundary locally.","startMs":39500,"endMs":46500,"timestampMs":null,"confidence":null},
-  {"text":"The public regression corpus passes nine of nine cases, with exact grounding and zero false positives.","startMs":46500,"endMs":53500,"timestampMs":null,"confidence":null},
-  {"text":"Halba. Agent claims in. Traceable proof out.","startMs":53500,"endMs":58000,"timestampMs":null,"confidence":null}
+  {"text":"Agents compress hours of work into one confident word: done. Halba treats that as a claim, not a fact.","startMs":0,"endMs":7000,"timestampMs":null,"confidence":null},
+  {"text":"Trust Inbox turns risky completion claims across local workspaces into one deterministic operations queue.","startMs":7000,"endMs":14000,"timestampMs":null,"confidence":null},
+  {"text":"In this public-safe benchmark, 120 runs become 11 attention items. Declared criticality and inspectable policy reasons put the critical contradiction first.","startMs":14000,"endMs":21500,"timestampMs":null,"confidence":null},
+  {"text":"Open the source-backed packet. When model confidence meets a contradictory machine receipt, the receipt wins. Model prose has zero authority.","startMs":21500,"endMs":29500,"timestampMs":null,"confidence":null},
+  {"text":"Inspect the exact lines and hashes together. Halba shows what changed, what is verified, and what is stale, missing, or unsupported.","startMs":29500,"endMs":39500,"timestampMs":null,"confidence":null},
+  {"text":"A human can approve, reject, resolve, or request proof. The decision stays scoped to the exact evidence identity.","startMs":39500,"endMs":46500,"timestampMs":null,"confidence":null},
+  {"text":"The deterministic benchmark finds all 11 gold attention items across three workspaces, with precision and recall of one.","startMs":46500,"endMs":53500,"timestampMs":null,"confidence":null},
+  {"text":"Codex accelerated Halba from audit to ship: building Trust Inbox, Proof Mode, and the evaluation corpus.","startMs":53500,"endMs":58000,"timestampMs":null,"confidence":null},
+  {"text":"It also produced the release proof and this film.","startMs":58000,"endMs":61500,"timestampMs":null,"confidence":null},
+  {"text":"Inside Halba, GPT-5.6 makes testable, cited claims. Deterministic guards remain authoritative.","startMs":61500,"endMs":66500,"timestampMs":null,"confidence":null},
+  {"text":"Halba. Language proposes. Evidence decides. The human remains accountable.","startMs":66500,"endMs":72000,"timestampMs":null,"confidence":null}
 ]

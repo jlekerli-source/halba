@@ -23,7 +23,7 @@ Before product changes, the full working tree and Git metadata were preserved in
 - A synthetic public demo bundle and recorded-response mode.
 - Privacy audit, Apache-2.0 license, public documentation, container, and clean-package reconstruction.
 - A deployed credential-free GitHub Pages adapter and workflow for the complete recorded proof path.
-- A captioned 58-second product film with a contradiction cold-open, eight distinct shots, reproducible Remotion source, aligned narration, original sound bed, poster, and encoded-artifact inspection.
+- A captioned 72-second product film with a contradiction cold-open, nine distinct shots, explicit Codex/GPT-5.6 contribution disclosure, reproducible Remotion source, scene-aligned narration, original sound bed, poster, and encoded-artifact inspection.
 - A proper fix and boundary tests for the date-sensitive stale-count regression.
 
 ## Honest limitations

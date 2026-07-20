@@ -2,6 +2,8 @@
 
 Halba was submitted to OpenAI Build Week on July 15, 2026.
 
+This is a historical external-state record. It does not prove that the July 20 Trust Operations story, film, gallery, release, or future human-comprehension receipt has been published to Devpost or its linked hosts.
+
 ## Public project
 
 - Project: [https://devpost.com/software/halba](https://devpost.com/software/halba)
@@ -20,6 +22,6 @@ After the final terms checkbox and **Submit project** action, Devpost displayed:
 
 > Project submitted! Continue to edit your project until the hackathon deadline: July 21, 2026 at 08:00pm EDT.
 
-The resulting page title was `Halba | Devpost` at `https://devpost.com/software/halba`. The rendered page showed the final project story, the YouTube embed, the GPT-5.6 Sol built-with tag, the Pages demo, the GitHub repository, and the OpenAI Build Week submission badge.
+The resulting page title was `Halba | Devpost` at `https://devpost.com/software/halba`. The rendered page showed the then-current agent-workspace project story, the YouTube embed, the GPT-5.6 Sol built-with tag, the Pages demo, the GitHub repository, and the OpenAI Build Week submission badge. This observation predates the July 20 Trust Operations candidate and is not parity proof for it.
 
 This record contains no credential, secret, private source data, or private baseline path.

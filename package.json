@@ -48,6 +48,7 @@
     "check:view-state": "node scripts/check-view-state.mjs",
     "package:dry-run": "node scripts/public-package-dry-run.mjs",
     "release:check": "node scripts/release-check.mjs",
+    "release:goal": "node scripts/release-check.mjs --require-human",
     "release:browser": "node --disable-warning=ExperimentalWarning scripts/release-browser-check.mjs",
     "state": "node --disable-warning=ExperimentalWarning scripts/state.mjs",
     "state:seed-trust": "node --disable-warning=ExperimentalWarning scripts/seed-trust-benchmark.mjs",

@@ -18,7 +18,7 @@ try {
   const css = await fetch(`${origin}/styles.css`).then((response) => response.text());
   const app = await fetch(`${origin}/app.js`).then((response) => response.text());
   for (const marker of [
-    "Halba — Agent Workspace",
+    "Halba — Trust Operations",
     'id="status-region"',
     'data-run-mode="live"',
     'data-run-mode="recorded"',

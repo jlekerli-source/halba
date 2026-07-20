@@ -1,10 +1,21 @@
 # Halba Build Week execution plan
 
-Status: sanitized workspace product, public demo, and Devpost submission are deployed and verified; only the explicitly paused film-alignment decision remains open
+Status (2026-07-20): the local Trust Operations candidate, current 72-second film, gallery assets, and reproducible release path are ready for final proof. Publication is authorized and pending validation, push, upload, Devpost refresh, and signed-out parity verification. The independently facilitated under-60-second comprehension session remains honestly `not_run` and is post-submission evidence, not a reason to fabricate or delay the Build Week candidate.
 
 Thesis: Halba is a local-first evidence control plane for AI-assisted work. It turns agent runs, diffs, receipts, and source files into a traceable evidence graph, detects unsupported or stale claims, and shows what actually requires human review.
 
 Flagship workflow: **Proof Mode** is part of Halba. It is not a separate product, chatbot, kanban board, or social surface.
+
+## Current candidate truth — 2026-07-20
+
+- Product identity: **Trust Operations**, expressed as the Claim → Evidence + Guard → Human Decision circuit across Trust Inbox, Proof Mode, mobile, gallery, and film.
+- Film: current local H.264/AAC candidate, 72.043 seconds, SHA-256 `bedaad04931a630fced3555aaf32cc3a9d499015306890b0defab6ef0c6779fa`.
+- Release: the current source must pass `npm run release:check` after every candidate change. The exact reconstructed file count and archive hash belong in `dist/release-evidence.json`; historical counts below are not current release proof.
+- Human comprehension: intentionally `not_run` until a fresh participant and independent facilitator complete the fixed protocol. No automated or fabricated substitute is acceptable.
+- External state: the July 20 candidate has not yet been pushed, deployed, uploaded, or used to edit Devpost. Existing public URLs are historical surfaces until this authorized publication pass is verified signed out.
+- Authority: the current deadline pass explicitly covers commit, push, deployment, video upload, Devpost mutation, submission verification, and required provider installation. Security prompts and truthful evidence boundaries still apply.
+
+The execution ledger below is a historical July 13 snapshot retained for provenance. It must not be read as the current candidate's release, film, human-gate, or publication status.
 
 ## Execution ledger — 2026-07-13
 
@@ -23,7 +34,7 @@ The acceptance checklists below preserve the original implementation contract. T
 | 9. Reproducible package | Complete | `release:check` reconstructs 131 allowlisted files, reruns check, smoke, and eval, hashes the archive into `dist/release-evidence.json`, extracts it, and runs the suites again from the extracted copy. The final Docker image built from the sanitized tree and passed its health, UI, bundle, recorded-proof, and embedded-video hash checks. |
 | 10. Submission package | Complete except film alignment | The Developer Tools submission is live with the workspace story, new tagline, three captioned workspace screenshots, public demo/source links, existing YouTube film, and creator contribution. The film remains the pre-workspace Proof Mode narrative because video work was explicitly paused; it is not cited as workspace proof. |
 
-Remaining gate:
+Historical remaining gate at that snapshot:
 
 - Decide whether the existing 58-second Proof Mode film is accepted as the final video or reopen video work so the film can show the Slack-style agent workspace. Everything else in the submission is live and synchronized.
 
@@ -35,7 +46,7 @@ A live Responses API run remains optional development evidence, not a release ga
 - That baseline includes the full working tree and Git metadata, file hashes, command transcripts, and real Chrome screenshots at desktop and mobile sizes.
 - The baseline contains private local artifacts and must never enter public history, release archives, screenshots, or remotes.
 - The Build Week delta starts with this plan and will be disclosed separately from pre-existing Halba work.
-- External publication is authorized as of 2026-07-13. Only the audited public branch and clean release artifact may leave this machine; private baseline and local tool refs remain local.
+- External publication was authorized for the 2026-07-13 publication pass. That historical authority does not carry forward to a new candidate mutation; only the audited public branch and clean release artifact may ever leave this machine, and private baseline and local tool refs remain local.
 
 ## Architecture decisions
 
@@ -359,11 +370,11 @@ Estimated scope: medium.
 | Max reasoning is slow or costly | Medium | Preserve `max` for the judge-quality workflow, measure live latency/cost when possible, and keep deterministic replay for development and demos. |
 | Deterministic and model verdicts conflict | Medium | Deterministic guards remain authoritative; surface disagreement as a human-review reason. |
 | Attribution is inaccurate | Medium | Verify the original public source before including names or quotes; describe inspiration only, never partnership or endorsement. |
-| Public release could accidentally include local-only refs or artifacts | Critical | External publication is authorized, but push only audited `main`; never mirror local tool refs or upload the private baseline. |
+| Public release could accidentally include local-only refs or artifacts | Critical | Require fresh publication authorization, push only audited `main`, and never mirror local tool refs or upload the private baseline. |
 
-## Project-wide definition of done
+## Historical project-wide definition of done — July 16 snapshot
 
-Halba is complete for this Build Week objective only when all of the following are true:
+This checklist records the July 16 workspace objective. The authoritative July 20 completion gates are in **Current candidate truth** above; unchecked historical boxes are not a current candidate audit.
 
 - [ ] Scope: Proof Mode is demonstrably Halba's flagship workflow and no social, chat, kanban, or ShipGuard redesign scope has leaked in.
 - [ ] Correctness: deterministic guards, proof API, public demo import, and review decisions behave as specified.
@@ -378,10 +389,10 @@ Halba is complete for this Build Week objective only when all of the following a
 - [ ] Submission: demo script, screenshots, Devpost copy, architecture explanation, verified inspiration credit, pre-existing-work disclosure, Build Week delta, and evidence index are ready.
 - [ ] Reproducibility: a clean extracted release candidate can run the public demo and mandatory checks from the documented commands.
 - [ ] Honesty: no build, screenshot, replay, mock, or planned deployment is described as stronger evidence than it is.
-- [x] External gate: the audited public remote, push, Pages deployment, YouTube upload, and Devpost submission were completed under explicit authorization; the private baseline remains local.
+- [x] Historical external gate: the July 16 public remote, push, Pages deployment, YouTube upload, and Devpost submission were completed under that pass's explicit authorization; this does not authorize a July 20 candidate update.
 - [ ] Film alignment: accept the existing Proof Mode film as final or reopen video work to show the shipped agent workspace.
 
-Current audit, July 16, 2026: the public remote, push, Pages deployment, YouTube upload, Devpost submission, workspace refresh, gallery, and contribution credit are complete under explicit authorization. All mandatory checks and the extracted release gate pass. The only open definition-of-done item is cross-surface film alignment, which remains paused by explicit product direction.
+Historical audit snapshot, July 16, 2026: at that point the public remote, Pages deployment, YouTube upload, Devpost submission, workspace refresh, gallery, and contribution credit had been completed under explicit authorization. The July 20 Trust Operations candidate supersedes that local film/gallery package; public parity and the real human-comprehension result remain current gates.
 
 ## Explicitly parked
 

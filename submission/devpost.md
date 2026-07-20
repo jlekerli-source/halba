@@ -1,12 +1,14 @@
 # Devpost submission copy
 
+> Candidate status, July 20: this story and the checked-in film/gallery assets are the current Trust Operations package. The public Devpost, YouTube, Pages, and GitHub URLs remain external publication surfaces and may still show the previously published submission until an explicitly authorized update is completed and verified.
+
 ## Project name
 
 Halba
 
 ## Tagline
 
-The local-first agent workspace where “done” comes with proof.
+Language proposes. Evidence decides. The local-first trust operations control plane.
 
 ## Links
 
@@ -15,7 +17,7 @@ The local-first agent workspace where “done” comes with proof.
 - Downloadable film mirror: [https://jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
 - Source: [https://github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
 
-The public YouTube URL is the Devpost video-field value. The GitHub-hosted MP4 remains the canonical evidence mirror.
+The public YouTube URL is the existing Devpost video-field value. The current upload candidate is `artifacts/demo/halba-demo.mp4`; do not claim the hosted YouTube or GitHub mirror matches it until the upload and post-publication hash/playback check are explicitly performed.
 
 ## Inspiration
 
@@ -25,7 +27,9 @@ The original prompt was inspired by Theo Browne's [“I don't have time to build
 
 ## What it does
 
-Halba gives agent work the useful shape of Slack: local workspaces, project channels, chronological run threads, and clear attention. The difference is that its "messages" are typed work events and its attention count comes from unresolved proof, not chatter. A public-safe Codex run in `#halba-build-week` shows what the agent inspected, changed, checked, and claimed before handing the material claims into Proof Mode.
+Halba turns risky completion claims across local workspaces into one **Trust Inbox**. Deterministic evidence policy ranks contradictions, unsupported or stale proof, changed evidence, expired decisions, degraded imports, failed guards, and dependency impact. Every item says why it matters now and routes to the exact claim, run, or import receipt. Model prose has zero ranking or approval authority.
+
+The queue opens into **Proof Mode**, where one bounded evidence identity stays visible from claim to source to guard to human decision. A public-safe Codex run shows what the agent inspected, changed, checked, and claimed before the material claims enter that loop.
 
 Proof Mode imports the bounded agent report, source files, and machine receipts. GPT-5.6 extracts atomic claims and precise citations. Halba validates every source reference, applies deterministic guards, and assigns one of five verdicts: supported, unsupported, stale, contradicted, or uncertain.
 
@@ -37,13 +41,13 @@ The user sees:
 - what conflicts with deterministic evidence;
 - which claims require human review.
 
-Every claim opens to exact source lines, a content hash, the model's reasoning boundary, and the guard results. A human can approve, reject, resolve, or request more proof with a local audit note. Closed gates reduce channel attention; requesting proof intentionally leaves the gate open.
+Every claim opens to its exact evidence boundary: source-backed claims show the cited lines and content hash, while missing evidence is exposed as an explicit missing-source state. Proof Mode also preserves the model's reasoning boundary and deterministic guard results. A human can approve, reject, resolve, or request more proof with a local audit note. Closed gates reduce channel attention; requesting proof intentionally leaves the gate open.
 
 ## How we built it
 
 Halba is a dependency-free Node.js application with a static browser frontend. Proof bundles are local JSON plus source files. The server rejects absolute paths, traversal, undeclared files, symlinks, oversized inputs, and invalid line ranges.
 
-The workspace contract validates safe ids, channel/agent/thread references, timestamps, typed event names, proof-bundle linkage, and a 64 KB input ceiling. A checked-in Codex adapter deterministically rebuilds the public workspace from the same bounded completion report, sources, receipts, and adjudication that judges can inspect.
+The workspace contract validates safe ids, channel/agent/thread references, timestamps, typed event names, proof-bundle linkage, and a 64 KB input ceiling. Bounded Codex-session, CI-manifest, and release-manifest adapters normalize into the same local contract. They do not store raw transcripts or arbitrary command output, and they cannot create lineage or approval authority.
 
 Codex accelerated the Build Week delta end to end: baseline and privacy auditing, Proof Mode implementation, deterministic guards, the eval corpus, rendered frontend iteration, the Remotion film, Docker verification, and public release automation. The most important decisions were to keep evidence local, separate inference from proof authority, label recorded versus live execution, and reserve unresolved decisions for a human. The public demo includes a safe version of the Codex-authored report, diff, and receipts it was built to inspect.
 
@@ -60,15 +64,16 @@ Public release preparation was also a product problem. The pre-existing local ap
 ## Accomplishments
 
 - One legible end-to-end workflow from agent report to human decision.
+- One ranked cross-workspace Trust Inbox for changed evidence, failed guards, expired decisions, degraded imports, and downstream risk.
 - Exact-source grounding instead of opaque confidence scores.
 - Deterministic guards that can override model overconfidence.
 - A regression corpus spanning every verdict, malformed output, prompt-like evidence, stale boundaries, false positives, and failed receipts.
 - A responsive desktop/mobile review surface built for a short live demo.
 - A Slack-style agent workspace with proof-driven attention and typed Codex run events.
-- A reproducible public-safe Codex-run importer and validated workspace contract.
+- Three bounded run adapters—Codex session metadata, structured CI receipts, and release packets—plus one validated workspace contract.
 - A downloadable review record that preserves exact source hashes, guard outcomes, and human decisions.
 - A dependency-free product runtime inside a reproducible, privacy-audited public release.
-- A captioned 58-second submission film whose Remotion source, narration, captions, and original sound bed are checked in.
+- A current captioned 72-second Trust Operations film whose Remotion source, narration, captions, and original sound bed are checked in; it explicitly explains how Codex accelerated the build and how GPT-5.6 is used inside Halba.
 
 ## What we learned
 
@@ -76,15 +81,15 @@ The useful boundary is not “AI versus rules.” GPT-5.6 is excellent at turnin
 
 ## What's next
 
-- Additional importers for raw agent run formats and CI receipts.
-- Exportable signed review records.
-- Team review sync that preserves the local-first data boundary.
-- More live-model eval runs with published latency, token usage, and failure distributions.
+- Measured operator studies for comprehension, prioritization quality, and weekly-review usefulness.
+- Additional deterministic guard classes where real imported evidence demonstrates a repeated need.
+- Identity-aware signatures only after the authorship and trust model is explicitly defined; current hash chains prove integrity, not identity.
+- More live-model eval runs with published latency, token usage, failure distributions, and no replay-derived quality claims.
 
 ## Built with
 
-OpenAI Responses API, GPT-5.6 Sol, Codex, Node.js, HTML, CSS, JavaScript, local JSON, Docker, GitHub Pages, Playwright-based browser verification, and Remotion for the submission film.
+OpenAI Responses API, GPT-5.6 Sol, Codex, Node.js, HTML, CSS, JavaScript, local JSON, SQLite, Docker, GitHub Pages, isolated Chromium/CDP browser verification, and Remotion for the submission film.
 
 ## Contribution
 
-I designed and built Halba’s local-first agent workspace and Proof Mode: the Codex-run importer, exact-source adjudication, deterministic guards, evals, responsive UI, privacy hardening, packaging, and deployment—with Codex as my implementation partner.
+I designed and built Halba’s local-first Trust Operations system and Proof Mode: the bounded run adapters, evidence policy, exact-source adjudication, deterministic guards, evals, responsive UI, privacy hardening, packaging, and deployment—with Codex as my implementation partner.

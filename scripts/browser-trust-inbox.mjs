@@ -11,6 +11,7 @@ const chrome = process.env.CHROME_BIN || "/Applications/Google Chrome.app/Conten
 const profile = await mkdtemp(path.join(os.tmpdir(), "halba-trust-chrome-"));
 const port = await availablePort();
 let chromeProcess;
+let cdp;
 
 try {
   await mkdir(outputRoot, { recursive: true });
@@ -28,7 +29,7 @@ try {
   chromeProcess.stderr.on("data", (chunk) => { chromeError = `${chromeError}${chunk}`.slice(-12_000); });
 
   const browserWebSocket = await waitForDebugger(port, chromeProcess, () => chromeError);
-  const cdp = await connectCdp(browserWebSocket);
+  cdp = await connectCdp(browserWebSocket);
   const { targetId } = await cdp.send("Target.createTarget", { url: "about:blank" });
   const { sessionId } = await cdp.send("Target.attachToTarget", { targetId, flatten: true });
   cdp.sessionId = sessionId;
@@ -107,12 +108,30 @@ try {
   assert.equal(interactiveWithoutName.length, 0, "all exposed buttons and links need accessible names");
   assert.ok(exposed.some((node) => node.role?.value === "main"), "accessibility tree must expose the main landmark");
   assert.ok(exposed.some((node) => node.role?.value === "heading" && node.name?.value === "Trust Inbox"), "accessibility tree must expose the Trust Inbox heading");
+  await new Promise((resolve) => setTimeout(resolve, 500));
   await screenshot(cdp, path.join(outputRoot, "trust-inbox-desktop.png"));
+
+  await setViewport(cdp, 390, 844, true);
+  await navigate(cdp, inboxUrl, ".trust-item");
+  const initialMobile = await evaluate(cdp, `({
+    itemIds: [...document.querySelectorAll('[data-trust-item]')].slice(0, 3).map((item) => item.dataset.trustItem),
+    overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    firstActionVisible: (() => { const box = document.querySelector('[data-trust-link]')?.getBoundingClientRect(); return Boolean(box && box.width >= 40 && box.height >= 40); })()
+  })`);
+  assert.deepEqual(initialMobile.itemIds, desktop.itemIds.slice(0, 3));
+  assert.equal(initialMobile.overflow, false);
+  assert.equal(initialMobile.firstActionVisible, true);
+  await evaluate(cdp, `window.scrollTo({ top: 0, behavior: 'instant' })`);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  await screenshot(cdp, path.join(outputRoot, "trust-inbox-mobile.png"));
+  await setViewport(cdp, 1440, 1000, false);
 
   const keyboardEntryUrl = `${origin}/?view=trust&at=${encodeURIComponent("2026-08-01T12:00:00.000Z")}`;
   await navigate(cdp, keyboardEntryUrl, ".trust-item");
+  await evaluate(cdp, `document.activeElement?.blur()`);
   await pressTab(cdp);
-  assert.equal(await evaluate(cdp, `document.activeElement?.classList.contains('skip-link')`), true, "the skip link must be the first keyboard stop");
+  const firstKeyboardStop = await evaluate(cdp, `({ isSkip: document.activeElement?.classList.contains('skip-link'), html: document.activeElement?.outerHTML?.slice(0, 240) || document.activeElement?.tagName || '' })`);
+  assert.equal(firstKeyboardStop.isSkip, true, `the skip link must be the first keyboard stop; received ${firstKeyboardStop.html}`);
   await pressEnter(cdp);
   await waitFor(cdp, `document.activeElement?.id === 'main-content'`);
   assert.equal(await evaluate(cdp, `document.activeElement?.id`), "main-content", "skip navigation must move focus to the main landmark");
@@ -170,6 +189,7 @@ try {
   assert.match(receipt.privacy, /raw transcripts/i);
   assert.match(receipt.back, /Back to Trust Inbox/);
   assert.equal(receipt.overflow, false);
+  await new Promise((resolve) => setTimeout(resolve, 500));
   await screenshot(cdp, path.join(outputRoot, "trust-inbox-receipt.png"));
 
   await evaluate(cdp, `document.querySelector('.workspace-back').focus()`);
@@ -188,7 +208,24 @@ try {
   assert.equal(proof.selectedClaim, "claim");
   assert.match(proof.backLabel, /Back to Trust Inbox/);
   assert.equal(proof.overflow, false);
+  assert.equal(await evaluate(cdp, `document.querySelectorAll('main').length`), 1, "Proof Mode must preserve one main landmark");
+  assert.equal(await evaluate(cdp, `document.querySelector('main')?.id`), "main-content", "Proof Mode must preserve the skip-link target");
+  await new Promise((resolve) => setTimeout(resolve, 500));
   await screenshot(cdp, path.join(outputRoot, "trust-inbox-proof.png"));
+
+  await setViewport(cdp, 390, 844, true);
+  await evaluate(cdp, `(() => { window.__proofKeyEvents = []; document.addEventListener('keydown', (event) => window.__proofKeyEvents.push({ key: event.key, target: event.target?.id || '' }), { once: true }); document.querySelector('#proof-tab-summary').focus(); })()`);
+  assert.deepEqual(await evaluate(cdp, `({ active: document.activeElement?.id || '', hidden: document.querySelector('#mobile-tabs').hidden, display: getComputedStyle(document.querySelector('#mobile-tabs')).display })`), { active: "proof-tab-summary", hidden: false, display: "grid" }, "mobile Proof tabs must be visible and focusable");
+  await pressKey(cdp, "ArrowRight", "ArrowRight", 39);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  assert.deepEqual(await evaluate(cdp, `({ events: window.__proofKeyEvents, selected: [...document.querySelectorAll('#mobile-tabs [role="tab"]')].map((tab) => [tab.id, tab.getAttribute('aria-selected')]), active: document.activeElement?.id || '' })`), { events: [{ key: "ArrowRight", target: "proof-tab-summary" }], selected: [["proof-tab-summary", "false"], ["proof-tab-claims", "true"], ["proof-tab-source", "false"]], active: "proof-tab-claims" }, "ArrowRight must activate and focus the next mobile Proof tab");
+  assert.notEqual(await evaluate(cdp, `getComputedStyle(document.querySelector('#proof-panel-claims')).display`), "none", "arrow navigation must reveal the selected Claims panel");
+  await pressKey(cdp, "ArrowRight", "ArrowRight", 39);
+  await waitFor(cdp, `document.querySelector('#proof-tab-source')?.getAttribute('aria-selected') === 'true' && document.activeElement?.id === 'proof-tab-source'`);
+  assert.notEqual(await evaluate(cdp, `getComputedStyle(document.querySelector('#proof-panel-source')).display`), "none", "arrow navigation must reveal the selected Source panel");
+  await pressKey(cdp, "Home", "Home", 36);
+  await waitFor(cdp, `document.querySelector('#proof-tab-summary')?.getAttribute('aria-selected') === 'true' && document.activeElement?.id === 'proof-tab-summary'`);
+  await setViewport(cdp, 1440, 1000, false);
 
   await evaluate(cdp, `(() => {
     const note = document.querySelector('#review-note');
@@ -205,7 +242,9 @@ try {
   })()`);
   await pressEnter(cdp);
   await waitFor(cdp, `fetch('/api/recent-decisions?limit=100').then((response) => response.json()).then((body) => body.items.some((item) => item.threadId === 'alpha-contradiction' && item.status === 'resolved' && item.current))`);
-  await waitFor(cdp, `document.querySelector('#status-region')?.textContent.includes('10 ranked')`);
+  await waitFor(cdp, `document.querySelector('.human-gate h3')?.textContent.trim() === 'Resolved'`);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  await screenshot(cdp, path.join(outputRoot, "review-resolved-desktop.png"));
   await evaluate(cdp, `document.querySelector('.workspace-back').focus()`);
   await pressEnter(cdp);
   await waitFor(cdp, `document.querySelectorAll('[data-trust-item]').length === 10`);
@@ -238,6 +277,7 @@ try {
   assert.match(recent.history, /more-proof/i);
   assert.match(recent.history, /request exact follow-up evidence/i);
   assert.equal(recent.overflow, false);
+  await new Promise((resolve) => setTimeout(resolve, 500));
   await screenshot(cdp, path.join(outputRoot, "trust-inbox-recent-decisions.png"));
 
   await setViewport(cdp, 390, 844, true);
@@ -250,7 +290,6 @@ try {
   assert.deepEqual(mobile.itemIds, desktop.itemIds.slice(1, 4));
   assert.equal(mobile.overflow, false);
   assert.equal(mobile.firstActionVisible, true);
-  await screenshot(cdp, path.join(outputRoot, "trust-inbox-mobile.png"));
 
   await setViewport(cdp, 320, 800, true);
   await navigate(cdp, inboxUrl, ".trust-item");
@@ -298,15 +337,25 @@ try {
   await cdp.send("Browser.close", {}, null);
   console.log(`browser check passed: checkpoint persistence, changed filter, stale-link refusal, exact degraded receipt, keyboard activation and return focus, queue update, recent decision history, responsive overflow, and clean console/network`);
 } finally {
+  cdp?.close();
   if (chromeProcess?.exitCode === null) {
     chromeProcess.kill("SIGTERM");
     await Promise.race([
       new Promise((resolve) => chromeProcess.once("exit", resolve)),
       new Promise((resolve) => setTimeout(resolve, 1_000))
     ]);
+    if (chromeProcess.exitCode === null) {
+      chromeProcess.kill("SIGKILL");
+      await Promise.race([
+        new Promise((resolve) => chromeProcess.once("exit", resolve)),
+        new Promise((resolve) => setTimeout(resolve, 1_000))
+      ]);
+    }
   }
   await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 }
+
+process.exit(0);
 
 function argument(name) {
   const index = process.argv.indexOf(name);
@@ -356,6 +405,9 @@ async function connectCdp(url) {
   });
   return {
     sessionId: null,
+    close() {
+      socket.close();
+    },
     on(method, listener) {
       const entries = listeners.get(method) || [];
       entries.push(listener);
@@ -409,6 +461,11 @@ async function pressTab(cdp, { shift = false } = {}) {
   await cdp.send("Input.dispatchKeyEvent", { type: "keyUp", key: "Tab", code: "Tab", modifiers: shift ? 8 : 0, windowsVirtualKeyCode: 9, nativeVirtualKeyCode: 9 });
 }
 
+async function pressKey(cdp, key, code, virtualKeyCode) {
+  await cdp.send("Input.dispatchKeyEvent", { type: "keyDown", key, code, windowsVirtualKeyCode: virtualKeyCode, nativeVirtualKeyCode: virtualKeyCode });
+  await cdp.send("Input.dispatchKeyEvent", { type: "keyUp", key, code, windowsVirtualKeyCode: virtualKeyCode, nativeVirtualKeyCode: virtualKeyCode });
+}
+
 async function evaluate(cdp, expression) {
   const result = await cdp.send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
   if (result.exceptionDetails) throw new Error(result.exceptionDetails.text || "browser evaluation failed");
@@ -416,6 +473,11 @@ async function evaluate(cdp, expression) {
 }
 
 async function screenshot(cdp, target) {
-  const { data } = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
+  const jpeg = /\.jpe?g$/i.test(target);
+  const { data } = await cdp.send("Page.captureScreenshot", {
+    format: jpeg ? "jpeg" : "png",
+    ...(jpeg ? { quality: 92 } : {}),
+    captureBeyondViewport: false
+  });
   await writeFile(target, Buffer.from(data, "base64"));
 }

@@ -29,6 +29,7 @@ This allowlist defines the only files eligible for a public Halba release candid
 - `src/proof/`
 - `scripts/audit-public.mjs`
 - `scripts/build-pages.mjs`
+- `scripts/browser-public-demo.mjs`
 - `scripts/browser-trust-inbox.mjs`
 - `scripts/browser-workspace-scale.mjs`
 - `scripts/check-feed-sort.mjs`

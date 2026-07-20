@@ -105,7 +105,7 @@ This corpus measures deterministic attention classification and ordering. Render
 }
 
 async function readHumanSession() {
-  const input = path.join(root, "artifacts", "evals", "human-trust-inbox-session.json");
+  const input = path.join(root, ".halba", "evals", "human-trust-inbox", "passing.json");
   try {
     return JSON.parse(await readFile(input, "utf8"));
   } catch (error) {

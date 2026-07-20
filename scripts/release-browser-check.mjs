@@ -7,10 +7,11 @@ import path from "node:path";
 const root = process.cwd();
 const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "halba-release-browser-"));
 const stateFile = path.join(temporaryRoot, "trust.sqlite");
-const screenshots = path.join(temporaryRoot, "screenshots");
+const screenshots = path.resolve(argument("--out") || path.join(temporaryRoot, "screenshots"));
 const port = await availablePort();
 const origin = `http://127.0.0.1:${port}`;
 let server;
+let publicServer;
 
 try {
   await run(process.execPath, ["--disable-warning=ExperimentalWarning", "scripts/seed-trust-benchmark.mjs", "--state", stateFile]);
@@ -23,13 +24,29 @@ try {
   server.stderr.on("data", (chunk) => { serverError = `${serverError}${chunk}`.slice(-8_000); });
   await waitForServer(`${origin}/api/workspaces`, server, () => serverError);
   await run(process.execPath, ["scripts/browser-trust-inbox.mjs", "--origin", origin, "--out", screenshots]);
+  const publicPort = await availablePort();
+  const publicOrigin = `http://127.0.0.1:${publicPort}`;
+  publicServer = spawn(process.execPath, ["src/server.js"], {
+    cwd: root,
+    env: { ...process.env, HALBA_STATE_FILE: "", HALBA_HOST: "127.0.0.1", PORT: String(publicPort) },
+    stdio: ["ignore", "ignore", "pipe"]
+  });
+  let publicServerError = "";
+  publicServer.stderr.on("data", (chunk) => { publicServerError = `${publicServerError}${chunk}`.slice(-8_000); });
+  await waitForServer(`${publicOrigin}/api/workspace`, publicServer, () => publicServerError);
+  await run(process.execPath, ["scripts/browser-public-demo.mjs", "--origin", publicOrigin, "--out", screenshots]);
   await run(process.execPath, ["--disable-warning=ExperimentalWarning", "scripts/browser-workspace-scale.mjs"]);
-  console.log("release browser check passed: Trust Inbox workflow and bounded 2,000-run surface");
+  console.log("release browser check passed: Trust Inbox, public Proof workflow, current captures, and bounded 2,000-run surface");
 } finally {
   if (server?.exitCode === null) {
     server.kill("SIGTERM");
     await Promise.race([new Promise((resolve) => server.once("exit", resolve)), delay(2_000)]);
     if (server.exitCode === null) server.kill("SIGKILL");
+  }
+  if (publicServer?.exitCode === null) {
+    publicServer.kill("SIGTERM");
+    await Promise.race([new Promise((resolve) => publicServer.once("exit", resolve)), delay(2_000)]);
+    if (publicServer.exitCode === null) publicServer.kill("SIGKILL");
   }
   await rm(temporaryRoot, { recursive: true, force: true });
 }
@@ -68,4 +85,9 @@ async function availablePort() {
 
 function delay(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function argument(name) {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? process.argv[index + 1] : null;
 }

@@ -1,20 +1,21 @@
 # Halba
 
-Halba is a local-first operational workspace for AI agents, with proof built into every material handoff.
+Halba is a local-first trust operations control plane for AI-assisted work.
 
-It takes the useful shape of Slack—workspaces, channels, chronological agent threads, and attention—then replaces chat noise with typed run events and source-backed review. When an agent says the work is done, Halba answers four questions: **what changed, what is verified, what is unsupported, and what still needs human review?**
+Its **Trust Inbox** turns risky completion claims across local workspaces into one deterministic queue. It explains why each item matters now, then routes the reviewer to the exact claim, import receipt, guard result, or human decision. Model prose has zero ranking or approval authority.
 
-Its flagship workflow, **Proof Mode**, turns an agent report, local source files, and run receipts into a traceable evidence graph. GPT-5.6 extracts claims and precise citations; deterministic guards check the actual bytes; a human makes the final decision.
+From that queue, **Proof Mode** opens one bounded evidence identity. GPT-5.6 extracts claims and precise citations; deterministic guards check the actual bytes; a human approves, rejects, resolves, or requests more proof without rewriting the evidence.
 
-Halba is not a general-purpose chatbot or human Slack clone. Channels organize agent work; Proof Mode decides which claims deserve trust.
+Halba is not a chatbot or a human Slack clone. Language proposes. Evidence decides. The human remains accountable.
 
-![Halba showing a Codex run in an agent channel with four proof gates](artifacts/screenshots/workspace-desktop.jpg)
+![Halba Trust Inbox ranking a contradictory release claim across three local workspaces](artifacts/screenshots/trust-inbox-desktop.png)
 
 ## Try the public demo
 
 - Public demo: [jlekerli-source.github.io/halba](https://jlekerli-source.github.io/halba/)
 - Build Week submission: [devpost.com/software/halba](https://devpost.com/software/halba)
-- 58-second film: [jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
+- Published film mirror: [jlekerli-source.github.io/halba/demo/halba-demo.mp4](https://jlekerli-source.github.io/halba/demo/halba-demo.mp4)
+- Current 72-second Trust Operations candidate: [`artifacts/demo/halba-demo.mp4`](artifacts/demo/halba-demo.mp4)
 - Source: [github.com/jlekerli-source/halba](https://github.com/jlekerli-source/halba)
 
 Requirements: Node.js 22.5 or newer. Halba has no package dependencies and uses the built-in `node:sqlite` module for its local-state core.
@@ -24,9 +25,9 @@ npm run check
 npm start
 ```
 
-Open [http://localhost:4177](http://localhost:4177), then open the Proof handoff in `#halba-build-week`. `pnpm` works in place of `npm`.
+Open [http://localhost:4177](http://localhost:4177), then open the Proof handoff in `#halba-build-week`. To exercise Trust Inbox with the synthetic three-workspace benchmark, follow the durable-state commands below. `pnpm` works in place of `npm`.
 
-The default demo is synthetic and public-safe. Its structured-inference fixture is visibly labeled **Recorded** and makes no OpenAI request. The GitHub Pages deployment runs that same read-only recorded workflow entirely in the browser; the Node and Docker paths retain the optional live Responses API endpoint.
+The default demo is synthetic and public-safe. Its structured-inference fixture is visibly labeled **Recorded** and makes no OpenAI request. GitHub Pages proves the read-only workspace and Proof Mode flow in the browser. Trust Inbox requires the locally seeded durable runtime; current screenshots and isolated Chromium checks prove that surface. The Node and Docker paths retain the optional live Responses API endpoint.
 
 ## Agent workspace
 
@@ -139,9 +140,10 @@ Human comprehension is never synthesized by the eval suite. A facilitator can ru
 ```bash
 npm run eval:human-trust -- --participant participant-01 --facilitator facilitator-01 --launch-browser
 npm run eval:goal
+npm run release:goal
 ```
 
-The timer stops before the rubric is revealed. The integrity-checked result records exact issue selection, deterministic-authority comprehension, required human action, interruption and prompting status, and elapsed time. It is a facilitator attestation—not an identity signature—and failed attempts must be retained rather than replaced.
+The timer stops and a privacy-safe paraphrase of the participant's answer is captured before the rubric is revealed. The harness requires a fresh participant, an independent facilitator, no prior rubric exposure, anonymous usability consent, distinct aliases, and a fresh isolated browser profile before timing can begin. Each attempt is written with exclusive-create semantics under `.halba/evals/human-trust-inbox/` and recorded in a local append ledger; this protects the normal protocol but is not an externally immutable audit store. Only a passing session produces a redacted judge receipt in `artifacts/evals/`; aliases, response text, and the facilitator note are excluded. `release:goal` verifies both the private record and its exact public receipt before reconstructing the candidate. The digests detect edits, but the result remains facilitator attestation—not an identity signature.
 
 Read [`artifacts/evals/latest.md`](artifacts/evals/latest.md), [`artifacts/evals/workspace-latest.md`](artifacts/evals/workspace-latest.md), [`artifacts/evals/trust-operations-baseline.md`](artifacts/evals/trust-operations-baseline.md), and [`docs/evals.md`](docs/evals.md).
 
@@ -158,6 +160,8 @@ The key product decisions were to keep source bytes local, make recorded and liv
 ```bash
 npm run release:check
 ```
+
+`release:check` is the reproducible engineering release and records the human gate honestly as `not_run`, `failed`, or `passed`. After a real passing session, `npm run release:goal` additionally fails closed unless the current private record and redacted public receipt match the fixed trial exactly.
 
 This command:
 
@@ -202,7 +206,7 @@ Read [`docs/privacy.md`](docs/privacy.md) and [`SECURITY.md`](SECURITY.md).
 
 Halba began Build Week as a local evidence-feed MVP with stale detection, source previews, and review export. Proof Mode, the GPT-5.6 inference boundary, deterministic adjudicator, proof bundle, new interface, eval suite, public demo, privacy gate, container, and clean release pipeline are the event delta.
 
-The full disclosure is in [`submission/build-week-delta.md`](submission/build-week-delta.md). Judge-ready copy, a 90-second live script, a reproducible 58-second captioned film, and the evidence index live in [`submission/`](submission/).
+The full disclosure is in [`submission/build-week-delta.md`](submission/build-week-delta.md). Judge-ready copy, a 55-second live script, a reproducible 72-second captioned film, and the evidence index live in [`submission/`](submission/).
 
 ## Inspiration
 

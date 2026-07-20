@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { loadProofBundle } from "../src/proof/bundle.js";
 import { adjudicateProof } from "../src/proof/engine.js";
+import { assertProofOutput, proofClaimTextMaxLength, proofOutputJsonSchema } from "../src/proof/schema.js";
 
 const bundle = await loadProofBundle();
 const recorded = JSON.parse(await readFile(new URL("../data/demo/recorded/gpt-5.6-sol-proof.json", import.meta.url), "utf8"));
@@ -23,6 +24,11 @@ assert.equal(proof.findings.find((finding) => finding.claimId === "privacy-curre
 assert.equal(proof.findings.find((finding) => finding.claimId === "judge-ready").verdict, "uncertain");
 assert.ok(proof.findings.every((finding) => finding.citations.every((citation) => citation.valid)), "recorded proof contains an invalid citation");
 assert.equal(proof.findings.find((finding) => finding.claimId === "privacy-current").modelDisagreement, true);
+
+const oversizedClaim = structuredClone(recorded.output);
+oversizedClaim.claims[0].claim = "x".repeat(proofClaimTextMaxLength + 1);
+assert.throws(() => assertProofOutput(oversizedClaim), /proof claim .* text is too long/, "oversized model claims must fail at the producer boundary before Trust Inbox rendering");
+assert.equal(proofOutputJsonSchema.properties.claims.items.properties.claim.maxLength, proofClaimTextMaxLength);
 
 const malformed = structuredClone(recorded);
 malformed.output.claims[0].citations[0].quote = "This quote does not exist.";

@@ -26,11 +26,16 @@ Honest boundary: the public credential-free demo uses a visibly labeled structur
 
 Judge question: Is this a complete, coherent product experience rather than a technical proof of concept?
 
-Halba stages one decision from start to finish: enter an agent channel, read the typed run, open its proof handoff, understand the verdict distribution, inspect exact source, see the model/guard boundary, and close or explicitly keep open the human gate. Desktop keeps workspace context, claim, verdict, and evidence legible. Mobile uses a real 390-pixel layout without horizontal page overflow.
+Halba stages one decision from start to finish: Trust Inbox ranks the risky completion claim, explains why it matters now, opens the exact evidence boundary, shows deterministic authority beside model inference, and leaves the final accountable action to a human. The same claim → evidence → guard → human circuit is visible in the judge path, ranked cards, Proof Mode, film, and gallery artwork. Mobile uses a real 390-pixel layout without horizontal page overflow.
 
 Evidence:
 
-- [Live demo](https://jlekerli-source.github.io/halba/)
+- [Published historical demo](https://jlekerli-source.github.io/halba/) — proves the credential-free workspace/Proof packet, not July 20 Trust Operations parity; current local browser and release evidence are listed below.
+- `artifacts/screenshots/trust-inbox-desktop.png` — current 60-second judge path, deterministic queue, and three-workspace boundary.
+- `artifacts/screenshots/trust-inbox-mobile.png` — intentional 390-pixel Trust Inbox composition.
+- `artifacts/screenshots/trust-inbox-proof.png` — exact routed claim, guard boundary, and human gate.
+- `artifacts/screenshots/trust-inbox-receipt.png` — degraded import routed to its exact local receipt.
+- `artifacts/screenshots/trust-inbox-recent-decisions.png` — current decisions beside append-only transition history.
 - `artifacts/screenshots/workspace-desktop.jpg` — channel, agent thread, proof-driven attention, and handoff.
 - `artifacts/screenshots/workspace-mobile.jpg` — intentional 390-pixel channel layout.
 - `artifacts/screenshots/workspace-proof-desktop.jpg` — workspace handoff opened to an exact contradictory receipt.
@@ -39,7 +44,7 @@ Evidence:
 - `artifacts/screenshots/review-resolved-desktop.png` — completed human-review state.
 - `artifacts/screenshots/proof-mobile-source.png` — intentional mobile source view.
 - `submission/visual-qa.md` — two rendered critique rounds and rejected recaptures.
-- Film: 00:00–00:58 presents the earlier Proof Mode story with captions and eight distinct visual beats. The current workspace expansion is proven by the live demo and three workspace screenshots; the film is not cited as workspace evidence.
+- Film: 00:00–00:58 presents the current Trust Inbox → source-backed Proof Mode → human decision story with captions and eight distinct visual beats.
 
 ## Potential impact
 
@@ -54,7 +59,7 @@ Evidence:
 - Every gate opens to a stable source range and content hash.
 - Browser-local decisions update channel attention without requiring hosted identity or uploading source data; requesting more proof leaves the gate open.
 
-Honest boundary: the current release imports one public-safe Codex proof-run format. Additional raw agent and CI formats are future work.
+Honest boundary: the bounded import protocol currently supports Codex session metadata, structured CI receipts, and release packets. Arbitrary adapter expansion and raw-transcript storage remain intentionally out of scope.
 
 ## Quality of the idea
 
@@ -72,15 +77,15 @@ Evidence:
 
 ## Fast judge path
 
-1. Open the [live demo](https://jlekerli-source.github.io/halba/) and inspect the Codex run in `#halba-build-week`.
-2. Open its **Proof Mode** handoff and confirm the execution is labeled **Recorded replay · gpt-5.6-sol**.
-3. Open the contradictory live-GPT claim and compare it with `receipts/model-run.json`.
-4. Request more proof and return to the channel; the gate remains open.
-5. Approve, reject, or resolve a gate and return; the attention count decreases.
-6. Download the review record and confirm the decision timestamp, exact citations, hashes, and guard outcomes are portable.
-7. Run `npm run import:codex-demo && npm run check:codex-import` to reproduce the agent thread.
-8. Read `artifacts/evals/latest.md` for the compact corpus results and stated limitations.
+1. Start from `artifacts/screenshots/trust-inbox-desktop.png` or a locally seeded durable runtime; GitHub Pages does not claim to host Trust Inbox.
+2. Read the top critical completion claim and its deterministic **Contradiction** reason.
+3. Open the routed claim. The synthetic benchmark honestly shows a missing-source boundary rather than inventing evidence.
+4. Move to the separate source-backed Pages packet, open the contradictory live-GPT claim, and compare it with `receipts/model-run.json`.
+5. Request more proof or resolve the gate; the decision remains scoped to the exact evidence identity and the ranked queue updates.
+6. Inspect **Recent decisions** to see the current projection beside append-only transitions.
+7. Run `npm run check && npm run smoke && npm run eval` and read the three checked-in evaluation reports.
+8. Treat under-60-second human comprehension as unproven until a fresh participant and independent facilitator make `npm run eval:goal` pass and produce the redacted `artifacts/evals/human-trust-inbox-result.*` judge receipt.
 
 ## Submission reconciliation
 
-Reconciled July 15, 2026 against the live Devpost Hackathons plugin: **Technological Implementation**, **Design**, **Potential Impact**, and **Quality of the Idea** are the four published criteria; Halba remains submitted under **Developer Tools**.
+The four current criterion headings remain **Technological Implementation**, **Design**, **Potential Impact**, and **Quality of the Idea**; Halba's existing submission is under **Developer Tools**. This July 20 matrix describes the local Trust Operations candidate. The official rules require a public repository, public demonstration video, project description, test path, and a submission completed by July 21, 2026 at 5:00 PM Pacific Time. External Devpost, Pages, YouTube, and repository parity is not claimed until an explicitly authorized publication pass is completed and verified signed out.

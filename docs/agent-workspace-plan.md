@@ -311,4 +311,4 @@ The goal is complete only when:
 - `npm run check`, `npm run smoke`, `npm run eval`, and `npm run release:check` pass.
 - The public package is sanitized, the demo is reproducible, and Devpost/source/demo/video tell one accurate story.
 
-Current audit, July 16, 2026: the product, source, live demo, Devpost story, gallery, contribution credit, evals, and sanitized package are synchronized and verified. The existing 58-second film remains the pre-workspace Proof Mode narrative because video work was explicitly paused. It is not used as evidence for the workspace expansion, so the final cross-surface film-alignment criterion remains open until that pause is resolved.
+Historical audit snapshot, July 16, 2026: at that point the existing 58-second film remained the pre-workspace Proof Mode narrative because video work was explicitly paused. The July 20 Trust Operations film and gallery close that local alignment gap; external publication parity and the real human-comprehension result remain separate current gates.

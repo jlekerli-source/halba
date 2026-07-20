@@ -1,8 +1,8 @@
 # Rendered visual QA
 
-- Date: 2026-07-13
-- Browser: Chromium through Playwright CLI
-- Desktop viewport: 1440 × 960
+- Current recapture: 2026-07-20
+- Browser: isolated headless Chrome through the DevTools protocol
+- Desktop viewport: 1440 × 1000
 - Mobile viewport: 390 × 844
 
 ## Surfaces inspected
@@ -14,6 +14,7 @@
 - Four human decisions completed with zero open review gates.
 - Optional-live unavailable recovery state.
 - Mobile exact-source view with fixed Summary, Claims, and Source navigation.
+- Durable three-workspace Trust Inbox, exact degraded receipt, routed Proof Mode, recent decisions, and the complete Claim → Evidence + Guard → Human Decision signature.
 
 ## Critique and iteration record
 
@@ -29,7 +30,7 @@ The first final-state capture pass revealed black masks in loading, diff, and co
 
 The final polish pass replaced generic letters, arrows, and punctuation with a consistent stroke-icon family for claims, sources, diffs, receipts, guards, verdicts, and human decisions. Onboarding now introduces a four-step claim → source → guard → human proof trace, which becomes the signature motion system in the film. The mobile trace was changed from a clipped four-column strip to a deliberate 2 × 2 layout.
 
-The earlier 78-second film was rejected as too static. Its replacement is a 58-second, eight-shot composition with a contradiction cold-open, animated proof packet, actual app surface, model-versus-receipt override, exact-source magnification, human-decision payoff, eval frame, and trace outro. Eight frames were extracted from the encoded MP4 and inspected. Narration was generated per scene and aligned to the timeline; an original synthesized bed and transition pulse were mixed to −16.2 LUFS integrated / −1.4 dB true peak. After the official requirements appeared, the first scene was recut so its audio and burned-in caption explicitly explain how Codex built the workflow, while the next product scene explains GPT-5.6's role.
+The earlier 78-second film was rejected as too static. The final cut is a 72-second, nine-shot composition with a contradiction cold-open, animated proof packet, actual app surface, model-versus-receipt override, exact-source magnification, human-decision payoff, eval frame, explicit Codex/GPT-5.6 contribution scene, and trace outro. Twelve frames were extracted from the encoded MP4 and inspected. HeyGen narration was generated per scene and aligned to the timeline; an original synthesized bed and transition pulse were mixed into the current encode at −16.3 LUFS integrated with a −4.3 dB true peak. The current first scene explains the operational problem, while the source-backed packet and closing beats make the Codex/GPT-5.6/deterministic/human boundaries explicit.
 
 ### Round 4 — portable review handoff
 
@@ -43,6 +44,20 @@ The first 390 × 844 capture appeared to clip the thread. Browser metrics proved
 
 The interaction pass proved workspace → Proof Mode → contradictory receipt, **Request proof** preserving four open gates, approval reducing the channel to three, and the Markdown export containing both the approved decision and its timestamp.
 
+### Round 6 — Trust Operations identity and evidence-current recapture
+
+The final flagship pass replaced Run → Adjudicate → Review vocabulary with Claim → Evidence + Guard → Human Decision across the global header, Trust Inbox circuit, Proof Mode rail, mobile tabs, film, gallery, and submission copy. Human-readable claim text now leads ranked cards while stable machine keys remain secondary metadata. Global model-run controls no longer compete with Trust Inbox, receipt, decision-history, or Proof tasks.
+
+Two isolated browser lanes now produce the accepted assets: one seeds the deterministic three-workspace Trust Inbox and proves ranking, keyboard/focus behavior, exact receipts, decisions, responsive reflow, and a clean runtime; the other starts the credential-free public packet and proves workspace, loading, recoverable live error, source-backed recorded Proof Mode, mobile exact source, and the fully resolved review state. All listed screenshots were recaptured from these current lanes at 1440 × 1000 or 390 × 844.
+
+### Round 7 — first-minute claim continuity
+
+An independent skeptical-judge pass found that the film moved from the synthetic Trust Inbox item to a separate source-backed Proof Mode claim without making the claim change explicit in the encode. The Proof Mode scene now carries **Example 2 · different claim · source-backed packet** for its full duration. The encoded transition was inspected at 22.5 seconds and preserves the narration, captions, and model-versus-receipt boundary while preventing the receipt from being mistaken for evidence attached to the synthetic ranked item.
+
+### Round 8 — submission-rule and provider closure
+
+The accepted 58-second cut explained the product boundary but did not explicitly narrate how Codex accelerated the Build Week implementation. The final 72-second cut adds one bounded scene naming the Codex-built audit, Trust Inbox, Proof Mode, evaluation corpus, release proof, and film, while separately stating GPT-5.6's in-product role. HeyGen's Daniel voice was generated per scene, duration-bounded, assembled with explicit silence padding, and checked against three representative caption states before the final encode. The full MP4 decoded without error and its twelve-frame contact sheet preserves the intended claim sequence through the final trace.
+
 ## Result
 
 - The onboarding question and primary recorded-demo action are legible in the first viewport.
@@ -53,7 +68,7 @@ The interaction pass proved workspace → Proof Mode → contradictory receipt, 
 - The mobile source view preserves the proof trail and human action targets without horizontal page overflow; long code remains contained in its source panel.
 - The normal onboarding-to-recorded-proof path produced zero console errors or warnings. The optional-live error test produced one expected failed HTTP request and a recoverable product state.
 - Headings use balanced wrapping, body copy uses pretty wrapping, numeric dashboard values use tabular figures, nested surfaces use concentric radii, interactive controls retain at least 40-pixel targets, and reduced-motion users bypass decorative animation.
-- The deployed Pages workflow was replayed after run 29256839400, then a contradictory claim was rejected. Open review changed from four to three, the browser-local decision persisted, and the deployed session produced zero console errors. The hosted film hash matched the accepted local encode exactly.
+- The current local release browser gate proves both durable Trust Inbox and the credential-free public Proof packet with zero unexpected console/network findings. External Pages, YouTube, GitHub, and Devpost publication parity remains a separate post-publication verification gate and was not claimed by the July 20 recapture.
 
 ## Accepted artifacts
 

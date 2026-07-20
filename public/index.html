@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f5ee">
-    <meta name="description" content="Halba is a local-first agent workspace where completion claims open into exact-source proof and human review.">
-    <title>Halba — Agent Workspace</title>
+    <meta name="description" content="Halba is a local-first trust operations control plane where agent claims meet exact evidence, deterministic guards, and accountable human decisions.">
+    <title>Halba — Trust Operations</title>
     <link rel="icon" href="halba-icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -16,14 +16,14 @@
         <img src="halba-icon.svg" alt="" aria-hidden="true">
         <span>
           <strong>Halba</strong>
-          <small>Agent workspace</small>
+          <small>Trust operations</small>
         </span>
       </a>
 
-      <ol class="process" aria-label="Halba workflow">
-        <li data-process-step="workspace"><span>1</span>Workspace</li>
-        <li data-process-step="thread"><span>2</span>Agent thread</li>
-        <li data-process-step="proof"><span>3</span>Proof</li>
+      <ol class="process" aria-label="Halba authority loop">
+        <li data-process-step="workspace"><span>1</span>Claim</li>
+        <li data-process-step="thread"><span>2</span>Evidence + guard</li>
+        <li data-process-step="proof"><span>3</span>Human decision</li>
       </ol>
 
       <div class="topbar-actions">
@@ -50,10 +50,10 @@
 
     <input id="workspace-file" type="file" accept="application/json,.json" hidden>
 
-    <nav id="mobile-tabs" class="mobile-tabs" aria-label="Proof Mode views" hidden>
-      <button type="button" data-mobile-view="summary" aria-pressed="true">Summary</button>
-      <button type="button" data-mobile-view="claims" aria-pressed="false">Claims</button>
-      <button type="button" data-mobile-view="source" aria-pressed="false">Source</button>
+    <nav id="mobile-tabs" class="mobile-tabs" aria-label="Proof Mode views" role="tablist" hidden>
+      <button id="proof-tab-summary" type="button" role="tab" data-mobile-view="summary" aria-controls="proof-panel-summary" aria-selected="true">Summary</button>
+      <button id="proof-tab-claims" type="button" role="tab" data-mobile-view="claims" aria-controls="proof-panel-claims" aria-selected="false" tabindex="-1">Claims</button>
+      <button id="proof-tab-source" type="button" role="tab" data-mobile-view="source" aria-controls="proof-panel-source" aria-selected="false" tabindex="-1">Source</button>
     </nav>
 
     <script src="app.js" type="module"></script>

@@ -74,7 +74,10 @@ export function validateTrustOperationsReport(report) {
     invariant(Array.isArray(item.reasons) && item.reasons.length > 0, `item ${item.id} reasons are invalid`);
     invariant(item.reasons.every((reason) => typeof reason.code === "string" && typeof reason.explanation === "string"), `item ${item.id} reason is invalid`);
     invariant(item.target?.kind === item.kind && item.target.workspaceId === item.workspaceId, `item ${item.id} target is invalid`);
-    if (item.kind === "claim") invariant(typeof item.target.threadId === "string" && (item.target.bundleId === null || typeof item.target.bundleId === "string") && typeof item.target.claimId === "string" && (item.target.evidenceIdentity === null || typeof item.target.evidenceIdentity === "string"), `item ${item.id} claim target is invalid`);
+    if (item.kind === "claim") {
+      invariant(typeof item.claim === "string" && item.claim.length >= 1 && item.claim.length <= 2_000, `item ${item.id} claim text is invalid`);
+      invariant(typeof item.target.threadId === "string" && (item.target.bundleId === null || typeof item.target.bundleId === "string") && typeof item.target.claimId === "string" && (item.target.evidenceIdentity === null || typeof item.target.evidenceIdentity === "string"), `item ${item.id} claim target is invalid`);
+    }
     if (item.kind === "run") invariant(typeof item.target.threadId === "string", `item ${item.id} run target is invalid`);
     if (item.kind === "import") invariant(typeof item.target.receiptId === "string", `item ${item.id} import target is invalid`);
   }
